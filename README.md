@@ -49,4 +49,4 @@ This repository contains exercises and projects covering the following major mod
 
 Check the **Commit History** to see the consistent, daily effort being put into this program!
 
-[View Commit History](https://github.com/DibyanshuChauhan/Job-Ready-AI-Cohert-Daily-Progress/commits/main)
+[View Commit History](https://github.com/DibyanshuChauhan/Job-Ready-AI-Cohort-Daily-Progress/commits/main)

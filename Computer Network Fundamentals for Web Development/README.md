@@ -238,4 +238,4 @@ HTTPS uses a handshake with public/private keys for secure sessions.
 
 Check the Commit History for daily updates!
 
-[View Commit History](https://github.com/DibyanshuChauhan/Job-Ready-AI-Cohert-Daily-Progress/commits/main)
+[View Commit History](https://github.com/DibyanshuChauhan/Job-Ready-AI-Cohort-Daily-Progress/commits/main)
