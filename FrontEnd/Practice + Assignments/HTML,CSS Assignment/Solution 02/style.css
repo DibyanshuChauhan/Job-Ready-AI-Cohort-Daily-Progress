@@ -1,0 +1,45 @@
+@font-face {
+  font-family: quick-kiss;
+  src: url(../fonts/quick-kiss-font/QuickKissPersonalUse-PxlZ.ttf);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+#main {
+  height: 100vh;
+  width: 100%;
+  background-image: url(../assets/photo-1576348076752-6085814e5a51.avif);
+  background-size: cover;
+  background-position: center;
+  font-family: quick-kiss;
+  position: relative;
+}
+
+.text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);  
+  font-weight: bold;
+}
+
+.text-overlay.top {
+  top: 20%;
+}
+
+.text-overlay.bottom {
+  top: 70%;
+}
