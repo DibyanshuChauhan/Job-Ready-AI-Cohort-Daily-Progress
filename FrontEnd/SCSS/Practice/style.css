@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+main {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+main section {
+  height: 100%;
+  flex-grow: 1;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: all ease 0.5s;
+}
+main section:hover {
+  flex-grow: 1.8;
+}
+main section:nth-child(1) {
+  background-image: url(../assets/Hulk.jpg);
+}
+main section:nth-child(2) {
+  background-image: url(../assets/Deadpool.jpg);
+}
+main section:nth-child(3) {
+  background-image: url(../assets/Ironman.jpg);
+}
+main section:nth-child(4) {
+  background-image: url(../assets/Dr.Strange.jpg);
+}
+main section:nth-child(5) {
+  background-image: url(../assets/Captain_America.jpg);
+}/*# sourceMappingURL=style.css.map */
