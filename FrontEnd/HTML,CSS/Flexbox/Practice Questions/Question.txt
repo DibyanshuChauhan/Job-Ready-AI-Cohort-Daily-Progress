@@ -1,0 +1,39 @@
+-------------------------------------------Question 01-------------------------------------------
+
+🧩 Problem: “Team Section Using Flexbox”
+🎯 Objective:
+
+Create a Team Section that displays multiple team members’ cards side by side using Flexbox.
+
+🧱 Requirements:
+
+Create a section titled "Our Team".
+
+Inside the section, create four team cards.
+Each card should include:
+
+A circular image (you can use any placeholder image, e.g., from https://via.placeholder.com/150)
+
+The team member’s name
+
+Their role (e.g., Designer, Developer, Manager)
+
+Use Flexbox on the container to:
+
+Arrange the cards in a row.
+
+Center them horizontally in the middle of the page.
+
+Add equal spacing between the cards.
+
+Give each card:
+
+A border
+
+Some padding
+
+A light shadow (optional for visual appeal)
+
+
+
+
