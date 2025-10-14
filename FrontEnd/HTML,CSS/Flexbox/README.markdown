@@ -382,5 +382,3 @@ Grid for 2x2: `display: grid; grid-template-columns: repeat(2, 1fr);`
 - CSS-Tricks: [A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
 - Interactive Tools: Flexbox Froggy (game to learn properties).
 - Books: "CSS Mastery" by Andy Budd.
-
-This guide covers Flexbox comprehensively. Experiment with the code examples to solidify your understanding! If you have questions, feel free to ask.
