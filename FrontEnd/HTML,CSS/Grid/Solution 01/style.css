@@ -1,0 +1,63 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+main{
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas: "aside-left header header aside-right-top"
+                        "aside-left top-left-center top-right-center aside-right-bottom"
+                        "aside-left bottom-left-center bottom-right-center aside-right-bottom";
+  grid-gap: 10px;
+}
+
+#aside-left {
+  background-color: #6dbe4f;
+  grid-area: aside-left;
+}
+
+#aside-right-top {
+  background-color: #ec3437;
+  grid-area: aside-right-top;
+}
+
+#aside-right-bottom {
+  background-color: #6dbe4f;
+  grid-area: aside-right-bottom;
+}
+
+header {
+  background-color: #6dbe4f;
+  grid-area: header;
+}
+
+#top-left-center {
+  background-color: #fbb22f;
+  grid-area: top-left-center;
+}
+
+#top-right-center {
+  background-color: #ec3437;
+  grid-area: top-right-center;
+}
+
+#bottom-left-center {
+  background-color: #ec3437;
+  grid-area: bottom-left-center;
+}
+
+#bottom-right-center {
+  background-color: #fbb22f;
+  grid-area: bottom-right-center;
+}
