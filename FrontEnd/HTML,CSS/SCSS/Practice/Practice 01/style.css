@@ -27,17 +27,17 @@ main section:hover {
   flex-grow: 1.8;
 }
 main section:nth-child(1) {
-  background-image: url(../assets/Hulk.jpg);
+  background-image: url(./assets/Hulk.jpg);
 }
 main section:nth-child(2) {
-  background-image: url(../assets/Deadpool.jpg);
+  background-image: url(./assets/Deadpool.jpg);
 }
 main section:nth-child(3) {
-  background-image: url(../assets/Ironman.jpg);
+  background-image: url(./assets/Ironman.jpg);
 }
 main section:nth-child(4) {
-  background-image: url(../assets/Dr.Strange.jpg);
+  background-image: url(./assets/Dr.Strange.jpg);
 }
 main section:nth-child(5) {
-  background-image: url(../assets/Captain_America.jpg);
+  background-image: url(./assets/Captain_America.jpg);
 }/*# sourceMappingURL=style.css.map */
