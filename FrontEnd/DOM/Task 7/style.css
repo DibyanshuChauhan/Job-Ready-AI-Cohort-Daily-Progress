@@ -1,0 +1,59 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+main {
+    height: 100%;
+    width: 100%;
+    background-color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    /* height: 400px; */
+    width: 400px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.card img {
+    width: 100%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.card h2 {
+    font-size: 20px;
+    text-align: center;
+}
+
+.card i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0) rotate(-60deg);
+    color: whitesmoke;
+    font-size: 90px;
+    opacity: 0;
+    /* background: linear-gradient(to right bottom, rgb(139, 28, 139), rgb(189, 43, 202)); */
+    background-image: url(https://t3.ftcdn.net/jpg/01/14/77/58/360_F_114775804_4yfG9qbKp1NlF1RLo4MUlGIVj9MWhnnc.jpg);
+    background-size: cover;
+    background-clip: text;
+    color: transparent;
+    transition: all ease 0.3s;
+    transition: cubic-bezier(.65, 1, .77, 1.44) 0.3s;
+}
