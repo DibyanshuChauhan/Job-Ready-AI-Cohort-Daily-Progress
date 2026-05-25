@@ -3,45 +3,50 @@ import Card from "./components/Card";
 
 const App = () => {
 
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [role, setRole] = useState("");
+  const [description, setDescription] = useState("");
+
+  const localData = JSON.parse(localStorage.getItem('all-users')) || [];
+
+  const [allUsers, setAllUsers] = useState(localData);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setName('');
-    setImage('');
-    setRole('');
-    setDescription('');
 
     const oldUsers = [...allUsers];
-    oldUsers.push({ name, image, role, description });
-    setAllUsers(oldUsers);
-    console.log(oldUsers);
-  }
+    const newUser = { name, image, role, description };
+    const updateUsers = [...oldUsers, newUser];
+    setAllUsers(updateUsers);
+
+    setName("");
+    setImage("");
+    setRole("");
+    setDescription("");
+
+    localStorage.setItem('all-users', JSON.stringify(updateUsers))
+
+  };
 
   const deleteUser = (index) => {
     const copyUsers = [...allUsers];
     copyUsers.splice(index, 1);
     setAllUsers(copyUsers);
-  }
-
-  const [name, setName] = useState('');
-  const [image, setImage] = useState('');
-  const [role, setRole] = useState('');
-  const [description, setDescription] = useState('');
-
-  const [allUsers, setAllUsers] = useState([]);
+    localStorage.setItem('all-users', JSON.stringify(copyUsers))
+  };
 
   return (
-    <div className="h-screen bg-black text-white">
-      <form
-        className="px-2 py-2 flex flex-wrap"
-        onSubmit={handleSubmit}>
-
+    <div className="min-h-screen bg-black text-white">
+      <form className="px-2 py-2 flex flex-wrap" onSubmit={handleSubmit}>
         <input
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="border-2 px-5 py-2 rounded m-2 w-[48%] text-xl font-semibold"
           type="text"
-          placeholder="Enter your name" />
+          placeholder="Enter your name"
+        />
 
         <input
           required
@@ -49,7 +54,8 @@ const App = () => {
           onChange={(e) => setImage(e.target.value)}
           className="border-2 px-5 py-2 rounded m-2 w-[48%] text-xl font-semibold"
           type="text"
-          placeholder="Image URL" />
+          placeholder="Image URL"
+        />
 
         <input
           required
@@ -57,7 +63,8 @@ const App = () => {
           onChange={(e) => setRole(e.target.value)}
           className="border-2 px-5 py-2 rounded m-2 w-[48%] text-xl font-semibold"
           type="text"
-          placeholder="Enter role" />
+          placeholder="Enter role"
+        />
 
         <input
           required
@@ -65,20 +72,29 @@ const App = () => {
           onChange={(e) => setDescription(e.target.value)}
           className="border-2 px-5 py-2 rounded m-2 w-[48%] text-xl font-semibold"
           type="text"
-          placeholder="Enter your description" />
+          placeholder="Enter your description"
+        />
 
         <button
-          className="text-white px-5 py-2 rounded m-2 bg-emerald-700 w-[97%] active:scale-95 cursor-pointer" type="submit">Create User</button>
+          className="text-white px-5 py-2 rounded m-2 bg-emerald-700 w-[97%] active:scale-95 cursor-pointer"
+          type="submit"
+        >
+          Create User
+        </button>
       </form>
 
       <div className="px-4 py-10 flex flex-wrap">
         {allUsers.map((user, index) => (
-          <Card key={index} index={index} user={user} deleteUser={() => deleteUser(index)} />
+          <Card
+            key={index}
+            user={user}
+            index={index}
+            deleteUser={deleteUser}
+          />
         ))}
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
