@@ -1,3 +1,5 @@
+import { Outlet } from "react-router-dom";
+
 const Categories = () => {
     const categories = [
         {
@@ -80,7 +82,7 @@ const Categories = () => {
                     </div>
                 ))}
             </div>
-
+            <Outlet />
         </div>
     );
 };

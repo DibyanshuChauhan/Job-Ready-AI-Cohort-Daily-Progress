@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
     return (
@@ -10,29 +10,41 @@ const Navbar = () => {
 
             {/* Navigation Links */}
             <div className="flex gap-8 text-gray-700 font-medium">
-                <Link to="/" className="hover:text-blue-600 transition">
+                <NavLink to="/" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Home
-                </Link>
+                </NavLink>
 
-                <Link to="/products" className="hover:text-blue-600 transition">
+                <NavLink to="/products" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Products
-                </Link>
+                </NavLink>
 
-                <Link to="/categories" className="hover:text-blue-600 transition">
+                <NavLink to="/categories" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Categories
-                </Link>
+                </NavLink>
 
-                <Link to="/deals" className="hover:text-blue-600 transition">
+                <NavLink to="/deals" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Deals
-                </Link>
+                </NavLink>
 
-                <Link to="/cart" className="hover:text-blue-600 transition">
+                <NavLink to="/cart" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Cart
-                </Link>
+                </NavLink>
 
-                <Link to="/contact" className="hover:text-blue-600 transition">
+                <NavLink to="/contact" style={({ isActive }) => ({
+                    color: isActive ? 'blue' : 'grey'
+                })} className="hover:text-blue-600 transition">
                     Contact
-                </Link>
+                </NavLink>
             </div>
         </nav>
     );

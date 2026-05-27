@@ -1,7 +1,6 @@
+import { Outlet } from "react-router-dom";
+
 const Products = () => {
-
-        
-
     const products = [
         {
             id: 1,
@@ -96,7 +95,7 @@ const Products = () => {
                     </div>
                 ))}
             </div>
-
+            <Outlet />
         </div>
     );
 };
