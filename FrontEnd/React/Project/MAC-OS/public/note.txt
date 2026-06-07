@@ -1,0 +1,183 @@
+/**
+ * @file: profile.config.ts
+ * @author: Dibyanshu Chauhan
+ * @summary: Full-Stack JavaScript Developer focused on building scalable and modern web applications.
+ */
+
+// --------------------------------------------------
+// 1. TECH STACK
+// --------------------------------------------------
+
+const TECH_STACK = {
+  frontend: [
+    "HTML5",
+    "CSS3",
+    "JavaScript (ES6+)",
+    "TypeScript",
+    "React.js",
+    "Next.js",
+    "Redux Toolkit",
+    "Tailwind CSS",
+    "SCSS",
+    "Framer Motion"
+  ],
+
+  backend: [
+    "Node.js",
+    "Express.js",
+    "REST APIs",
+    "Authentication & Authorization",
+    "JWT",
+    "Role-Based Access Control"
+  ],
+
+  databases: [
+    "MongoDB",
+    "Mongoose",
+    "MySQL",
+    "PostgreSQL"
+  ],
+
+  devops: [
+    "Docker",
+    "Git",
+    "GitHub",
+    "Vercel",
+    "Netlify",
+    "CI/CD Fundamentals"
+  ],
+
+  tools: [
+    "VS Code",
+    "Postman",
+    "Figma",
+    "Linux"
+  ]
+};
+
+// --------------------------------------------------
+// 2. DEVELOPER PROFILE
+// --------------------------------------------------
+
+class DeveloperProfile {
+
+  public about() {
+    return {
+      name: "Divyanshu Chauhan",
+
+      role: "Full-Stack JavaScript Developer",
+
+      specialization:
+        "Frontend Engineering & MERN Stack Development",
+
+      focus: [
+        "Scalable React Applications",
+        "Modern UI/UX",
+        "Performance Optimization",
+        "Full-Stack Product Development",
+        "Clean Architecture",
+        "Reusable Components"
+      ]
+    };
+  }
+
+  public education() {
+    return {
+      currentDegree:
+        "Master of Computer Applications (MCA)",
+
+      university:
+        "IMS Unison University",
+
+      previousDegree:
+        "Bachelor of Science in Information Technology (BSc-IT)"
+    };
+  }
+
+  public projects() {
+    return [
+      {
+        name: "MediaVault",
+        type: "Full-Stack MERN Application",
+        focus: [
+          "Media Management",
+          "Authentication",
+          "Cloud Storage Integration",
+          "State Management"
+        ]
+      },
+
+      {
+        name: "Portfolio OS",
+        type: "macOS Inspired React Portfolio",
+        focus: [
+          "Custom Window Management",
+          "Interactive UI",
+          "Advanced React Patterns"
+        ]
+      }
+    ];
+  }
+
+  public goals() {
+    return [
+      "Build production-grade full-stack applications",
+      "Master React Ecosystem",
+      "Master Next.js",
+      "Advance into System Design",
+      "Contribute to Open Source",
+      "Work on high-impact products"
+    ];
+  }
+}
+
+export default new DeveloperProfile();
+
+/*
+-------------------------------------------------------
+TERMINAL OUTPUT
+-------------------------------------------------------
+
+$ whoami
+
+> Divyanshu Chauhan
+
+$ role
+
+> Full-Stack JavaScript Developer
+
+$ education
+
+> MCA - IMS Unison University
+
+$ stack
+
+> React.js
+> Next.js
+> Redux Toolkit
+> JavaScript
+> TypeScript
+> Node.js
+> Express.js
+> MongoDB
+> Docker
+> Git
+
+$ specialization
+
+> Frontend Engineering
+> MERN Stack Development
+> Performance Optimization
+
+$ current-project
+
+> MediaVault
+
+$ status
+
+> Building.
+> Learning.
+> Shipping.
+
+> Ready.
+*/

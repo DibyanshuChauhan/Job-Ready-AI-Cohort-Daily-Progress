@@ -1,0 +1,151 @@
+[
+  {
+    "id": 1,
+    "image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=1000",
+    "title": "Scheds - A Course Schedule Generator",
+    "description": "My proudest project yet, a comprehensive course schedule generator application built with ASP.NET Core MVC.",
+    "tags": [
+      "ASP.NET Core",
+      "C#",
+      "Entity Framework",
+      "SQL Server",
+      "Bootstrap",
+      "jQuery"
+    ],
+    "repoLink": "https://github.com/microsoft/dotnet",
+    "demoLink": "https://dotnet.microsoft.com/"
+  },
+  {
+    "id": 2,
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000",
+    "title": "FinTrack - Personal Finance Dashboard",
+    "description": "A real-time finance tracker that visualizes spending habits using interactive charts and connects to banking APIs.",
+    "tags": [
+      "React",
+      "TypeScript",
+      "Chart.js",
+      "Node.js",
+      "Express",
+      "MongoDB"
+    ],
+    "repoLink": "https://github.com/facebook/react",
+    "demoLink": "https://react.dev/"
+  },
+  {
+    "id": 3,
+    "image": "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&q=80&w=1000",
+    "title": "SecureAuth - Backend Identity Service",
+    "description": "A robust backend authentication microservice featuring JWT implementation, role-based access control, and OAuth2 integration.",
+    "tags": ["Python", "Django", "PostgreSQL", "Docker", "Redis", "JWT"],
+    "repoLink": "https://github.com/django/django",
+    "demoLink": null
+  },
+  {
+    "id": 4,
+    "image": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=1000",
+    "title": "ChatStream - Real-time Messaging App",
+    "description": "A lightweight chat application allowing users to create rooms and message instantly. Optimized for low latency communication.",
+    "tags": ["Vue.js", "Firebase", "Tailwind CSS", "Socket.io"],
+    "repoLink": "https://github.com/vuejs/core",
+    "demoLink": "https://vuejs.org/"
+  },
+  {
+    "id": 5,
+    "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1000",
+    "title": "TerminalX - CLI Productivity Tool",
+    "description": "A command-line interface tool built to automate repetitive developer tasks and manage local environments efficiently.",
+    "tags": ["Rust", "Clap", "Tokio", "System API"],
+    "repoLink": "https://github.com/rust-lang/rust",
+    "demoLink": null
+  },
+  {
+    "id": 6,
+    "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1000",
+    "title": "TaskFlow - Team Collaboration Platform",
+    "description": "A project management tool with Kanban boards, team chat, file sharing, and deadline tracking.",
+    "tags": ["React", "Redux", "Node.js", "Express", "MongoDB", "Socket.io"],
+    "repoLink": "https://github.com/reduxjs/redux",
+    "demoLink": "https://redux.js.org/"
+  },
+  {
+    "id": 7,
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1000",
+    "title": "DevPortfolio - Developer Portfolio Builder",
+    "description": "A drag-and-drop portfolio generator that helps developers create stunning portfolios in minutes.",
+    "tags": ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
+    "repoLink": "https://github.com/vercel/next.js",
+    "demoLink": "https://nextjs.org/"
+  },
+  {
+    "id": 8,
+    "image": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&q=80&w=1000",
+    "title": "CodeArena - Online Coding Platform",
+    "description": "A competitive programming platform with real-time code execution, leaderboards, and coding contests.",
+    "tags": ["React", "Node.js", "Docker", "PostgreSQL", "WebSockets"],
+    "repoLink": "https://github.com/docker/docker-ce",
+    "demoLink": null
+  },
+  {
+    "id": 9,
+    "image": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=1000",
+    "title": "InsightAI - Business Analytics Dashboard",
+    "description": "An AI-powered analytics dashboard that provides actionable business insights through machine learning.",
+    "tags": ["Python", "FastAPI", "TensorFlow", "React", "PostgreSQL"],
+    "repoLink": "https://github.com/tensorflow/tensorflow",
+    "demoLink": null
+  },
+  {
+    "id": 10,
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
+    "title": "CloudBox - File Storage Platform",
+    "description": "A secure cloud storage solution with file versioning, sharing permissions, and encrypted backups.",
+    "tags": ["AWS", "React", "Node.js", "S3", "JWT"],
+    "repoLink": "https://github.com/aws/aws-sdk-js",
+    "demoLink": "https://aws.amazon.com/s3/"
+  },
+  {
+    "id": 11,
+    "image": "https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&q=80&w=1000",
+    "title": "LearnHub - E-Learning Platform",
+    "description": "An online learning platform featuring video courses, quizzes, certifications, and student analytics.",
+    "tags": ["React", "Node.js", "MongoDB", "Stripe", "Cloudinary"],
+    "repoLink": "https://github.com/stripe/stripe-node",
+    "demoLink": null
+  },
+  {
+    "id": 12,
+    "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1000",
+    "title": "TravelMate - Smart Trip Planner",
+    "description": "A travel planning application that recommends destinations, builds itineraries, and tracks expenses.",
+    "tags": ["React", "Google Maps API", "Firebase", "Tailwind CSS"],
+    "repoLink": "https://github.com/firebase/firebase-js-sdk",
+    "demoLink": "https://firebase.google.com/"
+  },
+  {
+    "id": 13,
+    "image": "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1000",
+    "title": "HireConnect - Recruitment Management System",
+    "description": "A hiring platform that streamlines job postings, applicant tracking, and interview scheduling.",
+    "tags": ["Next.js", "Prisma", "PostgreSQL", "Clerk", "Tailwind CSS"],
+    "repoLink": "https://github.com/prisma/prisma",
+    "demoLink": null
+  },
+  {
+    "id": 14,
+    "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1000",
+    "title": "MediaVault - Digital Asset Manager",
+    "description": "A media management platform for organizing, searching, and securely sharing images, videos, and documents.",
+    "tags": ["React", "Redux Toolkit", "Node.js", "MongoDB", "Cloudinary"],
+    "repoLink": "https://github.com/reduxjs/redux-toolkit",
+    "demoLink": null
+  },
+  {
+    "id": 15,
+    "image": "https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&q=80&w=1000",
+    "title": "FitSync - Fitness Tracking Application",
+    "description": "A health and fitness tracking app with workout plans, nutrition logs, and progress analytics.",
+    "tags": ["React Native", "Firebase", "Chart.js", "Node.js"],
+    "repoLink": "https://github.com/facebook/react-native",
+    "demoLink": "https://reactnative.dev/"
+  }
+]
