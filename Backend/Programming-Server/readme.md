@@ -363,7 +363,7 @@ Thumbs.db
 
 ---
 
-# 🚀 Deploying a Node.js Server on Render
+# 🚀 Deploying a Backend Server on Render
 
 ---
 
