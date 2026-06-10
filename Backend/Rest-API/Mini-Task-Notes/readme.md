@@ -212,7 +212,7 @@ REST stands for:
 
 **Representational State Transfer**
 
-REST is an architectural style used to design web APIs. RESTful APIs use HTTP methods and URLs to access resources. :contentReference[oaicite:1]{index=1}
+REST is an architectural style used to design web APIs. RESTful APIs use HTTP methods and URLs to access resources.
 
 ---
 
@@ -254,7 +254,7 @@ Frontend and backend remain separate.
 
 Every request contains all required information.
 
-Server does not remember previous requests. :contentReference[oaicite:2]{index=2}
+Server does not remember previous requests.
 
 Example:
 
