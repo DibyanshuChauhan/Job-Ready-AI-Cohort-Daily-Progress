@@ -1,36 +1,171 @@
 import { useEffect, useState } from "react";
-import axios from "axios"
+import axios from "axios";
 
 const App = () => {
+  // States
   const [notes, setNotes] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState(null);
 
-  const getNotes = () => {
-    axios.get('http://localhost:3000/api/notes')
-      .then(({ data }) => {
-        setNotes(data.notes)
-      })
-  }
+  // Helper Function
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setEditingNoteId(null);
+  };
 
-  console.log("Hello")
+  // Get All Notes
+  const getNotes = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:3000/api/notes"
+      );
+
+      setNotes(data.notes);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Create Note
+  const createNote = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/api/notes",
+        {
+          title,
+          description,
+        }
+      );
+
+      getNotes();
+      resetForm();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Update Note
+  const updateNote = async () => {
+    try {
+      await axios.patch(
+        `http://localhost:3000/api/notes/${editingNoteId}`,
+        {
+          title,
+          description,
+        }
+      );
+
+      getNotes();
+      resetForm();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Delete Note
+  const deleteNote = async (noteId) => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/api/notes/${noteId}`
+      );
+
+      getNotes();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Edit Note
+  const handleEditNote = (note) => {
+    setTitle(note.title);
+    setDescription(note.description);
+    setEditingNoteId(note._id);
+  };
+
+  // Form Submit
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    if (editingNoteId) {
+      updateNote();
+    } else {
+      createNote();
+    }
+  };
 
   useEffect(() => {
-    getNotes()
-  }, [])
+    const fetchNotes = async () => {
+      await getNotes();
+    };
+
+    fetchNotes();
+  }, []);
 
   return (
     <>
+      <form
+        onSubmit={submitHandler}
+        className="note-create-form"
+      >
+        <input
+          type="text"
+          placeholder="Enter title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <input
+          type="text"
+          placeholder="Enter description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <button>
+          {editingNoteId
+            ? "Update Note"
+            : "Create Note"}
+        </button>
+      </form>
+
       <div className="notes">
-        {
-          notes.map((note, idx) => (
-            <div key={idx} className="note">
-              <h1>{note.title}</h1>
-              <p>{note.description}</p>
+        {notes.map((note) => (
+          <div
+            key={note._id}
+            className="note"
+          >
+            <h2>{note.title}</h2>
+
+            <p>{note.description}</p>
+
+            <div className="btn">
+              <button
+                type="button"
+                className="btn1"
+                onClick={() =>
+                  deleteNote(note._id)
+                }
+              >
+                Delete
+              </button>
+
+              <button
+                type="button"
+                className="btn2"
+                onClick={() =>
+                  handleEditNote(note)
+                }
+              >
+                Edit
+              </button>
             </div>
-          ))
-        }
+          </div>
+        ))}
       </div>
     </>
-  )
+  );
 };
 
 export default App;
