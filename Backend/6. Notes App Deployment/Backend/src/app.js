@@ -5,7 +5,16 @@ const cors = require("cors")
 const path = require("path")
 
 app.use(express.json())
-app.use(cors())
+
+app.use(
+    cors({
+        origin: "*",
+        methods: ["GET", "POST", "PATCH", "DELETE"],
+        credentials: true,
+    })
+);
+
+
 app.use(express.static("./public"))
 
 app.post("/api/notes", async (req, res) => {
