@@ -476,10 +476,10 @@ MCA Student | React Developer | Full Stack Developer in Progress
 ### Connect With Me
 
 GitHub:
-https://github.com/DivyanshuChauhan
+https://github.com/DibyanshuChauhan
 
 LinkedIn:
-https://www.linkedin.com/in/divyanshu-chauhan/
+[https://www.linkedin.com/in/divyanshu-chauhan/](https://www.linkedin.com/in/divyanshu011/)
 
 ---
 
