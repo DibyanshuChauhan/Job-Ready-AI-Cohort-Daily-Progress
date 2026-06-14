@@ -19,7 +19,7 @@ const App = () => {
   const getNotes = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:3000/api/notes"
+        "https://job-ready-ai-cohort-daily-progress-1.onrender.com/api/notes"
       );
 
       setNotes(data.notes);
@@ -32,7 +32,7 @@ const App = () => {
   const createNote = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/notes",
+        "https://job-ready-ai-cohort-daily-progress-1.onrender.com/api/notes",
         {
           title,
           description,
@@ -50,7 +50,7 @@ const App = () => {
   const updateNote = async () => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/notes/${editingNoteId}`,
+        `https://job-ready-ai-cohort-daily-progress-1.onrender.com/api/notes/${editingNoteId}`,
         {
           title,
           description,
@@ -68,7 +68,7 @@ const App = () => {
   const deleteNote = async (noteId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/api/notes/${noteId}`
+        `https://job-ready-ai-cohort-daily-progress-1.onrender.com/api/notes/${noteId}`
       );
 
       getNotes();
@@ -110,6 +110,7 @@ const App = () => {
         className="note-create-form"
       >
         <input
+          required
           type="text"
           placeholder="Enter title"
           value={title}
@@ -117,6 +118,7 @@ const App = () => {
         />
 
         <input
+          required
           type="text"
           placeholder="Enter description"
           value={description}
