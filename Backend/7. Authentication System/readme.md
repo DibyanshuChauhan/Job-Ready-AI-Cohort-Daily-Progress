@@ -812,3 +812,291 @@ Think of them like this:
 | Verification   | Is the information genuine? |
 
 Mastering these concepts is one of the first and most important steps toward becoming a strong Backend Developer and Full-Stack Engineer.
+
+
+# 🔐 Authentication Fundamentals (Hashing, Cookies & JWT)
+
+A beginner-friendly guide to understanding the core concepts used in modern authentication systems.
+
+---
+
+# 📚 Table of Contents
+
+* [What is Hashing?](#1️⃣-what-is-hashing)
+* [Why Do We Hash Passwords?](#2️⃣-why-do-we-hash-passwords)
+* [Hashing Example](#3️⃣-hashing-example)
+* [What are Cookies?](#4️⃣-what-are-cookies)
+* [Why Are Cookies Used?](#5️⃣-why-are-cookies-used)
+* [Cookie Security Flags](#6️⃣-cookie-security-flags)
+* [Cookie Flow Diagram](#cookie-flow-diagram)
+* [What is JWT?](#7️⃣-what-is-jwt)
+* [JWT Structure](#8️⃣-jwt-structure)
+* [JWT Authentication Flow](#9️⃣-jwt-authentication-flow)
+* [JWT Verification](#-jwt-verification)
+* [Quick Interview Questions](#-quick-interview-questions)
+* [Summary](#-summary)
+
+---
+
+# 1️⃣ What is Hashing?
+
+Hashing is a process that converts data (such as a password) into a fixed-length string.
+
+## 🔄 Hashing Flow
+
+```mermaid
+flowchart LR
+    A[Password] --> B[Hash Function]
+    B --> C[Hashed Value]
+```
+
+### Key Points
+
+* One-way process
+* Cannot be reversed
+* Same input → same output
+* Used for password security
+
+---
+
+# 2️⃣ Why Do We Hash Passwords?
+
+## 🚨 Without Hashing
+
+```text
+Username: divyanshu
+Password: 123456
+```
+
+## ✅ With Hashing
+
+```text
+Username: divyanshu
+Password: e10adc3949ba59abbe56e057f20f883e
+```
+
+## Benefits
+
+* Better security
+* Passwords are not stored in plain text
+* Protects users during database breaches
+
+---
+
+# 3️⃣ Hashing Example
+
+```javascript
+const crypto = require("crypto");
+
+const password = "123456";
+
+const hashedPassword = crypto
+  .createHash("md5")
+  .update(password)
+  .digest("hex");
+
+console.log(hashedPassword);
+```
+
+---
+
+# 4️⃣ What are Cookies?
+
+Cookies are small pieces of data stored in the browser.
+
+The browser automatically sends them with future requests.
+
+---
+
+# 5️⃣ Why Are Cookies Used?
+
+* Keep users logged in
+* Store authentication tokens
+* Remember user preferences
+* Maintain sessions
+
+---
+
+# 6️⃣ Cookie Security Flags
+
+| Flag     | Purpose                    |
+| -------- | -------------------------- |
+| httpOnly | Prevents JavaScript access |
+| secure   | Only sent over HTTPS       |
+| sameSite | Prevents CSRF attacks      |
+
+---
+
+# Cookie Flow Diagram
+
+```mermaid
+flowchart TD
+    A[User Login] --> B[Server Creates Cookie]
+    B --> C[Browser Stores Cookie]
+    C --> D[Browser Sends Cookie Automatically]
+    D --> E[Server Identifies User]
+```
+
+---
+
+# 7️⃣ What is JWT?
+
+JWT stands for:
+
+**JSON Web Token**
+
+A JWT is a secure token used to verify a user's identity.
+
+---
+
+## Why JWT?
+
+* Stateless authentication
+* Easy to scale
+* No server session storage
+* Fast verification
+
+---
+
+# 8️⃣ JWT Structure
+
+```text
+HEADER.PAYLOAD.SIGNATURE
+```
+
+## JWT Anatomy
+
+```mermaid
+flowchart LR
+    A[Header] --> B[Payload]
+    B --> C[Signature]
+```
+
+### Header
+
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+### Payload
+
+```json
+{
+  "id": "123",
+  "email": "user@gmail.com"
+}
+```
+
+### Signature
+
+Used to verify token integrity.
+
+---
+
+# 9️⃣ JWT Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client
+    participant Server
+    participant Database
+
+    User->>Client: Login Credentials
+    Client->>Server: Login Request
+    Server->>Database: Verify User
+    Database-->>Server: User Found
+    Server-->>Client: JWT Token
+    Client->>Server: Protected Request + JWT
+    Server-->>Client: Access Granted
+```
+
+---
+
+# 🔟 JWT Verification
+
+```javascript
+jwt.verify(token, process.env.JWT_SECRET);
+```
+
+### What Happens?
+
+* Validates token
+* Verifies signature
+* Decodes user data
+* Rejects tampered tokens
+
+---
+
+# 🎯 Quick Interview Questions
+
+### Q1. What is Hashing?
+
+Hashing converts data into a fixed-length value that cannot be reversed.
+
+### Q2. Why Hash Passwords?
+
+To avoid storing passwords in plain text.
+
+### Q3. What is a Cookie?
+
+A small piece of browser-stored data.
+
+### Q4. What is JWT?
+
+A token-based authentication mechanism.
+
+### Q5. What are the three parts of JWT?
+
+```text
+Header
+Payload
+Signature
+```
+
+### Q6. Why is JWT Stateless?
+
+Because the server does not store session data.
+
+---
+
+# 📝 Summary
+
+## Hashing
+
+* Password security
+* One-way process
+* Non-reversible
+
+## Cookies
+
+* Stored in browser
+* Maintain login state
+* Automatically sent with requests
+
+## JWT
+
+* Authentication mechanism
+* Contains Header, Payload, Signature
+* Easy to scale
+
+---
+
+# 🚀 Complete Authentication Flow
+
+```mermaid
+flowchart TD
+    A[User Login] --> B[Server Receives Credentials]
+    B --> C[Verify Password]
+    C --> D[Generate JWT]
+    D --> E[Store JWT in Cookie]
+    E --> F[User Makes Request]
+    F --> G[JWT Sent Automatically]
+    G --> H[Server Verifies JWT]
+    H --> I[Protected Route Access Granted]
+```
+
+Understanding Hashing, Cookies, and JWT is essential for building secure authentication systems.
