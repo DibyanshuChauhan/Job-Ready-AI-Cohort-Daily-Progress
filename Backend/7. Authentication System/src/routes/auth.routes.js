@@ -21,7 +21,8 @@ authRouter.post("/register", async (req, res) => {
         id: user._id,
         email: user.email
     },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
+        { expiresIn: "1hr" }
     )
     res.cookie("jwt_token", token)
     res.status(201).json({
