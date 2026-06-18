@@ -11,24 +11,6 @@ const imagekit = new ImageKit({
 
 const createPostController = async (req, res) => {
 
-    const token = req.cookies.token
-
-    if (!token) {
-        res.status(401).json({
-            message: "Token not provided, Unauthorized access."
-        })
-    }
-
-    let decoded = null
-
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET)
-    } catch (err) {
-        res.status(401).json({
-            message: "User not authorized."
-        })
-    }
-
     const uploadedFile = await imagekit.files.upload({
         file: await toFile(
             req.file.buffer,
@@ -41,7 +23,7 @@ const createPostController = async (req, res) => {
     const post = await postModel.create({
         caption: req.body.caption,
         imgUrl: uploadedFile.url,
-        user: decoded.id
+        user: req.user.id
     })
 
     return res.status(201).json({
@@ -53,18 +35,8 @@ const createPostController = async (req, res) => {
 }
 
 const getPostController = async (req, res) => {
-    const token = req.cookies.token
 
-    let decoded = null
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET)
-    } catch (error) {
-        return res.status(401).json({
-            message: "Token invalid."
-        })
-    }
-
-    const userId = decoded.id
+    const userId = req.user.id
 
     const posts = await postModel.find({
         user: userId
@@ -78,26 +50,11 @@ const getPostController = async (req, res) => {
 }
 
 const getPostDetailsController = async (req, res) => {
-    const token = req.cookies.token
 
-    if (!token) {
-        return res.status(401).json({
-            message: "Unauthorized access."
-        })
-    }
-
-    let decoded = null
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET)
-    } catch (error) {
-        return res.status(401).json({
-            message: "Invalid token."
-        })
-    }
-    const userId = decoded.id
+    const userId = req.user.id
     const postId = req.params.postId
 
-    const post = await postModel.findById( postId )
+    const post = await postModel.findById(postId)
 
     if (!post) {
         return res.status(404).json({
