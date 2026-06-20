@@ -19,7 +19,13 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         default: "https://ik.imagekit.io/4dxhabhfm/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.webp"
+    },
+    isPrivate: {
+        type: Boolean,
+        default: false
     }
+}, {
+    timestamps: true
 })
 
 const userModel = mongoose.model("users", userSchema)
