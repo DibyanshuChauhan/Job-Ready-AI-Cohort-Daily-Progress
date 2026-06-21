@@ -89,4 +89,28 @@ const loginController = async (req, res) => {
     })
 }
 
-module.exports = { registerController, loginController }
+const getmeController = async (req, res) => {
+    const userId = req.user.id
+    const user = await userModel.findById(userId)
+
+    if (!user) {
+        return res.status(400).json({
+            message: "User not found."
+        })
+    }
+
+    res.status(200).json({
+        user: {
+            username: user.username,
+            email: user.email,
+            bio: user.bio,
+            profileImage: user.profileImage
+        }
+    })
+}
+
+module.exports = {
+    registerController,
+    loginController,
+    getmeController
+}
