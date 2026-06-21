@@ -1,3 +1,9 @@
+@mixin flex-column($gap: 0rem) {
+    display: flex;
+    flex-direction: column;
+    gap: $gap;
+}
+
 main {
     min-height: 100vh;
     width: 100%;
@@ -9,15 +15,10 @@ main {
 .form-container {
     height: fit-content;
     min-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    @include flex-column(1rem);
 
     form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 1rem;
+        @include flex-column(1rem);
 
         input,
         button {
@@ -28,11 +29,6 @@ main {
             border-radius: 1rem;
         }
 
-        button {
-            background-color: #bd0c23;
-            color: whitesmoke;
-            cursor: pointer;
-        }
     }
 
     .toggleAuthForm {

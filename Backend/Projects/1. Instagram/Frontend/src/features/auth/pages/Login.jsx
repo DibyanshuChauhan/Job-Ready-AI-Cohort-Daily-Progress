@@ -1,27 +1,32 @@
 import { useState } from "react"
-import "../styles/form.scss"
 import { Link } from "react-router-dom"
-import axios from "axios"
+import { useNavigate } from "react-router-dom"
+
+import "../styles/form.scss"
+import { useAuth } from "../hooks/useAuth"
 
 const Login = () => {
+
+    const { loading, handleLogin } = useAuth()
 
     const [username, setName] = useState('')
     const [password, setPassword] = useState('')
 
+    const navigate = useNavigate()
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        axios.post("http://localhost:3000/api/auth/login", {
-            username, password
-        }, {
-            withCredentials: true
-        })
-            .then(res => {
-                console.log(res.data)
+        await handleLogin(username.trim(), password)
+        navigate("/")
+    }
 
-                setName('')
-                setPassword('')
-            })
+    if (loading) {
+        return (
+            <main>
+                <h1>Loading.....</h1>
+            </main>
+        )
     }
 
     return (
@@ -31,6 +36,7 @@ const Login = () => {
                 <form onSubmit={(e) => handleSubmit(e)}>
                     <input
                         required
+                        value={username}
                         onChange={(e) => setName(e.target.value)}
                         type="text"
                         name="username"
@@ -38,15 +44,18 @@ const Login = () => {
 
                     <input
                         required
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
                         name="password"
                         placeholder="Enter password" />
 
-                    <button type="submit">Login</button>
-                    <p>Don't have an account <Link className="toggleAuthForm" to="/register">Register</Link> </p>
+                    <button className="button primary-button" type="submit">Login</button>
 
                 </form>
+
+                <p>Don't have an account ? <Link to="/register">Register</Link> </p>
+
             </div>
         </main>
     )

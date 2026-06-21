@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import axios from "axios"
 
 const Register = () => {
 
@@ -8,21 +7,8 @@ const Register = () => {
     const [password, setPassword] = useState('')
     const [email, setEmail] = useState('')
 
-    const submitHandle = async (e) => {
+    const submitHandle = (e) => {
         e.preventDefault()
-
-        axios.post("http://localhost:3000/api/auth/register", {
-            username, email, password
-        }, {
-            withCredentials: true
-        })
-            .then((res) => {
-                console.log(res.data)
-
-                setName('')
-                setPassword('')
-                setEmail('')
-            })
     }
 
     return (
@@ -31,6 +17,7 @@ const Register = () => {
                 <h1>Register</h1>
                 <form onSubmit={(e) => submitHandle(e)}>
                     <input
+                        value={username}
                         onChange={(e) => setName(e.target.value)}
                         required
                         type="text"
@@ -38,6 +25,7 @@ const Register = () => {
                         placeholder="Enter username" />
 
                     <input
+                        value={password}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         type="email"
@@ -46,15 +34,18 @@ const Register = () => {
 
                     <input
                         required
+                        value={email}
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
                         name="password"
                         placeholder="Enter password" />
 
-                    <button type="submit">Register</button>
-                    <p>Already have an account ? <Link className="toggleAuthForm" to="/login">Login</Link> </p>
+                    <button className="button primary-button" type="submit">Register</button>
 
                 </form>
+
+                <p>Already have an account ? <Link to="/login">Login</Link> </p>
+
             </div>
         </main>
     )
