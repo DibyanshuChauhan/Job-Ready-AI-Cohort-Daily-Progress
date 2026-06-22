@@ -1,0 +1,128 @@
+.feed-page {
+    min-height: 100vh;
+    background: #fafafa;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.feed {
+    width: 100%;
+    max-width: 470px;
+}
+
+.posts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.post {
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .user {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.9rem 1rem;
+
+        img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e1306c;
+            padding: 2px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #262626;
+        }
+    }
+
+    .post-image {
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        display: block;
+        background: #eee;
+    }
+
+    .post-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.9rem 1rem 0.7rem;
+
+        svg {
+            font-size: 1.55rem;
+            color: #262626;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                transform: scale(1.08);
+            }
+        }
+
+        .left-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+    }
+
+    .liked {
+        color: #ed4956 !important;
+        animation: pop 0.25s ease;
+    }
+
+    .bottom {
+        padding: 0 1rem 1rem;
+
+        .caption {
+            font-size: 0.92rem;
+            color: #262626;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+    }
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(0.8);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .feed-page {
+        padding: 1rem 0.5rem;
+    }
+
+    .feed {
+        max-width: 100%;
+    }
+
+    .post {
+        border-radius: 10px;
+    }
+}
