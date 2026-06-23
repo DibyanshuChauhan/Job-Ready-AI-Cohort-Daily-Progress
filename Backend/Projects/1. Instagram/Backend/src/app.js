@@ -3,6 +3,11 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 
 const app = express()
+app.use(cors({
+    credentials: true,
+    origin: "https://job-ready-ai-cohort-daily-progress-2.onrender.com"
+}))
+
 app.use(express.static("./public"))
 
 app.use('*name', (req, res) => {
@@ -11,10 +16,13 @@ app.use('*name', (req, res) => {
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({
-    credentials: true,
-    origin: "http://localhost:5173"
-}))
+app.use(
+    cors({
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true,
+    })
+);
 
 const authRouter = require("./routes/auth.routes")
 const postRouter = require("./routes/post.routes")

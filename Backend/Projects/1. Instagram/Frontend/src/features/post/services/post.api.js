@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/api/posts",
+    baseURL: "https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/posts",
     withCredentials: true
 })
 
