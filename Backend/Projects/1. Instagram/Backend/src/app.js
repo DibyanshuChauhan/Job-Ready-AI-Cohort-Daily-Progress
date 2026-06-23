@@ -1,35 +1,37 @@
-const express = require("express")
-const cookieParser = require("cookie-parser")
-const cors = require("cors")
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const path = require("path");
 
-const app = express()
-app.use(cors({
-    credentials: true,
-    origin: "https://job-ready-ai-cohort-daily-progress-2.onrender.com"
-}))
+const app = express();
 
-app.use(express.static("./public"))
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
-app.use('*name', (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "/public/index.html"))
-})
-
-app.use(express.json())
-app.use(cookieParser())
 app.use(
     cors({
-        origin: "*",
-        methods: ["GET", "POST"],
+        origin: "https://job-ready-ai-cohort-daily-progress-2.onrender.com",
         credentials: true,
     })
 );
 
-const authRouter = require("./routes/auth.routes")
-const postRouter = require("./routes/post.routes")
-const userRouter = require("./routes/user.routes")
+// Serve React Build Files
+app.use(express.static(path.join(__dirname, "../public")));
 
-app.use("/api/auth", authRouter)
-app.use("/api/posts", postRouter)
-app.use("/api/user", userRouter)
+// Routes
+const authRouter = require("./routes/auth.routes");
+const postRouter = require("./routes/post.routes");
+const userRouter = require("./routes/user.routes");
 
-module.exports = app
+app.use("/api/auth", authRouter);
+app.use("/api/posts", postRouter);
+app.use("/api/user", userRouter);
+
+// React Router Support (SPA Fallback)
+// IMPORTANT: Always keep this at the very end
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+module.exports = app;
