@@ -3,7 +3,7 @@ import { FiMessageCircle } from "react-icons/fi";
 import { LuSend } from "react-icons/lu";
 import { BsBookmark } from "react-icons/bs";
 
-const Post = ({ post }) => {
+const Post = ({ post, handleLike, handleUnlike }) => {
     return (
         <div className="post">
             <div className="user">
@@ -24,9 +24,14 @@ const Post = ({ post }) => {
                 <div className="left-actions">
 
                     {post.isLiked ? (
-                        <FaHeart className="liked" />
+                        <FaHeart
+                            className="liked"
+                            onClick={() => handleUnlike(post._id)}
+                        />
                     ) : (
-                        <FaRegHeart />
+                        <FaRegHeart
+                            onClick={() => handleLike(post._id)}
+                        />
                     )}
 
                     <FiMessageCircle />

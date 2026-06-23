@@ -5,7 +5,8 @@ const { createPostController,
     getPostController,
     getPostDetailsController,
     likePostController,
-    getFeedController
+    getFeedController,
+    unLikePostController
 } = require("../controllers/post.controller")
 
 const identifyUser = require("../middlewares/auth.middleware")
@@ -22,5 +23,6 @@ postRouter.get("/feed", identifyUser, getFeedController)
 
 postRouter.get("/details/:postId", identifyUser, getPostDetailsController)
 postRouter.post("/like/:postId", identifyUser, likePostController)
+postRouter.post("/unlike/:postId", identifyUser, unLikePostController)
 
 module.exports = postRouter

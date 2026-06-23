@@ -3,9 +3,11 @@ import Post from "../components/Post";
 import "../style/feed.scss";
 import { usePost } from "../hooks/usePost";
 import { useEffect } from "react";
+import Nav from "../../shared/components/Nav";
+import LOADING from "../components/LOADING";
 
 const Feed = () => {
-  const { Feed, handleGetFeed, Loading } = usePost();
+  const { Feed, handleGetFeed, Loading, handleLike, handleUnlike } = usePost();
 
   useEffect(() => {
     handleGetFeed();
@@ -13,20 +15,22 @@ const Feed = () => {
 
   if (Loading || !Feed) {
     return (
-      <main>
-        <h1>Feed is Loading...</h1>
-      </main>
+      <LOADING />
     );
   }
 
   return (
     <main className="feed-page">
       <div className="feed">
+        <Nav />
         <div className="posts">
           {Feed.map((post) => (
             <Post
               key={post._id}
               post={post}
+              Loading={Loading}
+              handleLike={handleLike}
+              handleUnlike={handleUnlike}
             />
           ))}
         </div>
