@@ -3,6 +3,11 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 
 const app = express()
+app.use(express.static("./public"))
+
+app.use('*name', (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "/public/index.html"))
+})
 
 app.use(express.json())
 app.use(cookieParser())
