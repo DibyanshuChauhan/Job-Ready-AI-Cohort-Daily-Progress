@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const path = require("path")
 
 const authRouter = require("./routes/auth.routes");
 const songRouter = require("./routes/song.routes");
