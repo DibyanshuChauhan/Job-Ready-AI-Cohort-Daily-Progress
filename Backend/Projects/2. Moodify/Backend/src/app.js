@@ -16,6 +16,12 @@ app.use(
   }),
 );
 
+app.use(express.static("./public"));
+
+app.use("*name", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "/public/index.html"));
+});
+
 app.use("/api/auth", authRouter);
 app.use("/api/songs", songRouter);
 
