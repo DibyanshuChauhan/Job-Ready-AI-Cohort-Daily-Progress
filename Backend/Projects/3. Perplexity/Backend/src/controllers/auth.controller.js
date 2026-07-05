@@ -220,3 +220,127 @@ export const verifyEmail = async (req, res) => {
         });
     }
 };
+
+export const loginController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // 1. Fetch the user from the database
+        const user = await userModel.findOne({ email });
+
+        // 2. If user doesn't exist, stop immediately
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid email or password",
+                success: false,
+                err: "User not found"
+            });
+        }
+
+        // 3. Compare passwords (This will work perfectly now that 'user' is the actual document)
+        const isPasswordMatch = await user.comparePassword(password);
+
+        if (!isPasswordMatch) {
+            return res.status(400).json({
+                message: "Invalid email or password",
+                success: false,
+                err: "Incorrect password"
+            });
+        }
+
+        // 4. Ensure the user's email is verified
+        if (!user.verified) {
+            return res.status(400).json({
+                message: "Please verify your email before logging in",
+                success: false,
+                err: "Email not verified"
+            });
+        }
+
+        // 5. Generate authentication token
+        const token = jwt.sign(
+            {
+                id: user._id,
+                username: user.username,
+            }, 
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        // 6. Set cookie and send back the payload
+        res.cookie("token", token, {
+            httpOnly: true, // Recommended for security against XSS
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+        });
+
+        return res.status(200).json({
+            message: "Login successful",
+            success: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        console.error("Login Error:", error);
+        return res.status(500).json({
+            message: "An error occurred during login",
+            success: false,
+            error: error.message || error
+        });
+    }
+};
+
+export const getMe = async (req, res) => {
+    try {
+        // 1. Get user ID from the request object (attached by auth middleware)
+        const userId = req?.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized: No user ID found in request",
+                success: false
+            });
+        }
+
+        // 2. Fetch user data from the database, excluding the password field
+        const user = await userModel.findById(userId).select("-password");
+
+        // 3. If user doesn't exist in the database
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false,
+                err: "User not found"
+            });
+        }
+
+        // 4. Return user details successfully
+        return res.status(200).json({
+            message: "User details fetched successfully",
+            success: true,
+            user
+        });
+
+    } catch (error) {
+        // Log the error for server-side debugging
+        console.error("GetMe Controller Error:", error);
+
+        // Handle invalid MongoDB ObjectId formatting error explicitly
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid User ID format",
+                success: false
+            });
+        }
+
+        // Fallback for any other unexpected database or server errors
+        return res.status(500).json({
+            message: "An internal server error occurred while fetching user profile",
+            success: false,
+            error: error.message || error
+        });
+    }
+};
