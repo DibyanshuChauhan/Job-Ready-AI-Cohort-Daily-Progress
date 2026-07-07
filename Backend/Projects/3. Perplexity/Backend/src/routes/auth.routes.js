@@ -4,6 +4,7 @@ import {
     loginController,
     registerController,
     verifyEmail,
+    resendVerificationEmail
 } from "../controllers/auth.controller.js";
 import {
     loginValidator,
@@ -20,5 +21,7 @@ authRouter.get("/verify-email", verifyEmail);
 authRouter.post("/login", loginValidator, loginController);
 
 authRouter.get("/get-me", authUser, getMe);
+
+authRouter.post("/resend-verification", resendVerificationEmail);
 
 export default authRouter;

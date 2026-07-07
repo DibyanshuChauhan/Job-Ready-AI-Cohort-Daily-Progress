@@ -126,7 +126,6 @@ export const verifyEmail = async (req, res) => {
         }
 
         // 2. Decode and verify the token
-        // Note: If jwt.verify fails (e.g., expired/invalid token), it throws an error and jumps to the catch block
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // 3. Find the user associated with the token payload
@@ -140,17 +139,63 @@ export const verifyEmail = async (req, res) => {
             });
         }
 
-        // 4. Update the verification status
+        // 🌟 NEW CHECK: If user clicks the email link but is already verified
+        if (user.verified) {
+            const alreadyVerifiedHtml = `
+                <div style="max-width:600px; margin:40px auto; padding:32px; border:1px solid #e5e7eb; border-radius:8px; font-family:Arial, Helvetica, sans-serif; color:#374151; line-height:1.6;">
+
+                    <h1 style="margin:0 0 20px; color:#4F46E5; font-size:28px;">
+                        Already Verified!
+                    </h1>
+
+                    <p>Hello,</p>
+
+                    <p>
+                        It looks like your email address has <strong>already been verified</strong> previously. Your account is fully active and ready to go.
+                    </p>
+
+                    <p>
+                        There is no need to verify again. You can head straight over to the login page.
+                    </p>
+
+                    <a
+                        href="http://localhost:3000/login"
+                        style="
+                            display:inline-block;
+                            margin:24px 0;
+                            padding:12px 24px;
+                            background:#4F46E5;
+                            color:#ffffff;
+                            text-decoration:none;
+                            border-radius:6px;
+                            font-weight:600;
+                        "
+                    >
+                        Go to Login
+                    </a>
+
+                    <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;">
+
+                    <p style="margin:0;">
+                        Regards,<br>
+                        <strong>The Perplexity Team</strong>
+                    </p>
+
+                </div>
+            `;
+            return res.send(alreadyVerifiedHtml);
+        }
+
+        // 4. Update the verification status (Only runs if they weren't verified yet)
         user.verified = true;
         await user.save();
 
-        // 5. Generate success landing page HTML
-        // Quick fix: Adjusted 'localhost3000' to 'localhost:3000' in the login link below
+        // 5. Generate FIRST TIME success landing page HTML
         const html = `
             <div style="max-width:600px; margin:40px auto; padding:32px; border:1px solid #e5e7eb; border-radius:8px; font-family:Arial, Helvetica, sans-serif; color:#374151; line-height:1.6;">
 
                 <h1 style="margin:0 0 20px; color:#111827; font-size:28px;">
-                    Email Verified Successfully
+                    Email Verified Successfully 🎉
                 </h1>
 
                 <p>Hello,</p>
@@ -194,10 +239,8 @@ export const verifyEmail = async (req, res) => {
         return res.send(html);
 
     } catch (error) {
-        // Log the internal error for debugging
         console.error("Email Verification Error:", error);
 
-        // Handle specific JWT expiration or malformed errors gracefully
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({
                 message: "Verification link has expired. Please request a new one.",
@@ -212,7 +255,6 @@ export const verifyEmail = async (req, res) => {
             });
         }
 
-        // Fallback for database or unexpected errors
         return res.status(500).json({
             message: "An internal server error occurred during verification",
             success: false,
@@ -339,6 +381,112 @@ export const getMe = async (req, res) => {
         // Fallback for any other unexpected database or server errors
         return res.status(500).json({
             message: "An internal server error occurred while fetching user profile",
+            success: false,
+            error: error.message || error
+        });
+    }
+};
+
+export const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email address is required",
+                success: false
+            });
+        }
+
+        // 1. Find the user
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found with this email address",
+                success: false,
+                err: "user not found"
+            });
+        }
+
+        // 2. Check if user is already verified
+        if (user.verified) {
+            return res.status(400).json({
+                message: "This email is already verified. Please login instead.",
+                success: false,
+                err: "already verified"
+            });
+        }
+
+        // 3. Generate a fresh verification token
+        const emailVerificationToken = jwt.sign({
+            email: user.email
+        }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Good practice to give it an expiry time
+
+        // 4. Send verification email
+        await sendEmail({
+            to: user.email,
+            subject: "Verify your email - Perplexity",
+            html: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <h2>Verify Your Email Address 🚀</h2>
+
+                    <p>Hi <strong>${user.username}</strong>,</p>
+
+                    <p>
+                        You requested a new verification link for your <strong>Perplexity</strong> account.
+                    </p>
+
+                    <p>
+                        Please click the button below to verify your email address:
+                    </p>
+
+                    <a
+                        href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"
+                        style="
+                            display:inline-block;
+                            padding:12px 24px;
+                            background:#4F46E5;
+                            color:#fff;
+                            text-decoration:none;
+                            border-radius:6px;
+                            font-weight:bold;
+                        "
+                    >
+                        Verify Email
+                    </a>
+
+                    <p style="margin-top:20px;">
+                        Or copy and paste this link into your browser:
+                    </p>
+
+                    <p>
+                        http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}
+                    </p>
+
+                    <hr />
+
+                    <p>
+                        If you didn't make this request, you can safely ignore this email.
+                    </p>
+
+                    <p>
+                        Best regards,<br/>
+                        <strong>The Perplexity Team</strong>
+                    </p>
+                </div>
+            `,
+        });
+
+        return res.status(200).json({
+            message: "Verification email sent successfully!",
+            success: true
+        });
+
+    } catch (error) {
+        console.error("Resend Verification Email Error:", error);
+        return res.status(500).json({
+            message: "An internal error occurred while trying to resend the email",
             success: false,
             error: error.message || error
         });
