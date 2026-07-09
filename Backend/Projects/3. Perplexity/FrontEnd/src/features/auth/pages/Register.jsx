@@ -8,51 +8,39 @@ import AuthInput from "../components/AuthInput";
 import PasswordInput from "../components/PasswordInput";
 import AuthButton from "../components/AuthButton";
 
+// Importing custom registration handling hook
 import { useAuth } from "../hook/useAuth";
 
 const Register = () => {
-  const navigate = useNavigate();
-
-  const { handleRegister } = useAuth();
-
-  const { loading } = useSelector((state) => state.auth);
-
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const [registerData, setRegisterData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
+  // 2. Extract loading tracker from Redux store
+  const loading = useSelector((state) => state.auth.loading);
 
-  const handleChange = (e) => {
-    setRegisterData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const navigate = useNavigate();
+  const { handleRegister } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!acceptTerms) {
-      return;
-    }
+    if (!acceptTerms) return;
 
     try {
-      await handleRegister(registerData);
+      const payload = { username, email, password };
 
-      setRegisterData({
-        username: "",
-        email: "",
-        password: "",
-      });
+      await handleRegister(payload);
 
+      setUsername("");
+      setEmail("");
+      setPassword("");
       setAcceptTerms(false);
 
-      navigate("/ ");
+      navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Registration request failed: ", error);
     }
   };
 
@@ -62,35 +50,38 @@ const Register = () => {
       subtitle="Join today and start managing everything in one place."
     >
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Username Field */}
         <AuthInput
           label="Username"
           name="username"
           placeholder="john_doe"
-          value={registerData.username}
-          onChange={handleChange}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           autoComplete="username"
           icon={FiUser}
         />
 
+        {/* Email Field */}
         <AuthInput
           label="Email Address"
           type="email"
           name="email"
           placeholder="you@example.com"
-          value={registerData.email}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
           icon={FiMail}
         />
 
+        {/* Password Field */}
         <PasswordInput
-          value={registerData.password}
-          onChange={handleChange}
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
         />
 
-        {/* Terms & Conditions */}
-
+        {/* Terms & Conditions Checkbox */}
         <label className="flex cursor-pointer items-start gap-3 text-sm text-slate-400">
           <input
             type="checkbox"
@@ -98,7 +89,6 @@ const Register = () => {
             onChange={(e) => setAcceptTerms(e.target.checked)}
             className="mt-1 h-4 w-4 rounded accent-cyan-500"
           />
-
           <span className="leading-6">
             I agree to the{" "}
             <button
@@ -122,8 +112,7 @@ const Register = () => {
         </AuthButton>
       </form>
 
-      {/* Footer */}
-
+      {/* Footer Navigation Switcher */}
       <p className="mt-8 text-center text-sm text-slate-400">
         Already have an account?{" "}
         <Link

@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { useDispatch } from "react-redux";
 import { login, register, getMe } from "../service/auth.api";
-import { setUser, setLoading, setError } from "../auth.slice";
+import { setUser, setLoading, setError, setAuthChecked } from "../auth.slice";
 
 export const useAuth = () => {
     const dispatch = useDispatch();
@@ -10,12 +11,12 @@ export const useAuth = () => {
             dispatch(setLoading(true));
 
     const data = await register({
-        username,
-        email,
-        password,
-    });
-
-    return data;
+    username,
+    email,
+    password,
+});
+dispatch(setUser(data.user));
+return data;
 } catch (error) {
     dispatch(setError(error.response?.data?.message || "Registration failed")
     );
@@ -39,19 +40,20 @@ export const useAuth = () => {
         }
     }
 
-    const handleGetMe = async () => {
-        try {
-            dispatch(setLoading(true));
-            const data = await getMe();
-            dispatch(setUser(data.user))
-        } catch (error) {
-            dispatch(setError(error.response?.data?.message || "Failed to fetch the user"))
-        }
-        finally {
-            dispatch(setLoading(false))
-        }
-    }
+  const handleGetMe = async () => {
+  try {
+    dispatch(setLoading(true));
 
+    const data = await getMe();
+
+    dispatch(setUser(data.user));
+  } catch (error) {
+    dispatch(setUser(null));
+  } finally {
+    dispatch(setLoading(false));
+    dispatch(setAuthChecked(true));
+  }
+};
     return {
         handleRegister,
         handleLogin,

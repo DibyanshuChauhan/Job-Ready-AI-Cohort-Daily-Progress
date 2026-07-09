@@ -8,41 +8,30 @@ import AuthInput from "../components/AuthInput";
 import PasswordInput from "../components/PasswordInput";
 import AuthButton from "../components/AuthButton";
 
+// Importing custom login handling hook
 import { useAuth } from "../hook/useAuth";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const loading = useSelector((state) => state.auth.loading);
+
   const navigate = useNavigate();
-
   const { handleLogin } = useAuth();
-
-  const { loading } = useSelector((state) => state.auth);
-
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
-
-  const handleChange = (e) => {
-    setLoginData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await handleLogin(loginData);
+      const payload = { email, password };
 
-      setLoginData({
-        email: "",
-        password: "",
-      });
-
+      await handleLogin(payload);
+      setEmail("");
+      setPassword("");
       navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Login request failed: ", error);
     }
   };
 
@@ -52,30 +41,32 @@ const Login = () => {
       subtitle="Sign in to continue to your account."
     >
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Email Field */}
         <AuthInput
           label="Email Address"
           type="email"
           name="email"
           placeholder="you@example.com"
-          value={loginData.email}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
           icon={FiMail}
         />
 
+        {/* Password Field */}
         <PasswordInput
-          value={loginData.password}
-          onChange={handleChange}
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
         />
-
+        
         <AuthButton loading={loading}>
           Sign In
         </AuthButton>
       </form>
 
-      {/* Footer */}
-
+      {/* Footer Navigation */}
       <p className="mt-8 text-center text-sm text-slate-400">
         Don't have an account?{" "}
         <Link
