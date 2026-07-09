@@ -138,8 +138,7 @@ export const verifyEmail = async (req, res) => {
                 err: "User does not exist"
             });
         }
-
-        // 🌟 NEW CHECK: If user clicks the email link but is already verified
+        
         if (user.verified) {
             const alreadyVerifiedHtml = `
                 <div style="max-width:600px; margin:40px auto; padding:32px; border:1px solid #e5e7eb; border-radius:8px; font-family:Arial, Helvetica, sans-serif; color:#374151; line-height:1.6;">
