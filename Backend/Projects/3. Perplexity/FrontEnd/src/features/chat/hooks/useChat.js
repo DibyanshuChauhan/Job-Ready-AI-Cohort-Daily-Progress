@@ -12,7 +12,8 @@ import {
     setError,
     setLoading,
     createNewChat,
-    addNewMessage
+    addNewMessage,
+    addMessages
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
 
@@ -40,8 +41,41 @@ export const useChat = () => {
         dispatch(setCurrentChatId(chat._id));
     };
 
+    const handleGetChats = async () => {
+        dispatch(setLoading(true));
+        const data = await getChats();
+        const { chats } = data;
+        dispatch(setChats(chats.reduce((acc, chat) => {
+            acc[chat._id] = {
+                id: chat._id,
+                title: chat.title,
+                messages: [],
+                lastUpdated: chat.updatedAt,
+            }
+            return acc
+        },{})))
+        dispatch(setLoading(false));
+    }
+
+    const handleOpenChat = async (chatId) => {
+        const data = await getMessages(chatId);
+        const { messages } = data;
+
+        const formattedMessages = messages.map(msg =>({
+            content: msg.content,
+            role: msg.role,
+        }))
+        dispatch(addMessages({
+            chatId,
+            messages: formattedMessages,
+        }))
+        dispatch(setCurrentChatId(chatId))
+    }
+
     return {
     initializeSocketConnection,
-    handleSendMessage
+    handleSendMessage,
+    handleGetChats,
+    handleOpenChat
 };
 };

@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useSelector } from "react-redux";
 import { useChat } from "../hooks/useChat";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import {
   FiZap,
@@ -21,7 +23,6 @@ const Dashboard = () => {
 
 const [sidebarOpen, setSidebarOpen] = useState(false);
 const [message, setMessage] = useState("");
-const [chatHistory, setChatHistory] = useState([]);
 
 const chats = useSelector((state) => state.chat.chats);
 const currentChatId = useSelector((state) => state.chat.currentChatId)
@@ -32,10 +33,15 @@ const handleSend = (e) => {
   chat.handleSendMessage({message, chatId:currentChatId})
 };
 
+const openChat = (chatId) => {
+  chat.handleOpenChat(chatId)
+}
+
     const { user } = useSelector(state => state.auth)
     console.log(user)
 
     useEffect(() => {
+      chat.handleGetChats()
       chat.initializeSocketConnection()
     }, [])
 
@@ -100,10 +106,11 @@ const handleSend = (e) => {
       <p className="px-3 py-1 text-xs uppercase tracking-wide text-neutral-500 font-medium">
         Recent
       </p>
-      {chatHistory.map((item) => (
+      {Object.values(chats).map((item) => (
         <button
+          onClick={() => openChat(item.id)} 
           key={item.id}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800 transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800 transition-colors text-left cursor-pointer"
         >
           <FiMessageSquare className="text-neutral-500 shrink-0" size={15} />
           <span className="truncate">{item.title}</span>
@@ -169,9 +176,22 @@ const handleSend = (e) => {
             <div className="h-7 w-7 rounded-full bg-teal-500 flex items-center justify-center shrink-0 mt-0.5">
               <FiZap className="text-neutral-900" size={13} />
             </div>
-            <p className="text-sm sm:text-[15px] leading-relaxed text-neutral-200">
-              {msg.content}
-            </p>
+            <div className="text-sm sm:text-[15px] leading-relaxed text-neutral-200 space-y-2">
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="m-0 leading-relaxed">{children}</p>,
+                  ul: ({ children }) => <ul className="ml-5 list-disc space-y-1">{children}</ul>,
+                  ol: ({ children }) => <ol className="ml-5 list-decimal space-y-1">{children}</ol>,
+                  code: ({ children, className }) => (
+                    <code className={`rounded bg-neutral-800 px-1.5 py-0.5 text-[13px] ${className || ""}`}>
+                      {children}
+                    </code>
+                  ),
+                }}
+              >
+                {String(msg.content || "")}
+              </ReactMarkdown>
+            </div>
           </div>
         )
       )}
