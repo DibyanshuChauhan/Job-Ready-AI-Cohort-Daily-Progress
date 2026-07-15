@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useChat } from "../hooks/useChat";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import {
   FiZap,
@@ -27,14 +28,21 @@ const [message, setMessage] = useState("");
 const chats = useSelector((state) => state.chat.chats);
 const currentChatId = useSelector((state) => state.chat.currentChatId)
 
-const handleSend = (e) => {
+const handleSend = async (e) => {
   e.preventDefault();
 
-  chat.handleSendMessage({message, chatId:currentChatId})
+  if (!message.trim()) return;
+
+  await chat.handleSendMessage({
+    message,
+    chatId: currentChatId,
+  });
+
+  setMessage("");
 };
 
 const openChat = (chatId) => {
-  chat.handleOpenChat(chatId)
+  chat.handleOpenChat(chatId, chats)
 }
 
     const { user } = useSelector(state => state.auth)
@@ -178,10 +186,31 @@ const openChat = (chatId) => {
             </div>
             <div className="text-sm sm:text-[15px] leading-relaxed text-neutral-200 space-y-2">
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   p: ({ children }) => <p className="m-0 leading-relaxed">{children}</p>,
                   ul: ({ children }) => <ul className="ml-5 list-disc space-y-1">{children}</ul>,
                   ol: ({ children }) => <ol className="ml-5 list-decimal space-y-1">{children}</ol>,
+                  table: ({ children }) => (
+                    <div className="my-3 overflow-x-auto">
+                      <table className="min-w-full border-collapse rounded-lg border border-neutral-700 text-sm">
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-neutral-800">{children}</thead>,
+                  tbody: ({ children }) => <tbody className="divide-y divide-neutral-700">{children}</tbody>,
+                  tr: ({ children }) => <tr className="border-b border-neutral-700 last:border-b-0">{children}</tr>,
+                  th: ({ children }) => (
+                    <th className="border border-neutral-700 px-3 py-2 text-left font-semibold text-neutral-100">
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="border border-neutral-700 px-3 py-2 align-top text-neutral-300">
+                      {children}
+                    </td>
+                  ),
                   code: ({ children, className }) => (
                     <code className={`rounded bg-neutral-800 px-1.5 py-0.5 text-[13px] ${className || ""}`}>
                       {children}
@@ -213,8 +242,14 @@ const openChat = (chatId) => {
           rows={1}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask anything..."
-          className="flex-1 bg-transparent outline-none resize-none text-sm placeholder:text-neutral-500 max-h-32 py-1.5"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend(e);
+      }
+  } }
+            placeholder="Ask anything..."
+            className="flex-1 bg-transparent outline-none resize-none text-sm placeholder:text-neutral-500 max-h-32 py-1.5"
         />
         <button
           type="submit"
