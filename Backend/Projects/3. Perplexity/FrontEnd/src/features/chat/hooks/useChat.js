@@ -3,7 +3,7 @@ import {
     getChats,
     getMessages,
     sendMessage,
-    // deleteChat,
+    deleteChat,
     
 } from "../service/chat.api";
 import {
@@ -13,7 +13,8 @@ import {
     setLoading,
     createNewChat,
     addNewMessage,
-    addMessages
+    addMessages,
+    deleteChatById,
 } from "../chat.slice";
 import { useDispatch } from "react-redux";
 
@@ -77,10 +78,18 @@ export const useChat = () => {
         dispatch(setCurrentChatId(chatId))
     }
 
+    const handleDeleteChat = async (chatId) => {
+        dispatch(setLoading(true));
+        await deleteChat({ chatId });
+        dispatch(deleteChatById(chatId));
+        dispatch(setLoading(false));
+    };
+
     return {
     initializeSocketConnection,
     handleSendMessage,
     handleGetChats,
-    handleOpenChat
+    handleOpenChat,
+    handleDeleteChat,
 };
 };

@@ -17,6 +17,7 @@ import {
   FiChevronDown,
   FiPaperclip,
   FiSend,
+  FiTrash2,
 } from "react-icons/fi";
 
 const Dashboard = () => {
@@ -43,6 +44,11 @@ const handleSend = async (e) => {
 
 const openChat = (chatId) => {
   chat.handleOpenChat(chatId, chats)
+}
+
+const handleDelete = async (e, chatId) => {
+  e.stopPropagation();
+  await chat.handleDeleteChat(chatId);
 }
 
     const { user } = useSelector(state => state.auth)
@@ -115,14 +121,23 @@ const openChat = (chatId) => {
         Recent
       </p>
       {Object.values(chats).map((item) => (
-        <button
-          onClick={() => openChat(item.id)} 
-          key={item.id}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800 transition-colors text-left cursor-pointer"
-        >
-          <FiMessageSquare className="text-neutral-500 shrink-0" size={15} />
-          <span className="truncate">{item.title}</span>
-        </button>
+        <div key={item.id} className="group flex items-center rounded-lg hover:bg-neutral-800 transition-colors">
+          <button
+            onClick={() => openChat(item.id)}
+            className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-l-lg text-sm text-neutral-300 hover:bg-neutral-800 transition-colors text-left cursor-pointer"
+          >
+            <FiMessageSquare className="text-neutral-500 shrink-0" size={15} />
+            <span className="truncate">{item.title}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleDelete(e, item.id)}
+            className="p-2 mr-1 rounded-md text-neutral-500 hover:bg-neutral-700 hover:text-red-400 transition-colors"
+            aria-label={`Delete chat ${item.title}`}
+          >
+            <FiTrash2 size={15} />
+          </button>
+        </div>
       ))}
     </div>
 
