@@ -66,9 +66,10 @@ export async function sendMessage(req, res) {
         const messages = await messageModel.find({ chat: activeChatId }).sort({ createdAt: 1 });
 
         // Step D: Send entire history context array to the AI service
-        let result;
+        let resultData;
         try {
-            result =  await generateResponse(messages);
+            // generateResponse now returns an object: { text, emailAction }
+            resultData = await generateResponse(messages);
         } catch (aiError) {
             console.error("AI Generation Error:", aiError);
             return res.status(429).json({
@@ -78,19 +79,36 @@ export async function sendMessage(req, res) {
             });
         }
 
-        // Step E: Save AI response message
-        const aiMessage = await messageModel.create({
-            chat: activeChatId,
-            content: result,
-            role: "ai"
-        });
+        // Step E: Save response based on the structural action taken by the AI
+        let savedAiMessage;
+        
+        if (resultData.emailAction) {
+            // If the AI tool triggered an email action, log it under the distinct "email" role
+            savedAiMessage = await messageModel.create({
+                chat: activeChatId,
+                content: resultData.emailAction.content, // Save the actual email body context
+                role: "email",
+                emailDetails: {
+                    to: resultData.emailAction.to,
+                    subject: resultData.emailAction.subject,
+                    status: resultData.emailAction.status
+                }
+            });
+        } else {
+            // Otherwise, save it as a standard conversational response
+            savedAiMessage = await messageModel.create({
+                chat: activeChatId,
+                content: resultData.text,
+                role: "ai"
+            });
+        }
 
         return res.status(201).json({
             success: true,
             title,
             chat: chatId ? chat : chat, // Return target chat configuration metadata
             userMessage,
-            aiMessage
+            aiMessage: savedAiMessage // Returns unified document object to client profile
         });
 
     } catch (error) {

@@ -13,13 +13,27 @@ const messageSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: [ 'user', 'ai' ],
+            enum: [ 'user', 'ai', 'email' ], // Added 'email' role
             required: true,
         },
+        // Optional structural storage specifically for email dispatches
+        emailDetails: {
+            to: { 
+                type: String,
+                trim: true 
+            },
+            subject: { 
+                type: String,
+                trim: true 
+            },
+            status: { 
+                type: String,
+                enum: ['sent', 'failed'], default: 'sent' 
+            },
+        }
     },
     { timestamps: true }
 );
 
 const messageModel = mongoose.model('Message', messageSchema);
-
 export default messageModel;

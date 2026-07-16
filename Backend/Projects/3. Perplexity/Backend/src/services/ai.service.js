@@ -27,6 +27,9 @@ const searchInternetTool = tool(
     }
 );
 
+// Global operational state to temporarily capture email data during agent execution loops
+let lastSentEmailData = null; 
+
 const sendEmailTool = tool(
     async ({ to, subject, body }) => {
         try {
@@ -71,9 +74,16 @@ const sendEmailTool = tool(
                 html: beautifullyDraftedHtml // Render full rich text template setup
             });
 
+            // Capture tracking meta payload for target controller storage logic
+            lastSentEmailData = { to, subject, content: body, status: 'sent' };
+
             return JSON.stringify({ success: true, message: `Beautiful HTML email successfully delivered to ${to}` });
         } catch (error) {
             console.error("Tool Mail Layout Compilation Error:", error);
+            
+            // Capture execution tracking meta payload on failures 
+            lastSentEmailData = { to, subject, content: body, status: 'failed' };
+
             return JSON.stringify({ success: false, error: error.message });
         }
     },
@@ -94,6 +104,9 @@ const agent = createAgent({
 });
 
 export async function generateResponse(messages) {
+    // Reset state variable indicator before starting a tool iteration cycle
+    lastSentEmailData = null; 
+
     console.log(messages)
 
     const response = await agent.invoke({
@@ -107,15 +120,20 @@ export async function generateResponse(messages) {
                 - You can combine tools: if a user asks you to look something up and email it to them, first use "searchInternet", then use "sendEmail" with the compiled data.
             `),
             ...(messages.map(msg => {
+                // Support both legacy standard agent message structure contexts and new custom explicit roles
                 if (msg.role == "user") {
                     return new HumanMessage(msg.content)
-                } else if (msg.role == "ai") {
+                } else if (msg.role == "ai" || msg.role == "email") {
                     return new AIMessage(msg.content)
                 }
             })) ]
     });
 
-    return response.messages[ response.messages.length - 1 ].text;
+    // Return structured text interface alongside dynamic email tracking states
+    return {
+        text: response.messages[ response.messages.length - 1 ].text,
+        emailAction: lastSentEmailData 
+    };
 }
 
 export const generateChatTitle = async (message) => {
