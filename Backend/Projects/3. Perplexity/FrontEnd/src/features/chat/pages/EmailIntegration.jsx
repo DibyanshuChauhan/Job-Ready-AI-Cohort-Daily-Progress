@@ -23,24 +23,25 @@ const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+  e.preventDefault();
+  if (!message.trim()) return;
 
-    let finalPayload = message;
+  let finalPayload = message;
 
-    if (activeMode === "email") {
-      finalPayload = `Send an email to ${recipientEmail} with the subject "${emailSubject || "AI Research Brief"}". Base the email content on the following request: ${message}`;
-    }
+  if (activeMode === "email") {
+    finalPayload = `Send an email to ${recipientEmail} with the subject "${emailSubject || "AI Research Brief"}". Base the email content on the following request: ${message}`;
+  }
 
-    onSubmitMessage(finalPayload);
+  // Pass BOTH the message text string AND the target activeMode workspace state type
+  onSubmitMessage(finalPayload, activeMode); 
 
-    setMessage("");
-    if (activeMode === "email") {
-      setRecipientEmail("");
-      setEmailSubject("");
-      setActiveMode("search");
-    }
-  };
+  setMessage("");
+  if (activeMode === "email") {
+    setRecipientEmail("");
+    setEmailSubject("");
+    setActiveMode("search");
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto space-y-3">

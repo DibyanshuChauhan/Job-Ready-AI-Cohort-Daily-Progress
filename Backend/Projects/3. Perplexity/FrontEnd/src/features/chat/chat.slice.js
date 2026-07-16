@@ -10,18 +10,23 @@ const chatSlice = createSlice({
   },
   reducers: {
     createNewChat: (state, action) => {
-      const { chatId, title } = action.payload;
+      const { chatId, title, chatType } = action.payload;
       state.chats[chatId] = {
         id: chatId,
         title,
+        chatType: chatType || "search", // Persisted locally inside Redux states
         messages: [],
         lastUpdated: new Date().toISOString(),
       };
     },
 
     addNewMessage: (state, action) => {
-      const { chatId, content, role } = action.payload;
-      state.chats[chatId].messages.push({ content, role });
+      const { chatId, content, role, emailDetails } = action.payload;
+      state.chats[chatId].messages.push({
+        content,
+        role,
+        emailDetails: emailDetails || null,
+      });
     },
 
     addMessages: (state, action) => {
