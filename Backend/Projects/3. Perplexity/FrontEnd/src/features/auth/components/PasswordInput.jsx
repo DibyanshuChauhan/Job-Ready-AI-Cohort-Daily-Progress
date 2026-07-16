@@ -16,52 +16,30 @@ const PasswordInput = ({
 
   return (
     <div className="space-y-2">
-      {/* Label */}
       <label
         htmlFor={name}
-        className="block text-sm font-medium tracking-wide text-slate-300"
+        className="block text-xs font-semibold tracking-wide text-neutral-400 uppercase"
       >
         {label}
       </label>
 
-      {/* Input Wrapper */}
       <motion.div
-        whileFocus={{ scale: 1.01 }}
+        whileFocus={{ scale: 1.005 }}
         className={`
-          group
-          flex
-          items-center
-          rounded-xl
-          border
-          px-4
-          py-3.5
-          transition-all
-          duration-300
-
+          group flex items-center rounded-xl border px-4 py-3 transition-all duration-300
           ${
             error
-              ? "border-red-500 bg-red-500/5"
-              : "border-slate-700 bg-slate-900/60 hover:border-slate-600"
+              ? "border-rose-500/50 bg-rose-500/5"
+              : "border-neutral-800 bg-neutral-900/40 hover:border-neutral-700/80"
           }
-
-          focus-within:border-cyan-400
-          focus-within:ring-4
-          focus-within:ring-cyan-500/10
+          focus-within:border-teal-500/50 focus-within:ring-4 focus-within:ring-teal-500/5
         `}
       >
-        {/* Lock Icon */}
         <FiLock
-          size={20}
-          className="
-            mr-3
-            text-slate-500
-            transition-colors
-            duration-300
-            group-focus-within:text-cyan-400
-          "
+          size={18}
+          className="mr-3 text-neutral-600 transition-colors duration-300 group-focus-within:text-teal-400"
         />
 
-        {/* Password Input */}
         <input
           id={name}
           name={name}
@@ -71,45 +49,24 @@ const PasswordInput = ({
           placeholder={placeholder}
           autoComplete={autoComplete}
           required={required}
-          className="
-            flex-1
-            bg-transparent
-            text-sm
-            text-white
-            placeholder:text-slate-500
-            outline-none
-          "
+          className="flex-1 bg-transparent text-sm text-neutral-200 placeholder:text-neutral-600 outline-none"
         />
 
-        {/* Toggle Password */}
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="
-            ml-3
-            rounded-lg
-            p-2
-            text-slate-500
-            transition-all
-            duration-300
-            hover:bg-slate-800
-            hover:text-cyan-400
-            focus:outline-none
-            focus:ring-2
-            focus:ring-cyan-500/20
-          "
+          className="ml-2 rounded-lg p-1.5 text-neutral-600 transition-all duration-200 hover:bg-neutral-800 hover:text-neutral-300 focus:outline-none"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
-          {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
         </button>
       </motion.div>
 
-      {/* Error */}
       {error && (
         <motion.p
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-red-400"
+          className="text-xs font-medium text-rose-400"
         >
           {error}
         </motion.p>

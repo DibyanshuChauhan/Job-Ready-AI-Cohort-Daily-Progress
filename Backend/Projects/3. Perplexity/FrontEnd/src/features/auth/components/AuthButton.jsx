@@ -11,62 +11,26 @@ const AuthButton = ({
 }) => {
   return (
     <motion.button
-      whileHover={{
-        y: -2,
-      }}
-      whileTap={{
-        scale: 0.98,
-      }}
-      transition={{
-        duration: 0.2,
-      }}
+      whileHover={{ y: -1 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.2 }}
       type={type}
       disabled={loading || disabled}
       className={`
-        flex
-        w-full
-        items-center
-        justify-center
-        gap-2
-        rounded-xl
-        bg-cyan-500
-        px-5
-        py-3.5
-        text-sm
-        font-semibold
-        text-slate-950
-        shadow-lg
-        shadow-cyan-500/20
-        transition-all
-        duration-300
-
-        hover:bg-cyan-400
-        hover:shadow-cyan-400/30
-
-        active:scale-[0.98]
-
-        disabled:cursor-not-allowed
-        disabled:opacity-50
-
+        flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-teal-950/20 transition-all duration-300
+        hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer
         ${className}
       `}
     >
       {loading ? (
         <>
-          <ImSpinner8 className="animate-spin text-lg" />
-          Please wait...
+          <ImSpinner8 className="animate-spin text-base" />
+          Processing workspace...
         </>
       ) : (
         <>
           {children}
-
-          <FiArrowRight
-            className="
-              transition-transform
-              duration-300
-              group-hover:translate-x-1
-            "
-          />
+          <FiArrowRight className="transition-transform duration-200 group-hover:translate-x-0.5" />
         </>
       )}
     </motion.button>

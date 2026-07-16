@@ -17,7 +17,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // 2. Extract loading tracker from Redux store
+  // Extract loading tracker from Redux store
   const loading = useSelector((state) => state.auth.loading);
 
   const navigate = useNavigate();
@@ -82,25 +82,25 @@ const Register = () => {
         />
 
         {/* Terms & Conditions Checkbox */}
-        <label className="flex cursor-pointer items-start gap-3 text-sm text-slate-400">
+        <label className="flex cursor-pointer items-start gap-3 text-sm text-neutral-400 select-none">
           <input
             type="checkbox"
             checked={acceptTerms}
             onChange={(e) => setAcceptTerms(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded accent-cyan-500"
+            className="mt-1 h-4 w-4 rounded border-neutral-800 bg-neutral-900/40 text-teal-600 accent-teal-500 transition-colors cursor-pointer"
           />
-          <span className="leading-6">
+          <span className="leading-5 text-xs text-neutral-500 font-medium">
             I agree to the{" "}
             <button
               type="button"
-              className="font-medium text-cyan-400 transition hover:text-cyan-300"
+              className="font-bold text-teal-400 transition hover:text-teal-300 cursor-pointer"
             >
               Terms of Service
             </button>{" "}
             and{" "}
             <button
               type="button"
-              className="font-medium text-cyan-400 transition hover:text-cyan-300"
+              className="font-bold text-teal-400 transition hover:text-teal-300 cursor-pointer"
             >
               Privacy Policy
             </button>
@@ -113,11 +113,11 @@ const Register = () => {
       </form>
 
       {/* Footer Navigation Switcher */}
-      <p className="mt-8 text-center text-sm text-slate-400">
+      <p className="mt-8 text-center text-xs font-medium text-neutral-500">
         Already have an account?{" "}
         <Link
           to="/login"
-          className="font-semibold text-cyan-400 transition hover:text-cyan-300"
+          className="font-bold text-teal-400 transition hover:text-teal-300"
         >
           Sign In
         </Link>

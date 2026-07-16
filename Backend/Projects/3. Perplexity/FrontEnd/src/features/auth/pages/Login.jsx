@@ -60,18 +60,16 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
         />
-        
-        <AuthButton loading={loading}>
-          Sign In
-        </AuthButton>
+
+        <AuthButton loading={loading}>Sign In</AuthButton>
       </form>
 
       {/* Footer Navigation */}
-      <p className="mt-8 text-center text-sm text-slate-400">
+      <p className="mt-8 text-center text-xs font-medium text-neutral-500">
         Don't have an account?{" "}
         <Link
           to="/register"
-          className="font-semibold text-cyan-400 transition hover:text-cyan-300"
+          className="font-bold text-teal-400 transition hover:text-teal-300"
         >
           Create one
         </Link>

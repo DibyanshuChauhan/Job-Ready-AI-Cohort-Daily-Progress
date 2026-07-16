@@ -1,283 +1,251 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useSelector } from "react-redux";
 import { useChat } from "../hooks/useChat";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { AnimatePresence, motion } from "framer-motion";
 
-import {
-  FiZap,
-  FiX,
-  FiPlus,
-  FiSearch,
-  FiMessageSquare,
-  FiUser,
-  FiSettings,
-  FiMenu,
-  FiChevronDown,
-  FiPaperclip,
-  FiSend,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiZap, FiX, FiMenu, FiChevronDown } from "react-icons/fi";
+
+import Sidebar from "../components/Sidebar";
+import EmailMessageCard from "../components/EmailMessageCard";
+import EmailIntegration from "./EmailIntegration"; 
+import { useToast } from "../context/ToastContext";
 
 const Dashboard = () => {
   const chat = useChat();
+  const { showToast } = useToast(); // Initialize Toast
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const messagesEndRef = useRef(null);
 
-const [sidebarOpen, setSidebarOpen] = useState(false);
-const [message, setMessage] = useState("");
+  const chats = useSelector((state) => state.chat.chats);
+  const currentChatId = useSelector((state) => state.chat.currentChatId);
+  const { user } = useSelector((state) => state.auth);
 
-const chats = useSelector((state) => state.chat.chats);
-const currentChatId = useSelector((state) => state.chat.currentChatId)
+  const activeChat = chats[currentChatId];
 
-const handleSend = async (e) => {
-  e.preventDefault();
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  if (!message.trim()) return;
+  useEffect(() => {
+    scrollToBottom();
+  }, [activeChat?.messages]);
 
-  await chat.handleSendMessage({
-    message,
-    chatId: currentChatId,
-  });
+  useEffect(() => {
+    chat.handleGetChats();
+  }, []);
 
-  setMessage("");
-};
+  const handleSendMessagePayload = async (compiledMessage) => {
+    try {
+      // Notify user visually if an email operation starts processing
+      if (compiledMessage.startsWith("Send an email")) {
+        showToast("Compiling intelligence and preparing email brief...", "info");
+      }
 
-const openChat = (chatId) => {
-  chat.handleOpenChat(chatId, chats)
-}
+      await chat.handleSendMessage({
+        message: compiledMessage,
+        chatId: currentChatId,
+      });
 
-const handleDelete = async (e, chatId) => {
-  e.stopPropagation();
-  await chat.handleDeleteChat(chatId);
-}
+      // Show delivery success status notification
+      if (compiledMessage.startsWith("Send an email")) {
+        showToast("Email dispatched successfully!", "success");
+      }
+    } catch (error) {
+      showToast(error?.message || "An error occurred while sending message.", "error");
+    }
+  };
 
-    const { user } = useSelector(state => state.auth)
-    console.log(user)
+  const openChat = (chatId) => {
+    chat.handleOpenChat(chatId, chats);
+    setSidebarOpen(false);
+  };
 
-    useEffect(() => {
-      chat.handleGetChats()
-      chat.initializeSocketConnection()
-    }, [])
+  const handleDelete = async (e, chatId) => {
+    e.stopPropagation();
+    try {
+      await chat.handleDeleteChat(chatId);
+      showToast("Conversation thread permanently removed.", "success");
+    } catch (error) {
+      showToast("Failed to delete the selected thread.", "error");
+    }
+  };
+
+  const handleNewThread = () => {
+    chat.handleOpenChat(null, chats);
+    setSidebarOpen(false);
+    showToast("New operational workspace initialized.", "info");
+  };
 
   return (
-   <main className="h-screen w-full flex bg-neutral-800 text-neutral-100 overflow-hidden relative">
-  {/* Mobile backdrop overlay — shown only when sidebar is open on small screens */}
-  {sidebarOpen && (
-    <div
-      onClick={() => setSidebarOpen(false)}
-      className="fixed inset-0 bg-black/60 z-30 lg:hidden"
-    />
-  )}
+    <main className="h-screen w-full flex bg-[#0d0d0d] text-neutral-200 overflow-hidden relative font-sans antialiased">
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-black/75 z-40 lg:hidden backdrop-blur-sm"
+          />
+        )}
+      </AnimatePresence>
 
-  {/* ============ LEFT SECTION: Sidebar ============ */}
-  <aside
-    className={`
-      fixed lg:static inset-y-0 left-0 z-40
-      w-72 max-w-[80%] flex flex-col
-      bg-neutral-900 border-r border-neutral-700
-      transform transition-transform duration-300 ease-in-out
-      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
-    `}
-  >
-    {/* Sidebar header: logo + close btn (mobile only) */}
-    <div className="flex items-center justify-between px-4 py-4">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center">
-          <FiZap className="text-neutral-900" size={16} />
-        </div>
-        <span className="font-semibold text-lg tracking-tight">Perplexity</span>
-      </div>
-      <button
-        onClick={() => setSidebarOpen(false)}
-        className="lg:hidden p-1.5 rounded-md hover:bg-neutral-800 transition-colors"
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-72 flex flex-col bg-[#0b0b0b]
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+        `}
       >
-        <FiX size={20} />
-      </button>
-    </div>
-
-    {/* New Thread button */}
-    <div className="px-4 mb-3">
-      <button className="w-full flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-500 transition-colors text-white text-sm font-medium py-2.5 rounded-lg">
-        <FiPlus size={16} />
-        New Thread
-      </button>
-    </div>
-
-    {/* Search bar */}
-    <div className="px-4 mb-4">
-      <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700 focus-within:border-teal-500 transition-colors">
-        <FiSearch className="text-neutral-400 shrink-0" size={16} />
-        <input
-          type="text"
-          placeholder="Search your threads..."
-          className="bg-transparent outline-none text-sm w-full placeholder:text-neutral-500"
+        <Sidebar
+          chats={chats}
+          currentChatId={currentChatId}
+          user={user}
+          openChat={openChat}
+          handleDelete={handleDelete}
+          handleNewThread={handleNewThread}
         />
-      </div>
-    </div>
-
-    {/* Chat history — scrollable list */}
-    <div className="flex-1 overflow-y-auto px-2 space-y-1 pb-2">
-      <p className="px-3 py-1 text-xs uppercase tracking-wide text-neutral-500 font-medium">
-        Recent
-      </p>
-      {Object.values(chats).map((item) => (
-        <div key={item.id} className="group flex items-center rounded-lg hover:bg-neutral-800 transition-colors">
-          <button
-            onClick={() => openChat(item.id)}
-            className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-l-lg text-sm text-neutral-300 hover:bg-neutral-800 transition-colors text-left cursor-pointer"
-          >
-            <FiMessageSquare className="text-neutral-500 shrink-0" size={15} />
-            <span className="truncate">{item.title}</span>
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleDelete(e, item.id)}
-            className="p-2 mr-1 rounded-md text-neutral-500 hover:bg-neutral-700 hover:text-red-400 transition-colors"
-            aria-label={`Delete chat ${item.title}`}
-          >
-            <FiTrash2 size={15} />
-          </button>
-        </div>
-      ))}
-    </div>
-
-    {/* Sidebar footer: username + plan */}
-    <div className="border-t border-neutral-700 px-4 py-3">
-      <button className="w-full flex items-center gap-3 hover:bg-neutral-800 rounded-lg px-2 py-2 transition-colors">
-        <div className="h-9 w-9 rounded-full bg-neutral-700 flex items-center justify-center shrink-0">
-          <FiUser size={16} className="text-neutral-300" />
-        </div>
-        <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium truncate">
-            {user?.name || "Guest User"}
-          </p>
-          <span className="inline-flex items-center gap-1 text-xs text-teal-400">
-            <FiZap size={10} />
-            Pro Plan
-          </span>
-        </div>
-        <FiSettings size={16} className="text-neutral-500 shrink-0" />
-      </button>
-    </div>
-  </aside>
-
-  {/* ============ RIGHT SECTION: Chat area ============ */}
-  <section className="flex-1 flex flex-col min-w-0">
-    {/* Top bar */}
-    <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700">
-      <div className="flex items-center gap-3">
-        {/* Mobile-only menu toggle */}
         <button
-          onClick={() => setSidebarOpen(true)}
-          className="lg:hidden p-1.5 rounded-md hover:bg-neutral-700 transition-colors"
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden absolute top-5 right-4 p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors"
         >
-          <FiMenu size={20} />
+          <FiX size={16} />
         </button>
-        <h1 className="text-sm sm:text-base font-medium text-neutral-200 truncate">
-          What's the difference between SSR and CSR?
-        </h1>
-      </div>
-      <button className="hidden sm:flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-200 transition-colors">
-        Focus: Web
-        <FiChevronDown size={14} />
-      </button>
-    </div>
+      </aside>
 
-    {/* Messages — scrollable */}
-    <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-16 py-6 space-y-6">
-      {chats[currentChatId]?.messages.map((msg) =>
-        msg.role === "user" ? (
-          // User message bubble
-          <div key={msg.id} className="flex justify-end">
-            <div className="max-w-[85%] sm:max-w-[70%] bg-neutral-700 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-neutral-100">
-              {msg.content}
-            </div>
-          </div>
-        ) : (
-          // AI message block
-          <div key={msg.id} className="flex gap-3 max-w-3xl">
-            <div className="h-7 w-7 rounded-full bg-teal-500 flex items-center justify-center shrink-0 mt-0.5">
-              <FiZap className="text-neutral-900" size={13} />
-            </div>
-            <div className="text-sm sm:text-[15px] leading-relaxed text-neutral-200 space-y-2">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  p: ({ children }) => <p className="m-0 leading-relaxed">{children}</p>,
-                  ul: ({ children }) => <ul className="ml-5 list-disc space-y-1">{children}</ul>,
-                  ol: ({ children }) => <ol className="ml-5 list-decimal space-y-1">{children}</ol>,
-                  table: ({ children }) => (
-                    <div className="my-3 overflow-x-auto">
-                      <table className="min-w-full border-collapse rounded-lg border border-neutral-700 text-sm">
-                        {children}
-                      </table>
+      <section className="flex-1 flex flex-col min-w-0 bg-[#0f0f0f]">
+
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-24 py-8 space-y-8 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
+          {activeChat?.messages && activeChat.messages.length > 0 ? (
+            activeChat.messages.map((msg) => {
+              if (msg.role === "user") {
+                return (
+                  <div key={msg.id || msg._id} className="flex justify-end">
+                    <div className="max-w-[80%] sm:max-w-[65%] bg-neutral-800 border border-neutral-700/40 rounded-2xl rounded-tr-sm px-4.5 py-3 text-sm text-neutral-100 shadow-lg shadow-black/10 leading-relaxed">
+                      {msg.content}
                     </div>
-                  ),
-                  thead: ({ children }) => <thead className="bg-neutral-800">{children}</thead>,
-                  tbody: ({ children }) => <tbody className="divide-y divide-neutral-700">{children}</tbody>,
-                  tr: ({ children }) => <tr className="border-b border-neutral-700 last:border-b-0">{children}</tr>,
-                  th: ({ children }) => (
-                    <th className="border border-neutral-700 px-3 py-2 text-left font-semibold text-neutral-100">
-                      {children}
-                    </th>
-                  ),
-                  td: ({ children }) => (
-                    <td className="border border-neutral-700 px-3 py-2 align-top text-neutral-300">
-                      {children}
-                    </td>
-                  ),
-                  code: ({ children, className }) => (
-                    <code className={`rounded bg-neutral-800 px-1.5 py-0.5 text-[13px] ${className || ""}`}>
-                      {children}
-                    </code>
-                  ),
-                }}
-              >
-                {String(msg.content || "")}
-              </ReactMarkdown>
+                  </div>
+                );
+              }
+
+              if (msg.role === "email") {
+                return (
+                  <div key={msg.id || msg._id} className="flex gap-4 max-w-3xl">
+                    <div className="h-8 w-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
+                      <FiZap size={15} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <EmailMessageCard
+                        details={msg.emailDetails}
+                        content={msg.content}
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={msg.id || msg._id} className="flex gap-4 max-w-3xl">
+                  <div className="h-8 w-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
+                    <FiZap size={15} />
+                  </div>
+                  <div className="flex-1 text-sm leading-relaxed text-neutral-300 space-y-4">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => (
+                          <p className="m-0 leading-relaxed text-neutral-300">
+                            {children}
+                          </p>
+                        ),
+                        ul: ({ children }) => (
+                          <ul className="ml-5 list-disc space-y-1.5 text-neutral-300">
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children }) => (
+                          <ol className="ml-5 list-decimal space-y-1.5 text-neutral-300">
+                            {children}
+                          </ol>
+                        ),
+                        table: ({ children }) => (
+                          <div className="my-4 overflow-x-auto rounded-xl border border-neutral-800 bg-[#121212] shadow-md">
+                            <table className="min-w-full border-collapse text-xs text-left">
+                              {children}
+                            </table>
+                          </div>
+                        ),
+                        thead: ({ children }) => (
+                          <thead className="bg-neutral-900/50 border-b border-neutral-800 text-neutral-200">
+                            {children}
+                          </thead>
+                        ),
+                        tbody: ({ children }) => (
+                          <tbody className="divide-y divide-neutral-900">
+                            {children}
+                          </tbody>
+                        ),
+                        tr: ({ children }) => (
+                          <tr className="hover:bg-neutral-900/20 transition-colors">
+                            {children}
+                          </tr>
+                        ),
+                        th: ({ children }) => (
+                          <th className="px-4 py-3 font-semibold text-neutral-300 border-r border-neutral-900 last:border-r-0">
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children }) => (
+                          <td className="px-4 py-3 text-neutral-400 border-r border-neutral-900 last:border-r-0">
+                            {children}
+                          </td>
+                        ),
+                        code: ({ children, className }) => (
+                          <code
+                            className={`rounded-md bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 text-[13px] font-mono text-neutral-300 ${className || ""}`}
+                          >
+                            {children}
+                          </code>
+                        ),
+                      }}
+                    >
+                      {String(msg.content || "")}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto pt-24 space-y-4">
+              <div className="h-12 w-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mb-2 shadow-lg shadow-teal-500/5 animate-pulse">
+                <FiZap size={22} />
+              </div>
+              <h3 className="text-lg font-semibold text-neutral-200">
+                Where will your curiosity lead?
+              </h3>
+              <p className="text-xs text-neutral-500 leading-relaxed">
+                Search real-time internet indices or compile sophisticated email
+                briefs dynamically in a unified command environment.
+              </p>
             </div>
-          </div>
-        )
-      )}
-    </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
-    {/* Input box */}
-    <div className="px-4 sm:px-8 lg:px-16 pb-4 sm:pb-6">
-      <form
-        onSubmit={handleSend}
-        className="flex items-end gap-2 bg-neutral-900 border border-neutral-700 focus-within:border-teal-500 rounded-2xl px-3 py-2.5 transition-colors"
-      >
-        <button
-          type="button"
-          className="p-1.5 rounded-md hover:bg-neutral-800 transition-colors shrink-0"
-        >
-          <FiPaperclip size={17} className="text-neutral-400" />
-        </button>
-        <textarea
-          rows={1}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSend(e);
-      }
-  } }
-            placeholder="Ask anything..."
-            className="flex-1 bg-transparent outline-none resize-none text-sm placeholder:text-neutral-500 max-h-32 py-1.5"
-        />
-        <button
-          type="submit"
-          disabled={!message.trim()}
-          className="p-2 rounded-lg bg-teal-600 hover:bg-teal-500 disabled:bg-neutral-700 disabled:cursor-not-allowed transition-colors shrink-0"
-        >
-          <FiSend size={15} className="text-white" />
-        </button>
-      </form>
-    </div>
-  </section>
-</main>
-  )
-}
+        <div className="px-4 sm:px-8 lg:px-24 pb-6 bg-linear-to-t from-[#0f0f0f] via-[#0f0f0f] to-transparent pt-4">
+          <EmailIntegration
+            onSubmitMessage={handleSendMessagePayload}
+            currentPlaceholder="Ask anything or request an automated email..."
+          />
+        </div>
+      </section>
+    </main>
+  );
+};
 
-export default Dashboard
+export default Dashboard;
