@@ -1,31 +1,25 @@
 /* eslint-disable no-unused-vars */
 import { useDispatch } from "react-redux";
 import { login, register, getMe, logout } from "../service/auth.api";
-import { setUser, setLoading, setError, setAuthChecked, logoutSuccess } from "../auth.slice";
+import { setUser, setLoading, setError, setAuthChecked, logoutSuccess, registerSuccess } from "../auth.slice";
 
 export const useAuth = () => {
     const dispatch = useDispatch();
 
-    const handleRegister = async ({ username, email, password }) => {
-        try {
-            dispatch(setLoading(true));
-
-    const data = await register({
-    username,
-    email,
-    password,
-});
-dispatch(setUser(data.user));
-return data;
-} catch (error) {
-    dispatch(setError(error.response?.data?.message || "Registration failed")
-    );
-    
-    throw error;
-} finally {
-    dispatch(setLoading(false));
-}
+const handleRegister = async (payload) => {
+    dispatch(setLoading(true));
+    try {
+        const response = await register(payload);
+        dispatch(registerSuccess(response.user));
+        return response; // CRITICAL: Return response so the form component can catch it
+    } catch (error) {
+        dispatch(setError(error.response?.data?.message || "Registration failed"));
+        throw error; // CRITICAL: Re-throw error so the component's catch block executes
+    } finally {
+        dispatch(setLoading(false));
+    }
 };
+
     const handleLogin = async ({email, password}) => {
         try {
             dispatch(setLoading(true));

@@ -6,7 +6,7 @@ export const registerController = async (req, res) => {
     try {
         const { username, email, password } = req.body;
         
-        // 1. Check if user already exists
+        // 1. Check if user already exists in the database
         const isUserAlreadyExists = await userModel.findOne({
             $or: [
                 { username }, { email }
@@ -15,43 +15,39 @@ export const registerController = async (req, res) => {
 
         if (isUserAlreadyExists) {
             return res.status(400).json({
-                message: "User with this email or username already exists",
                 success: false,
+                message: "User with this email or username already exists",
                 err: "user already exists"
             });
         }
 
-        // 2. Create new user
+        // 2. Create new user document (Schema pre-save hook will handle bcrypt hashing)
         const newUser = await userModel.create({
             username,
             email,
             password
         });
 
-        // 3. Generate verification token
+        // 3. Generate verification token matching the email parameter
         const emailVerificationToken = jwt.sign({
             email: newUser.email
-        }, process.env.JWT_SECRET);
+        }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-        // 4. Send verification email
+        // 4. Dispatch the verification mail flow sequence
         await sendEmail({
             to: email,
             subject: "Welcome to Perplexity!",
             html: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                     <h2>Welcome to Perplexity 🚀</h2>
-
                     <p>Hi <strong>${username}</strong>,</p>
-
                     <p>
                         Thank you for registering with <strong>Perplexity</strong>.
                         We're excited to have you on board!
                     </p>
-
                     <p>
                         Please verify your email address by clicking the button below:
                     </p>
-
                     <a
                         href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"
                         style="
@@ -66,21 +62,16 @@ export const registerController = async (req, res) => {
                     >
                         Verify Email
                     </a>
-
                     <p style="margin-top:20px;">
                         Or copy and paste this link into your browser:
                     </p>
-
                     <p>
                         http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}
                     </p>
-
                     <hr />
-
                     <p>
                         If you didn't create an account, you can safely ignore this email.
                     </p>
-
                     <p>
                         Best regards,<br/>
                         <strong>The Perplexity Team</strong>
@@ -89,10 +80,10 @@ export const registerController = async (req, res) => {
             `,
         });
 
-        // 5. Send success response
+        // 5. Send structural clean success response back to frontend interceptors
         return res.status(201).json({
-            message: "User registered successfully",
             success: true,
+            message: "User registered successfully",
             user: {
                 id: newUser._id,
                 username: newUser.username,
@@ -101,13 +92,13 @@ export const registerController = async (req, res) => {
         });
 
     } catch (error) {
-        // Log the actual error for server-side debugging
-        console.error("Registration Error:", error);
+        // Log the actual structural error for server-side troubleshooting
+        console.error("Registration Controller Error:", error);
 
-        // Send a generic failure response to the client
+        // Send a generic standardized failure JSON response that frontend toast loops map easily
         return res.status(500).json({
-            message: "Something went wrong while registering the user",
             success: false,
+            message: error.message || "Something went wrong while registering the user configuration nodes.",
             error: error.message || error
         });
     }

@@ -141,7 +141,7 @@ const Dashboard = () => {
             </div>
 
             <button className="hidden sm:flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-500 hover:text-neutral-300 uppercase transition-colors cursor-pointer bg-neutral-900/40 px-3 py-1.5 rounded-lg border border-neutral-900">
-              Engine: Gemini-Flash
+              Engine: Mistral-Small-Latest
               <FiChevronDown size={12} />
             </button>
           </header>

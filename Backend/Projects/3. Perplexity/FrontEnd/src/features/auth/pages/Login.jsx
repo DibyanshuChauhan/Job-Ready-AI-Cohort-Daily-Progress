@@ -9,6 +9,7 @@ import AuthInput from "../components/AuthInput";
 import PasswordInput from "../components/PasswordInput";
 import AuthButton from "../components/AuthButton";
 import { useAuth } from "../hook/useAuth";
+import { useToast } from "../../chat/context/ToastContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,25 +20,51 @@ const Login = () => {
 
   const navigate = useNavigate();
   const { handleLogin } = useAuth();
+  const { showToast } = useToast(); // Extract toast control method
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Pre-flight Validation Check
+    if (!email.trim() || !password) {
+      return showToast("Please input both identification fields.", "warning");
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      return showToast("Invalid address syntax: Check email structure.", "warning");
+    }
+
     try {
       const payload = { email, password };
 
+      // Dispatch login request to authentication services
       await handleLogin(payload);
 
-      // If login credentials match, clear forms and flash the premium transition loader
+      // If credentials successfully clear the node, clean input states and launch HUD environment loader
       setEmail("");
       setPassword("");
       setIsConstructing(true);
 
-      // Delay navigation slightly so the clean transition frame plays through smoothly
+      // Smoothly hold viewport layout execution frames for transition animation sweep
       setTimeout(() => {
+        showToast("Access authenticated. Session token initialized.", "success");
         navigate("/");
       }, 1600);
     } catch (error) {
       console.error("Login request failed: ", error);
+
+      // 2. Map structural backend validator errors or explicit rejection strings to toast system
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        error.response.data.errors.forEach((err) => {
+          showToast(err.msg, "error");
+        });
+      } else {
+        showToast(
+          error.response?.data?.message || "Authentication signature rejected by system cluster.", 
+          "error"
+        );
+      }
     }
   };
 

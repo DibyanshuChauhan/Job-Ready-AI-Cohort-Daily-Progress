@@ -25,6 +25,13 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
+    registerSuccess: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true; // Automatically authenticates or sets up session context flags
+      state.isLoading = false;
+      state.error = null;
+    },
+
     logoutSuccess: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -34,6 +41,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setLoading, setError, setAuthChecked, logoutSuccess } =
+export const { setUser, setLoading, setError, setAuthChecked, registerSuccess, logoutSuccess } =
   authSlice.actions;
 export default authSlice.reducer;

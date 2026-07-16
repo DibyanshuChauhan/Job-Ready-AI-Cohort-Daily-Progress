@@ -19,16 +19,36 @@ const Sidebar = ({
     openChat,
     handleDelete,
     handleNewThread,
+    openProfile,
 }) => {
     const { handleLogout } = useAuth();
     const [activeTab, setActiveTab] = useState("threads");
+    
+    // NEW STATE: Captures the search input value in real-time
+    const [searchQuery, setSearchQuery] = useState("");
 
     const chatList = Object.values(chats);
+    
+    // UPDATED FILTER PIPELINE: Handles both tab switching AND query substring search
     const filteredChats = chatList.filter((chatItem) => {
-        return activeTab === "emails" 
+        // 1. First, separate data segments by matching tab profiles
+        const matchesTab = activeTab === "emails" 
             ? chatItem.chatType === "email" 
             : chatItem.chatType === "search" || !chatItem.chatType; 
+
+        // 2. Next, calculate string matches against the search input string
+        const matchesSearch = chatItem.title
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase());
+
+        return matchesTab && matchesSearch;
     });
+
+    // Clean reset handler when changing workspace tabs to improve search context transitions
+    const handleTabChange = (tabName) => {
+        setActiveTab(tabName);
+        setSearchQuery(""); // Purge active query value to prevent blank layout grids
+    };
 
     return (
         <div className="h-full flex flex-col bg-[#0d0d0d] text-neutral-100 select-none">
@@ -58,7 +78,7 @@ const Sidebar = ({
                 <div className="flex bg-[#121212] p-1 rounded-xl border border-neutral-800/60">
                     <button
                         type="button"
-                        onClick={() => setActiveTab("threads")}
+                        onClick={() => handleTabChange("threads")}
                         className={`relative flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-lg cursor-pointer transition-colors text-center ${
                             activeTab === "threads" ? "text-neutral-950" : "text-neutral-500 hover:text-neutral-300"
                         }`}
@@ -78,7 +98,7 @@ const Sidebar = ({
 
                     <button
                         type="button"
-                        onClick={() => setActiveTab("emails")}
+                        onClick={() => handleTabChange("emails")}
                         className={`relative flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-lg cursor-pointer transition-colors text-center ${
                             activeTab === "emails" ? "text-neutral-950" : "text-neutral-500 hover:text-neutral-300"
                         }`}
@@ -98,12 +118,14 @@ const Sidebar = ({
                 </div>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar - Interactive Text Node */}
             <div className="px-4 mb-3">
-                <div className="flex items-center gap-2.5 bg-[#121212] rounded-xl px-3.5 py-2 border border-neutral-800 focus-within:border-neutral-700 transition-all">
+                <div className="flex items-center gap-2.5 bg-[#121212] rounded-xl px-3.5 py-2 border border-neutral-800 focus-within:border-teal-500/30 transition-all duration-200">
                     <FiSearch className="text-neutral-500 shrink-0" size={14} />
                     <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)} // Bind live change sequence values
                         placeholder={activeTab === "threads" ? "Search threads..." : "Search dispatched mail..."}
                         className="bg-transparent outline-none text-xs w-full placeholder:text-neutral-600 text-neutral-300 py-1.5"
                     />
@@ -113,7 +135,7 @@ const Sidebar = ({
             {/* Dynamic Chat History List */}
             <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
                 <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
-                    {activeTab === "threads" ? "Recent Conversations" : "Archived Dispatches"}
+                    {searchQuery ? "Search Results" : (activeTab === "threads" ? "Recent Conversations" : "Archived Dispatches")}
                 </p>
 
                 <AnimatePresence>
@@ -160,9 +182,9 @@ const Sidebar = ({
                             key={`empty-${activeTab}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-center py-8 text-xs text-neutral-600 font-medium"
+                            className="text-center py-8 text-xs text-neutral-600 font-medium font-mono"
                         >
-                            No {activeTab === "threads" ? "chats" : "email records"} found
+                            {searchQuery ? "No matching criteria matched" : `No ${activeTab === "threads" ? "chats" : "email records"} found`}
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -170,7 +192,6 @@ const Sidebar = ({
 
             {/* Profile & Logout Footer Panel */}
             <div className="border-t border-neutral-900 px-4 py-3 bg-[#090909] flex flex-col gap-1.5">
-                {/* 3. Sleek Premium Logout Action strip option */}
                 <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2.5 text-neutral-500 hover:text-rose-400 hover:bg-rose-500/5 px-2.5 py-2 rounded-xl text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer"
@@ -179,12 +200,15 @@ const Sidebar = ({
                     Disconnect Workspace
                 </button>
 
-                <div className="w-full flex items-center gap-3 bg-neutral-950/20 border border-neutral-900/60 rounded-xl p-2 transition-all">
-                    <div className="h-9 w-9 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0 border border-neutral-700/30">
-                        <FiUser size={16} className="text-neutral-400" />
+                <button
+                    onClick={openProfile}
+                    className="w-full flex items-center gap-3 bg-neutral-950/20 hover:bg-neutral-900/40 border border-neutral-900/60 hover:border-neutral-800 rounded-xl p-2 transition-all cursor-pointer group/profile text-left"
+                >
+                    <div className="h-9 w-9 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0 border border-neutral-700/30 group-hover/profile:border-teal-500/20 group-hover/profile:text-teal-400 text-neutral-400 transition-all">
+                        <FiUser size={16} />
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                        <p className="text-xs font-semibold truncate text-neutral-200">
+                        <p className="text-xs font-semibold truncate text-neutral-200 group-hover/profile:text-white transition-colors">
                             {user?.username || "Guest User"}
                         </p>
                         <span className="inline-flex items-center gap-1 text-[10px] font-medium text-teal-400/90 bg-teal-500/10 px-2 py-0.5 rounded-full mt-0.5">
@@ -192,7 +216,7 @@ const Sidebar = ({
                             Pro Account
                         </span>
                     </div>
-                </div>
+                </button>
             </div>
         </div>
     );

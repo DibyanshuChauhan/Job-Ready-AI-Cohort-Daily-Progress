@@ -1,12 +1,13 @@
-import { body, validationResult } from "express-validator"
+import { body, validationResult } from "express-validator";
 
 export const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        // Return a clean uniform structure containing the raw validation errors array
+        return res.status(400).json({ success: false, errors: errors.array() });
     }
     next();
-}
+};
 
 export const registerValidator = [
     body("username")
@@ -18,11 +19,13 @@ export const registerValidator = [
     body("email")
         .trim()
         .notEmpty().withMessage("Email is required")
-        .isEmail().withMessage("Please provide a valid email"),
+        .isEmail().withMessage("Please provide a valid email address"),
 
     body("password")
         .notEmpty().withMessage("Password is required")
-        .isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+        .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long")
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .withMessage("Password requires an uppercase letter, lowercase letter, number, and special character (@$!%*?&)."),
 
     validate
 ];
@@ -31,10 +34,10 @@ export const loginValidator = [
     body("email")
         .trim()
         .notEmpty().withMessage("Email is required")
-        .isEmail().withMessage("Please provide a valid email"),
+        .isEmail().withMessage("Please provide a valid email address"),
 
     body("password")
         .notEmpty().withMessage("Password is required"),
 
     validate
-]
+];
