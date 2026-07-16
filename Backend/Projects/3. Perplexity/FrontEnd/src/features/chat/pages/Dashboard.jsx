@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useSelector } from "react-redux";
@@ -11,7 +12,7 @@ import { FiZap, FiX, FiMenu, FiChevronDown } from "react-icons/fi";
 
 import Sidebar from "../components/Sidebar";
 import EmailMessageCard from "../components/EmailMessageCard";
-import EmailIntegration from "./EmailIntegration";
+import EmailIntegration from "./EmailIntegration"; 
 import { useToast } from "../context/ToastContext";
 import Loader from "../components/Loader";
 import ThinkingIndicator from "../components/ThinkingIndicator";
@@ -19,9 +20,11 @@ import TypingEffect from "../components/TypingEffect";
 
 const Dashboard = () => {
   const chat = useChat();
-  const { showToast } = useToast();
+  const { showToast } = useToast(); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  // NEW: Controls whether the typing animation is permitted to run
+  const [animateLatest, setAnimateLatest] = useState(false);
   const messagesEndRef = useRef(null);
 
   const chats = useSelector((state) => state.chat.chats);
@@ -43,13 +46,10 @@ const Dashboard = () => {
     chat.handleGetChats();
   }, []);
 
-  // NEW FEATURE EFFECT: Auto-reloads current conversation logs on unexpected refresh
+  // Auto-reloads current conversation logs on unexpected refresh
   useEffect(() => {
-    if (
-      currentChatId &&
-      chats[currentChatId] &&
-      chats[currentChatId].messages.length === 0
-    ) {
+    if (currentChatId && chats[currentChatId] && chats[currentChatId].messages.length === 0) {
+      setAnimateLatest(false); // Ensure historical messages don't animate on refresh load
       chat.handleOpenChat(currentChatId, chats);
     }
   }, [chats, currentChatId]);
@@ -57,18 +57,16 @@ const Dashboard = () => {
   const handleSendMessagePayload = async (compiledMessage, currentMode) => {
     try {
       if (compiledMessage.startsWith("Send an email")) {
-        showToast(
-          "Compiling intelligence and preparing email brief...",
-          "info",
-        );
+        showToast("Compiling intelligence and preparing email brief...", "info");
       }
 
       setIsThinking(true);
+      setAnimateLatest(true); // NEW: Enable typing animation ONLY for this new active response loop
 
       await chat.handleSendMessage({
         message: compiledMessage,
         chatId: currentChatId,
-        chatType: currentMode,
+        chatType: currentMode
       });
 
       if (compiledMessage.startsWith("Send an email")) {
@@ -82,6 +80,7 @@ const Dashboard = () => {
   };
 
   const openChat = (chatId) => {
+    setAnimateLatest(false); // NEW: Disable typing animation when switching threads manually
     chat.handleOpenChat(chatId, chats);
     setSidebarOpen(false);
   };
@@ -97,6 +96,7 @@ const Dashboard = () => {
   };
 
   const handleNewThread = () => {
+    setAnimateLatest(false); // NEW: Clean animation slate for fresh workspaces
     chat.handleOpenChat(null, chats);
     setSidebarOpen(false);
     showToast("New operational workspace initialized.", "info");
@@ -104,12 +104,12 @@ const Dashboard = () => {
 
   return (
     <>
-      <AnimatePresence mode="wait">{isLoading && <Loader />}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        {isLoading && <Loader />}
+      </AnimatePresence>
 
       <main className="h-screen w-full flex bg-[#0d0d0d] text-neutral-200 overflow-hidden relative font-sans antialiased">
-        <aside
-          className={`fixed lg:static inset-y-0 left-0 z-50 w-72 flex flex-col bg-[#0b0b0b] transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
-        >
+        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 flex flex-col bg-[#0b0b0b] transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
           <Sidebar
             chats={chats}
             currentChatId={currentChatId}
@@ -149,15 +149,11 @@ const Dashboard = () => {
           <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-24 py-8 space-y-8 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
             {activeChat?.messages && activeChat.messages.length > 0 ? (
               activeChat.messages.map((msg, index) => {
-                const isLatestMessage =
-                  index === activeChat.messages.length - 1;
+                const isLatestMessage = index === activeChat.messages.length - 1;
 
                 if (msg.role === "user") {
                   return (
-                    <div
-                      key={msg.id || msg._id || index}
-                      className="flex justify-end"
-                    >
+                    <div key={msg.id || msg._id || index} className="flex justify-end">
                       <div className="max-w-[80%] sm:max-w-[65%] bg-neutral-800 border border-neutral-700/40 rounded-2xl rounded-tr-sm px-4.5 py-3 text-sm text-neutral-100 shadow-lg shadow-black/10 leading-relaxed">
                         {msg.content}
                       </div>
@@ -167,10 +163,7 @@ const Dashboard = () => {
 
                 if (msg.role === "email") {
                   return (
-                    <div
-                      key={msg.id || msg._id || index}
-                      className="flex gap-4 max-w-3xl"
-                    >
+                    <div key={msg.id || msg._id || index} className="flex gap-4 max-w-3xl">
                       <div className="h-8 w-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
                         <FiZap size={15} />
                       </div>
@@ -185,74 +178,33 @@ const Dashboard = () => {
                 }
 
                 return (
-                  <div
-                    key={msg.id || msg._id || index}
-                    className="flex gap-4 max-w-3xl"
-                  >
+                  <div key={msg.id || msg._id || index} className="flex gap-4 max-w-3xl">
                     <div className="h-8 w-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
                       <FiZap size={15} />
                     </div>
                     <div className="flex-1 text-sm leading-relaxed text-neutral-300 space-y-4">
-                      {isLatestMessage ? (
-                        <TypingEffect
-                          text={String(msg.content || "")}
-                          speed={12}
-                        />
+                      {/* NEW CONDITION: Only use typing animation if it's the latest message AND animateLatest is true */}
+                      {isLatestMessage && animateLatest ? (
+                        <TypingEffect text={String(msg.content || "")} speed={12} />
                       ) : (
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            p: ({ children }) => (
-                              <p className="m-0 leading-relaxed text-neutral-300">
-                                {children}
-                              </p>
-                            ),
-                            ul: ({ children }) => (
-                              <ul className="ml-5 list-disc space-y-1.5 text-neutral-300">
-                                {children}
-                              </ul>
-                            ),
-                            ol: ({ children }) => (
-                              <ol className="ml-5 list-decimal space-y-1.5 text-neutral-300">
-                                {children}
-                              </ol>
-                            ),
+                            p: ({ children }) => <p className="m-0 leading-relaxed text-neutral-300">{children}</p>,
+                            ul: ({ children }) => <ul className="ml-5 list-disc space-y-1.5 text-neutral-300">{children}</ul>,
+                            ol: ({ children }) => <ol className="ml-5 list-decimal space-y-1.5 text-neutral-300">{children}</ol>,
                             table: ({ children }) => (
                               <div className="my-4 overflow-x-auto rounded-xl border border-neutral-800 bg-[#121212] shadow-md">
-                                <table className="min-w-full border-collapse text-xs text-left">
-                                  {children}
-                                </table>
+                                <table className="min-w-full border-collapse text-xs text-left">{children}</table>
                               </div>
                             ),
-                            thead: ({ children }) => (
-                              <thead className="bg-neutral-900/50 border-b border-neutral-800 text-neutral-200">
-                                {children}
-                              </thead>
-                            ),
-                            tbody: ({ children }) => (
-                              <tbody className="divide-y divide-neutral-900">
-                                {children}
-                              </tbody>
-                            ),
-                            tr: ({ children }) => (
-                              <tr className="hover:bg-neutral-900/20 transition-colors">
-                                {children}
-                              </tr>
-                            ),
-                            th: ({ children }) => (
-                              <th className="px-4 py-3 font-semibold text-neutral-300 border-r border-neutral-900 last:border-r-0">
-                                {children}
-                              </th>
-                            ),
-                            td: ({ children }) => (
-                              <td className="px-4 py-3 text-neutral-400 border-r border-neutral-900 last:border-r-0">
-                                {children}
-                              </td>
-                            ),
+                            thead: ({ children }) => <thead className="bg-neutral-900/50 border-b border-neutral-800 text-neutral-200">{children}</thead>,
+                            tbody: ({ children }) => <tbody className="divide-y divide-neutral-900">{children}</tbody>,
+                            tr: ({ children }) => <tr className="hover:bg-neutral-900/20 transition-colors">{children}</tr>,
+                            th: ({ children }) => <th className="px-4 py-3 font-semibold text-neutral-300 border-r border-neutral-900 last:border-r-0">{children}</th>,
+                            td: ({ children }) => <td className="px-4 py-3 text-neutral-400 border-r border-neutral-900 last:border-r-0">{children}</td>,
                             code: ({ children, className }) => (
-                              <code
-                                className={`rounded-md bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 text-[13px] font-mono text-neutral-300 ${className || ""}`}
-                              >
+                              <code className={`rounded-md bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 text-[13px] font-mono text-neutral-300 ${className || ""}`}>
                                 {children}
                               </code>
                             ),
@@ -274,8 +226,8 @@ const Dashboard = () => {
                   Where will your curiosity lead?
                 </h3>
                 <p className="text-xs text-neutral-500 leading-relaxed">
-                  Search real-time internet indices or compile sophisticated
-                  email briefs dynamically in a unified command environment.
+                  Search real-time internet indices or compile sophisticated email
+                  briefs dynamically in a unified command environment.
                 </p>
               </div>
             )}
