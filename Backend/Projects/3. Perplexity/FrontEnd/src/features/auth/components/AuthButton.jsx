@@ -11,22 +11,32 @@ const AuthButton = ({
 }) => {
   return (
     <motion.button
-      whileHover={{ y: -1 }}
-      whileTap={{ scale: 0.99 }}
+      whileHover={loading ? {} : { y: -1 }}
+      whileTap={loading ? {} : { scale: 0.99 }}
       transition={{ duration: 0.2 }}
       type={type}
       disabled={loading || disabled}
       className={`
-        flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-teal-950/20 transition-all duration-300
-        hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer
+        relative flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold text-white transition-all duration-300 overflow-hidden select-none cursor-pointer
+        ${
+          loading
+            ? "bg-teal-950/40 border border-teal-500/30 text-teal-400 shadow-lg shadow-teal-500/5"
+            : "bg-teal-600 hover:bg-teal-500 shadow-xl shadow-teal-950/20 disabled:cursor-not-allowed disabled:opacity-40"
+        }
         ${className}
       `}
     >
       {loading ? (
-        <>
-          <ImSpinner8 className="animate-spin text-base" />
-          Processing workspace...
-        </>
+        <div className="flex items-center gap-2.5">
+          <ImSpinner8 className="animate-spin text-sm text-teal-400" />
+          <motion.span
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="tracking-wide font-medium font-mono text-xs uppercase"
+          >
+            Authenticating Core...
+          </motion.span>
+        </div>
       ) : (
         <>
           {children}

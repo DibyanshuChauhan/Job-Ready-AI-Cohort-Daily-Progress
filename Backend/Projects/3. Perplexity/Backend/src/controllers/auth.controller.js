@@ -209,7 +209,7 @@ export const verifyEmail = async (req, res) => {
                 </p>
 
                 <a
-                    href="http://localhost:3000/login"
+                    href="http://localhost:5173/login"
                     style="
                         display:inline-block;
                         margin:24px 0;
