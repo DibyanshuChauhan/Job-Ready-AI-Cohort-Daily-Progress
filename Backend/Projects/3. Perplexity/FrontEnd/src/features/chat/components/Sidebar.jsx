@@ -7,9 +7,10 @@ import {
     FiTrash2,
     FiZap,
     FiUser,
-    FiSettings,
+    FiLogOut,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../auth/hook/useAuth";
 
 const Sidebar = ({
     chats,
@@ -19,15 +20,14 @@ const Sidebar = ({
     handleDelete,
     handleNewThread,
 }) => {
-    // "threads" represents standard AI chats, "emails" filters logs containing email dispatches
+    const { handleLogout } = useAuth();
     const [activeTab, setActiveTab] = useState("threads");
 
-    // Filter the chats cleanly using the explicit database tag metadata directly
     const chatList = Object.values(chats);
     const filteredChats = chatList.filter((chatItem) => {
         return activeTab === "emails" 
             ? chatItem.chatType === "email" 
-            : chatItem.chatType === "search" || !chatItem.chatType; // Fallback support for legacy undefined entries
+            : chatItem.chatType === "search" || !chatItem.chatType; 
     });
 
     return (
@@ -53,16 +53,14 @@ const Sidebar = ({
                 </button>
             </div>
 
-            {/* Internal Navigation: Switch between Chat Threads and Email Records */}
+            {/* Internal Navigation: Switch tabs */}
             <div className="px-4 mb-3">
                 <div className="flex bg-[#121212] p-1 rounded-xl border border-neutral-800/60">
                     <button
                         type="button"
                         onClick={() => setActiveTab("threads")}
                         className={`relative flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-lg cursor-pointer transition-colors text-center ${
-                            activeTab === "threads"
-                                ? "text-neutral-950"
-                                : "text-neutral-500 hover:text-neutral-300"
+                            activeTab === "threads" ? "text-neutral-950" : "text-neutral-500 hover:text-neutral-300"
                         }`}
                     >
                         {activeTab === "threads" && (
@@ -82,9 +80,7 @@ const Sidebar = ({
                         type="button"
                         onClick={() => setActiveTab("emails")}
                         className={`relative flex-1 py-1.5 text-[11px] font-bold tracking-wider uppercase rounded-lg cursor-pointer transition-colors text-center ${
-                            activeTab === "emails"
-                                ? "text-neutral-950"
-                                : "text-neutral-500 hover:text-neutral-300"
+                            activeTab === "emails" ? "text-neutral-950" : "text-neutral-500 hover:text-neutral-300"
                         }`}
                     >
                         {activeTab === "emails" && (
@@ -108,11 +104,7 @@ const Sidebar = ({
                     <FiSearch className="text-neutral-500 shrink-0" size={14} />
                     <input
                         type="text"
-                        placeholder={
-                            activeTab === "threads"
-                                ? "Search threads..."
-                                : "Search dispatched mail..."
-                        }
+                        placeholder={activeTab === "threads" ? "Search threads..." : "Search dispatched mail..."}
                         className="bg-transparent outline-none text-xs w-full placeholder:text-neutral-600 text-neutral-300 py-1.5"
                     />
                 </div>
@@ -121,12 +113,9 @@ const Sidebar = ({
             {/* Dynamic Chat History List */}
             <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
                 <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
-                    {activeTab === "threads"
-                        ? "Recent Conversations"
-                        : "Archived Dispatches"}
+                    {activeTab === "threads" ? "Recent Conversations" : "Archived Dispatches"}
                 </p>
 
-                {/* Direct layout mapping framework prevents structural item layout pops on tab modifications */}
                 <AnimatePresence>
                     {filteredChats.length > 0 ? (
                         filteredChats.map((item) => {
@@ -140,9 +129,7 @@ const Sidebar = ({
                                     exit={{ opacity: 0, scale: 0.98 }}
                                     transition={{ duration: 0.15 }}
                                     className={`group flex items-center rounded-xl transition-all ${
-                                        isActive
-                                            ? "bg-neutral-900 border border-neutral-800/80"
-                                            : "hover:bg-neutral-900/40 border border-transparent"
+                                        isActive ? "bg-neutral-900 border border-neutral-800/80" : "hover:bg-neutral-900/40 border border-transparent"
                                     }`}
                                 >
                                     <button
@@ -150,19 +137,11 @@ const Sidebar = ({
                                         className="flex-1 flex items-center gap-3 px-3.5 py-3 text-xs text-neutral-300 transition-colors text-left truncate cursor-pointer"
                                     >
                                         {activeTab === "emails" ? (
-                                            <FiMail
-                                                className={`${isActive ? "text-teal-400" : "text-neutral-600"} shrink-0`}
-                                                size={14}
-                                            />
+                                            <FiMail className={`${isActive ? "text-teal-400" : "text-neutral-600"} shrink-0`} size={14} />
                                         ) : (
-                                            <FiMessageSquare
-                                                className={`${isActive ? "text-teal-400" : "text-neutral-600"} shrink-0`}
-                                                size={14}
-                                            />
+                                            <FiMessageSquare className={`${isActive ? "text-teal-400" : "text-neutral-600"} shrink-0`} size={14} />
                                         )}
-                                        <span
-                                            className={`truncate font-medium ${isActive ? "text-neutral-100" : "text-neutral-400 hover:text-neutral-200"}`}
-                                        >
+                                        <span className={`truncate font-medium ${isActive ? "text-neutral-100" : "text-neutral-400 hover:text-neutral-200"}`}>
                                             {item.title}
                                         </span>
                                     </button>
@@ -189,9 +168,18 @@ const Sidebar = ({
                 </AnimatePresence>
             </div>
 
-            {/* Profile/Footer Panel */}
-            <div className="border-t border-neutral-900 px-4 py-4 bg-[#090909]">
-                <button className="w-full flex items-center gap-3 hover:bg-neutral-900/60 rounded-xl p-2 transition-all cursor-pointer">
+            {/* Profile & Logout Footer Panel */}
+            <div className="border-t border-neutral-900 px-4 py-3 bg-[#090909] flex flex-col gap-1.5">
+                {/* 3. Sleek Premium Logout Action strip option */}
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 text-neutral-500 hover:text-rose-400 hover:bg-rose-500/5 px-2.5 py-2 rounded-xl text-[11px] font-semibold uppercase tracking-wider transition-all cursor-pointer"
+                >
+                    <FiLogOut size={13} className="shrink-0" />
+                    Disconnect Workspace
+                </button>
+
+                <div className="w-full flex items-center gap-3 bg-neutral-950/20 border border-neutral-900/60 rounded-xl p-2 transition-all">
                     <div className="h-9 w-9 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0 border border-neutral-700/30">
                         <FiUser size={16} className="text-neutral-400" />
                     </div>
@@ -204,11 +192,7 @@ const Sidebar = ({
                             Pro Account
                         </span>
                     </div>
-                    <FiSettings
-                        size={15}
-                        className="text-neutral-600 hover:text-neutral-400 shrink-0 transition-colors"
-                    />
-                </button>
+                </div>
             </div>
         </div>
     );

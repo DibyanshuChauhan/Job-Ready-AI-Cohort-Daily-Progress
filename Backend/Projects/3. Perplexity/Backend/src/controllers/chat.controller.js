@@ -5,6 +5,7 @@ import messageModel from "../models/message.model.js";
 // ==========================================
 // 1. SEND MESSAGE (& Maintain Chat History)
 // ==========================================
+
 export async function sendMessage(req, res) {
     // Extracting chatType passed directly from the client frontend toggle request
     const { message, chat: chatId, chatType = 'search' } = req.body;
@@ -99,6 +100,9 @@ export async function sendMessage(req, res) {
     }
 }
 
+// ==========================================
+// 2. GET ALL CHATS FOR LOGGED IN USER
+// ==========================================
 // Update getChats controller to return chatType metadata back to client Redux stores
 export async function getChats(req, res) {
     if (!req.user || !req.user.id) return res.status(401).json({ success: false, message: "Unauthorized." });
@@ -109,33 +113,6 @@ export async function getChats(req, res) {
         return res.status(500).json({ success: false, message: "Failed to retrieve chats." });
     }
 }
-
-// ==========================================
-// 2. GET ALL CHATS FOR LOGGED IN USER
-// ==========================================
-// export async function getChats(req, res) {
-//     if (!req.user || !req.user.id) {
-//         return res.status(401).json({ success: false, message: "Unauthorized." });
-//     }
-
-//     try {
-//         const chats = await chatModel.find({ user: req.user.id }).sort({ updatedAt: -1 });
-
-//         return res.status(200).json({
-//             success: true,
-//             message: "Chats retrieved successfully",
-//             chats
-//         });
-//     } catch (error) {
-//         console.error("Error in getChats controller:", error);
-//         return res.status(500).json({
-//             success: false,
-//             message: "Failed to retrieve chats.",
-//             error: error.message
-//         });
-//     }
-// }
-
 // ==========================================
 // 3. GET MESSAGES FOR A SPECIFIC CHAT
 // ==========================================

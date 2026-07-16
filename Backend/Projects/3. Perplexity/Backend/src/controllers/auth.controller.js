@@ -491,3 +491,25 @@ export const resendVerificationEmail = async (req, res) => {
         });
     }
 };
+
+export const logoutController = async (req, res) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "strict"
+        });
+
+        return res.status(200).json({
+            message: "Logout successful",
+            success: true
+        });
+    } catch (error) {
+        console.error("Logout Error:", error);
+        return res.status(500).json({
+            message: "An error occurred during logout",
+            success: false,
+            error: error.message || error
+        });
+    }
+};
