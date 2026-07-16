@@ -4,7 +4,8 @@ const chatSlice = createSlice({
   name: "chat",
   initialState: {
     chats: {},
-    currentChatId: null,
+    // NEW: Check if there's an existing chat ID saved from a previous session on browser load
+    currentChatId: localStorage.getItem("active_chat_id") || null,
     isLoading: false,
     error: null,
   },
@@ -14,7 +15,7 @@ const chatSlice = createSlice({
       state.chats[chatId] = {
         id: chatId,
         title,
-        chatType: chatType || "search", // Persisted locally inside Redux states
+        chatType: chatType || 'search',
         messages: [],
         lastUpdated: new Date().toISOString(),
       };
@@ -22,16 +23,20 @@ const chatSlice = createSlice({
 
     addNewMessage: (state, action) => {
       const { chatId, content, role, emailDetails } = action.payload;
-      state.chats[chatId].messages.push({
-        content,
-        role,
-        emailDetails: emailDetails || null,
-      });
+      if (state.chats[chatId]) {
+        state.chats[chatId].messages.push({ 
+          content, 
+          role,
+          emailDetails: emailDetails || null 
+        });
+      }
     },
 
     addMessages: (state, action) => {
       const { chatId, messages } = action.payload;
-      state.chats[chatId].messages.push(...messages);
+      if (state.chats[chatId]) {
+        state.chats[chatId].messages.push(...messages);
+      }
     },
 
     setChats: (state, action) => {
@@ -40,6 +45,13 @@ const chatSlice = createSlice({
 
     setCurrentChatId: (state, action) => {
       state.currentChatId = action.payload;
+      
+      // NEW: Persist the current ID or clear it if null
+      if (action.payload) {
+        localStorage.setItem("active_chat_id", action.payload);
+      } else {
+        localStorage.removeItem("active_chat_id");
+      }
     },
 
     deleteChatById: (state, action) => {
@@ -48,7 +60,15 @@ const chatSlice = createSlice({
 
       if (state.currentChatId === chatId) {
         const remainingChatIds = Object.keys(state.chats);
-        state.currentChatId = remainingChatIds[0] || null;
+        const nextChatId = remainingChatIds[0] || null;
+        state.currentChatId = nextChatId;
+        
+        // NEW: Update local storage on deletion matching context changes
+        if (nextChatId) {
+          localStorage.setItem("active_chat_id", nextChatId);
+        } else {
+          localStorage.removeItem("active_chat_id");
+        }
       }
     },
 
