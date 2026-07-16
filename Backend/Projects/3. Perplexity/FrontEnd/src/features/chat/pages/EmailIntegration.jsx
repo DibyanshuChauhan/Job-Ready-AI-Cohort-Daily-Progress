@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiZap, FiSend, FiPaperclip } from "react-icons/fi";
-import { useToast } from "../context/ToastContext"; // Import Toast Hook
+import { useToast } from "../context/ToastContext";
 
 const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
-  const { showToast } = useToast(); // Initialize Toast
+  const { showToast } = useToast();
   const [activeMode, setActiveMode] = useState("search"); // "search" | "email"
   const [message, setMessage] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -13,9 +13,12 @@ const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
   const handleModeSwitch = (mode) => {
     setActiveMode(mode);
     if (mode === "email") {
-      showToast("Email interface loaded. Configure recipient credentials.", "info");
+      showToast(
+        "Email interface loaded. Configure recipient credentials.",
+        "info",
+      );
     } else {
-      showToast("Returned to Copilot web indexing engine.", "info");
+      showToast("Returned to Web Search indexing engine.", "info");
     }
   };
 
@@ -41,6 +44,7 @@ const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-3">
+      {/* Mode Switcher Tabs */}
       <div className="flex items-center gap-1.5 p-1 bg-[#111111] border border-neutral-800/80 w-fit rounded-xl">
         <button
           type="button"
@@ -60,7 +64,7 @@ const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
           )}
           <span className="relative z-10 flex items-center gap-1.5">
             <FiZap size={12} />
-            Copilot Search
+            Web Search
           </span>
         </button>
 
@@ -87,6 +91,7 @@ const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
         </button>
       </div>
 
+      {/* Input Form Wrapper */}
       <form
         onSubmit={handleSubmit}
         className="flex flex-col bg-[#111111] border border-neutral-800/80 focus-within:border-teal-500/40 rounded-2xl p-3 transition-all shadow-xl shadow-black/40"

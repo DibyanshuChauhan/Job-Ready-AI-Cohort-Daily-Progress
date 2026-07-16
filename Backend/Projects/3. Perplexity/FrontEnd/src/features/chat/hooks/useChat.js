@@ -1,4 +1,3 @@
-import { initializeSocketConnection } from "../service/chat.socket";
 import {
     getChats,
     getMessages,
@@ -86,7 +85,6 @@ export const useChat = () => {
     };
 
     return {
-    initializeSocketConnection,
     handleSendMessage,
     handleGetChats,
     handleOpenChat,
