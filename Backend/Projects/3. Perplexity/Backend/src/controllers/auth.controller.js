@@ -269,7 +269,7 @@ export const loginController = async (req, res) => {
             });
         }
 
-        // 3. Compare passwords (This will work perfectly now that 'user' is the actual document)
+        // 3. Compare passwords
         const isPasswordMatch = await user.comparePassword(password);
 
         if (!isPasswordMatch) {
@@ -299,10 +299,11 @@ export const loginController = async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        // 6. Set cookie and send back the payload
         res.cookie("token", token, {
-            httpOnly: true, // Recommended for security against XSS
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+            httpOnly: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: true,
+            sameSite: "none"
         });
 
         return res.status(200).json({
