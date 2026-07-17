@@ -28,7 +28,7 @@ app.use(cors({
 app.use("/api/auth", authRouter);
 app.use("/api/chats", chatRouter);
 
-const publicFolderPath = path.join(__dirname, "public");
+const publicFolderPath = path.join(__dirname, "../public");
 
 app.use(express.static(publicFolderPath));
 
