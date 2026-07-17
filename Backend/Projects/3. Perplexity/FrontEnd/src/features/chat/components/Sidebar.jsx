@@ -19,40 +19,57 @@ const Sidebar = ({
     openChat,
     handleDelete,
     handleNewThread,
+    activeTab,
+    setActiveTab,
     openProfile,
 }) => {
     const { handleLogout } = useAuth();
-    const [activeTab, setActiveTab] = useState("threads");
-    
-    // NEW STATE: Captures the search input value in real-time
     const [searchQuery, setSearchQuery] = useState("");
 
     const chatList = Object.values(chats);
     
-    // UPDATED FILTER PIPELINE: Handles both tab switching AND query substring search
     const filteredChats = chatList.filter((chatItem) => {
-        // 1. First, separate data segments by matching tab profiles
-        const matchesTab = activeTab === "emails" 
-            ? chatItem.chatType === "email" 
-            : chatItem.chatType === "search" || !chatItem.chatType; 
+        const isEmailChat = chatItem.chatType === "email";
+        const isSearchChat = chatItem.chatType === "search" || !chatItem.chatType;
 
-        // 2. Next, calculate string matches against the search input string
-        const matchesSearch = chatItem.title
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase());
+        const matchesTab = activeTab === "emails" ? isEmailChat : isSearchChat;
+        const matchesSearch = chatItem.title?.toLowerCase().includes(searchQuery.toLowerCase());
 
         return matchesTab && matchesSearch;
     });
 
-    // Clean reset handler when changing workspace tabs to improve search context transitions
+    // ✅ New Helper: Remove Markdown from title
+    const cleanTitle = (title) => {
+        if (!title) return "Untitled";
+        
+        return title
+            .replace(/[#*_`~>]/g, '')           // Remove common markdown characters
+            .replace(/\*\*(.*?)\*\*/g, '$1')    // Bold
+            .replace(/\*(.*?)\*/g, '$1')        // Italic
+            .replace(/__(.*?)__/g, '$1')        // Underline
+            .replace(/`(.*?)`/g, '$1')          // Inline code
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+            .trim()
+            .slice(0, 60);                      // Limit length
+    };
+
     const handleTabChange = (tabName) => {
         setActiveTab(tabName);
-        setSearchQuery(""); // Purge active query value to prevent blank layout grids
+        setSearchQuery(""); 
+
+        if (currentChatId) {
+            const currentChat = chats[currentChatId];
+            const isEmail = currentChat?.chatType === "email";
+            
+            if ((tabName === "threads" && isEmail) || (tabName === "emails" && !isEmail)) {
+                handleNewThread(); 
+            }
+        }
     };
 
     return (
         <div className="h-full flex flex-col bg-[#0d0d0d] text-neutral-100 select-none">
-            {/* Sidebar Header */}
+            {/* Header */}
             <div className="flex items-center gap-3 px-6 py-5">
                 <div className="h-8 w-8 rounded-lg bg-teal-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
                     <FiZap className="text-neutral-950" size={16} />
@@ -62,7 +79,7 @@ const Sidebar = ({
                 </span>
             </div>
 
-            {/* New Thread Action button */}
+            {/* New Thread */}
             <div className="px-4 mb-4">
                 <button
                     onClick={handleNewThread}
@@ -73,7 +90,7 @@ const Sidebar = ({
                 </button>
             </div>
 
-            {/* Internal Navigation: Switch tabs */}
+            {/* Tabs */}
             <div className="px-4 mb-3">
                 <div className="flex bg-[#121212] p-1 rounded-xl border border-neutral-800/60">
                     <button
@@ -84,11 +101,7 @@ const Sidebar = ({
                         }`}
                     >
                         {activeTab === "threads" && (
-                            <motion.div
-                                layoutId="activeSidebarTab"
-                                className="absolute inset-0 bg-teal-500 rounded-lg"
-                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                            />
+                            <motion.div layoutId="activeSidebarTab" className="absolute inset-0 bg-teal-500 rounded-lg" />
                         )}
                         <span className="relative z-10 flex items-center justify-center gap-1.5">
                             <FiMessageSquare size={12} />
@@ -104,11 +117,7 @@ const Sidebar = ({
                         }`}
                     >
                         {activeTab === "emails" && (
-                            <motion.div
-                                layoutId="activeSidebarTab"
-                                className="absolute inset-0 bg-teal-500 rounded-lg"
-                                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                            />
+                            <motion.div layoutId="activeSidebarTab" className="absolute inset-0 bg-teal-500 rounded-lg" />
                         )}
                         <span className="relative z-10 flex items-center justify-center gap-1.5">
                             <FiMail size={12} />
@@ -118,21 +127,21 @@ const Sidebar = ({
                 </div>
             </div>
 
-            {/* Search Bar - Interactive Text Node */}
+            {/* Search */}
             <div className="px-4 mb-3">
                 <div className="flex items-center gap-2.5 bg-[#121212] rounded-xl px-3.5 py-2 border border-neutral-800 focus-within:border-teal-500/30 transition-all duration-200">
                     <FiSearch className="text-neutral-500 shrink-0" size={14} />
                     <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)} // Bind live change sequence values
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder={activeTab === "threads" ? "Search threads..." : "Search dispatched mail..."}
                         className="bg-transparent outline-none text-xs w-full placeholder:text-neutral-600 text-neutral-300 py-1.5"
                     />
                 </div>
             </div>
 
-            {/* Dynamic Chat History List */}
+            {/* List */}
             <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
                 <p className="px-3 py-2 text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
                     {searchQuery ? "Search Results" : (activeTab === "threads" ? "Recent Conversations" : "Archived Dispatches")}
@@ -142,6 +151,8 @@ const Sidebar = ({
                     {filteredChats.length > 0 ? (
                         filteredChats.map((item) => {
                             const isActive = item.id === currentChatId;
+                            const displayTitle = cleanTitle(item.title);
+
                             return (
                                 <motion.div
                                     key={item.id}
@@ -164,7 +175,7 @@ const Sidebar = ({
                                             <FiMessageSquare className={`${isActive ? "text-teal-400" : "text-neutral-600"} shrink-0`} size={14} />
                                         )}
                                         <span className={`truncate font-medium ${isActive ? "text-neutral-100" : "text-neutral-400 hover:text-neutral-200"}`}>
-                                            {item.title}
+                                            {displayTitle}
                                         </span>
                                     </button>
                                     <button
@@ -190,7 +201,7 @@ const Sidebar = ({
                 </AnimatePresence>
             </div>
 
-            {/* Profile & Logout Footer Panel */}
+            {/* Footer */}
             <div className="border-t border-neutral-900 px-4 py-3 bg-[#090909] flex flex-col gap-1.5">
                 <button
                     onClick={handleLogout}
