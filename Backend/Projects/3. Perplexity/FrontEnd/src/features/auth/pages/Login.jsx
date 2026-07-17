@@ -32,7 +32,10 @@ const Login = () => {
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
-      return showToast("Invalid address syntax: Check email structure.", "warning");
+      return showToast(
+        "Invalid address syntax: Check email structure.",
+        "warning",
+      );
     }
 
     try {
@@ -48,24 +51,24 @@ const Login = () => {
 
       // Smoothly hold viewport layout execution frames for transition animation sweep
       setTimeout(() => {
-        showToast("Access authenticated. Session token initialized.", "success");
+        showToast(
+          "Access authenticated. Session token initialized.",
+          "success",
+        );
         navigate("/");
       }, 1600);
     } catch (error) {
-      console.error("Login request failed: ", error);
+  console.log("ERROR DATA:", error.response?.data);
 
-      // 2. Map structural backend validator errors or explicit rejection strings to toast system
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        error.response.data.errors.forEach((err) => {
-          showToast(err.msg, "error");
-        });
-      } else {
-        showToast(
-          error.response?.data?.message || "Authentication signature rejected by system cluster.", 
-          "error"
-        );
-      }
-    }
+  navigate("/resend-verification", {
+    state: {
+      email,
+    },
+    replace: true,
+  });
+
+  return;
+}
   };
 
   return (
@@ -129,7 +132,7 @@ const Login = () => {
       >
         <AuthLayout
           title="Welcome back"
-          subtitle="Sign in to continue to your account."
+          subtitle="Sign in to continue using Perplexity AI."
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <AuthInput
@@ -151,6 +154,15 @@ const Login = () => {
             />
 
             <AuthButton loading={loading}>Sign In</AuthButton>
+
+            <div className="mt-4 text-center">
+              <Link
+                to="/resend-verification"
+                className="text-xs font-medium text-teal-400 transition hover:text-teal-300"
+              >
+                Didn't receive the verification email?
+              </Link>
+            </div>
           </form>
 
           <p className="mt-8 text-center text-xs font-medium text-neutral-500">

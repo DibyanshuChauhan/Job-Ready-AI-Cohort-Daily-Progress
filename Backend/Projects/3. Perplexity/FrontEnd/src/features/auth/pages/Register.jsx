@@ -27,7 +27,7 @@ const Register = () => {
     if (!username.trim() || !email.trim() || !password) {
       return showToast(
         "All structural identity fields are mandatory.",
-        "warning"
+        "warning",
       );
     }
 
@@ -36,20 +36,28 @@ const Register = () => {
       setFormLoading(true);
 
       const payload = { username, email, password };
-      
+
       // Dispatching to your backend layer directly
       await handleRegister(payload);
 
       // Triggers if backend yields a 2xx success payload
       showToast(
-        "Workspace initialized! A verification link has been dispatched to your inbox.",
-        "success"
+        "Registration successful! Please verify your email.",
+        "success",
       );
+
+      // Preserve the registered email before clearing the form
+      const registeredEmail = email;
 
       setUsername("");
       setEmail("");
       setPassword("");
-      navigate("/login");
+
+      navigate("/resend-verification", {
+        state: {
+          email: registeredEmail,
+        },
+      });
     } catch (error) {
       // 2. Safely parse and catch express-validator array payloads returned by the server
       if (
@@ -65,7 +73,7 @@ const Register = () => {
         showToast(
           error.response?.data?.message ||
             "Workspace construction rejected by authentication cluster node.",
-          "error"
+          "error",
         );
       }
     } finally {
@@ -76,7 +84,7 @@ const Register = () => {
   return (
     <AuthLayout
       title="Create account"
-      subtitle="Initialize your access credentials to proceed."
+      subtitle="Create your account to start using Perplexity AI."
     >
       <form onSubmit={handleSubmit} className="space-y-5 select-none">
         {/* Username Input */}

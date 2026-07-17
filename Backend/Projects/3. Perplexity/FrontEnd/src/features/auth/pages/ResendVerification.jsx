@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { FiMail } from "react-icons/fi";
 import AuthLayout from "../components/AuthLayout";
 import AuthInput from "../components/AuthInput";
@@ -8,8 +8,21 @@ import { useAuth } from "../hook/useAuth";
 import { useToast } from "../../../context/ToastContext";
 
 const ResendVerification = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+const [email, setEmail] = useState(location.state?.email || "");
+const [loading, setLoading] = useState(false);
+const [countdown, setCountdown] = useState(0);
+
+useEffect(() => {
+  if (countdown <= 0) return;
+
+  const timer = setInterval(() => {
+    setCountdown((prev) => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [countdown]);
 
   const { handleResendVerification } = useAuth();
   const { showToast } = useToast();
@@ -41,10 +54,14 @@ const ResendVerification = () => {
 
       // Success payload received from your backend handler
       showToast(
-        response?.message || "Verification mail link successfully dispatched!",
-        "success",
-      );
-      setEmail("");
+  response?.message || "Verification email sent successfully!",
+  "success"
+);
+
+// Prevent multiple resend requests
+setCountdown(60);
+
+// Keep the email in the input
     } catch (error) {
       // Catch expected failure states from express validators or user existence logic
       if (
@@ -68,27 +85,34 @@ const ResendVerification = () => {
 
   return (
     <AuthLayout
-      title="Resend Token"
-      subtitle="Input your system profile email to dispatch a fresh active validation node link."
-    >
+  title="Verify your Email"
+  subtitle="We've already sent you a verification email. If you didn't receive it, request another one below."
+>
       <form onSubmit={handleSubmit} className="space-y-6 select-none">
         <AuthInput
-          label="Registered Email Address"
-          type="email"
-          name="email"
-          placeholder="operator@domain.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          icon={FiMail}
-        />
+  label="Registered Email Address"
+  type="email"
+  name="email"
+  placeholder="you@example.com"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  autoComplete="email"
+  icon={FiMail}
+/>
 
-        <AuthButton loading={loading}>Dispatch Token Link</AuthButton>
+        <AuthButton
+  loading={loading}
+  disabled={countdown > 0}
+>
+  {countdown > 0
+    ? `Resend in ${countdown}s`
+    : "Resend Verification Email"}
+</AuthButton>
       </form>
 
       <div className="mt-8 text-center text-xs font-medium text-neutral-500 space-y-2 select-none">
         <p>
-          Remembered account credentials?{" "}
+          Already verified your email?{" "}
           <Link
             to="/login"
             className="font-bold text-teal-400 transition hover:text-teal-300"

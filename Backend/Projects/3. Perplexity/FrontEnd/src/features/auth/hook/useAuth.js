@@ -20,19 +20,28 @@ const handleRegister = async (payload) => {
     }
 };
 
-    const handleLogin = async ({email, password}) => {
-        try {
-            dispatch(setLoading(true));
-            const data = await login({email, password});
-            dispatch(setUser(data.user));
-        } catch (error) {
-            dispatch(setError(error.response?.data?.message || "Login failed"))
-            throw error
-        }
-        finally {
-            dispatch(setLoading(false))
-        }
+    const handleLogin = async ({ email, password }) => {
+    try {
+        dispatch(setLoading(true));
+
+        const data = await login({ email, password });
+
+        dispatch(setUser(data.user));
+
+        return data;
+    } catch (error) {
+        dispatch(
+            setError(
+                error.response?.data?.message || "Login failed"
+            )
+        );
+
+        // VERY IMPORTANT
+        throw error;
+    } finally {
+        dispatch(setLoading(false));
     }
+};
 
   const handleGetMe = async () => {
   try {
