@@ -5,101 +5,170 @@ import { sendEmail } from "../services/mail.service.js"
 export const registerController = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        
-        // 1. Check if user already exists in the database
-        const isUserAlreadyExists = await userModel.findOne({
-            $or: [
-                { username }, { email }
-            ]
+
+        console.log("==================================");
+        console.log("🚀 Registration Request Received");
+        console.log({
+            username,
+            email,
+        });
+        console.log("==================================");
+
+        // 1. Check if user already exists
+        const existingUser = await userModel.findOne({
+            $or: [{ username }, { email }],
         });
 
-        if (isUserAlreadyExists) {
+        if (existingUser) {
+            console.log("❌ User already exists");
+
             return res.status(400).json({
                 success: false,
                 message: "User with this email or username already exists",
-                err: "user already exists"
+                err: "User already exists",
             });
         }
 
-        // 2. Create new user document (Schema pre-save hook will handle bcrypt hashing)
+        // 2. Create user
+        console.log("Creating user...");
+
         const newUser = await userModel.create({
             username,
             email,
-            password
+            password,
         });
 
-        // 3. Generate verification token matching the email parameter
-        const emailVerificationToken = jwt.sign({
-            email: newUser.email
-        }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        console.log("✅ User created successfully");
+        console.log("User ID:", newUser._id);
 
-        // 4. Dispatch the verification mail flow sequence
-        await sendEmail({
-            to: email,
-            subject: "Welcome to Perplexity!",
-            html: `
-                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        // 3. Generate verification token
+        const emailVerificationToken = jwt.sign(
+            {
+                email: newUser.email,
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1h",
+            }
+        );
+
+        console.log("✅ Verification token generated");
+
+        // 4. Send verification email
+        try {
+            console.log("Sending verification email...");
+
+            await sendEmail({
+                to: email,
+                subject: "Welcome to Perplexity!",
+                html: `
+                <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
                     <h2>Welcome to Perplexity 🚀</h2>
-                    <p>Hi <strong>${username}</strong>,</p>
+
+                    <p>Hello <strong>${username}</strong>,</p>
+
                     <p>
-                        Thank you for registering with <strong>Perplexity</strong>.
-                        We're excited to have you on board!
+                        Thank you for registering.
                     </p>
+
                     <p>
-                        Please verify your email address by clicking the button below:
+                        Please verify your email by clicking the button below.
                     </p>
+
                     <a
                         href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
                         style="
                             display:inline-block;
                             padding:12px 24px;
                             background:#4F46E5;
-                            color:#fff;
+                            color:white;
                             text-decoration:none;
                             border-radius:6px;
-                            font-weight:bold;
                         "
                     >
                         Verify Email
                     </a>
+
                     <p style="margin-top:20px;">
-                        Or copy and paste this link into your browser:
+                        If the button doesn't work, copy this link:
                     </p>
+
                     <p>
                         https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
                     </p>
-                    <hr />
+
+                    <hr>
+
                     <p>
-                        If you didn't create an account, you can safely ignore this email.
-                    </p>
-                    <p>
-                        Best regards,<br/>
-                        <strong>The Perplexity Team</strong>
+                        Regards,<br>
+                        <strong>Perplexity Team</strong>
                     </p>
                 </div>
-            `,
-        });
+                `,
+            });
 
-        // 5. Send structural clean success response back to frontend interceptors
+            console.log("✅ Verification email sent");
+        } catch (mailError) {
+            console.error("==================================");
+            console.error("❌ EMAIL SENDING FAILED");
+            console.error("Message:", mailError.message);
+            console.error("Stack:", mailError.stack);
+
+            if (mailError.code) {
+                console.error("Code:", mailError.code);
+            }
+
+            if (mailError.response) {
+                console.error("Response:", mailError.response);
+            }
+
+            console.error("==================================");
+
+            return res.status(500).json({
+                success: false,
+                message: "User created successfully, but failed to send verification email.",
+                error: mailError.message,
+            });
+        }
+
+        console.log("==================================");
+        console.log("✅ Registration Completed");
+        console.log("==================================");
+
         return res.status(201).json({
             success: true,
-            message: "User registered successfully",
+            message: "User registered successfully. Please verify your email.",
             user: {
                 id: newUser._id,
                 username: newUser.username,
-                email: newUser.email
-            }
+                email: newUser.email,
+            },
         });
-
     } catch (error) {
-        // Log the actual structural error for server-side troubleshooting
-        console.error("Registration Controller Error:", error);
+        console.error("==================================");
+        console.error("❌ REGISTER CONTROLLER ERROR");
+        console.error("Message:", error.message);
+        console.error("Stack:", error.stack);
 
-        // Send a generic standardized failure JSON response that frontend toast loops map easily
+        if (error.code) {
+            console.error("Code:", error.code);
+        }
+
+        if (error.name) {
+            console.error("Name:", error.name);
+        }
+
+        if (error.errors) {
+            console.error("Validation Errors:", error.errors);
+        }
+
+        console.error(error);
+        console.error("==================================");
+
         return res.status(500).json({
             success: false,
-            message: error.message || "Something went wrong while registering the user configuration nodes.",
-            error: error.message || error
+            message: "Registration failed.",
+            error: error.message,
         });
     }
 };
