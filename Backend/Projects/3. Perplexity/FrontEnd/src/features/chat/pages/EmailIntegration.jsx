@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiZap, FiSend, FiPaperclip } from "react-icons/fi";
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../../../context/ToastContext";
 
 const EmailIntegration = ({ onSubmitMessage, currentPlaceholder }) => {
   const { showToast } = useToast();

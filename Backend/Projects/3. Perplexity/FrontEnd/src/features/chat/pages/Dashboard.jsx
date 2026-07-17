@@ -13,7 +13,7 @@ import { FiZap, FiX, FiMenu, FiChevronDown } from "react-icons/fi";
 import Sidebar from "../components/Sidebar";
 import EmailMessageCard from "../components/EmailMessageCard";
 import EmailIntegration from "./EmailIntegration"; 
-import { useToast } from "../context/ToastContext";
+import { useToast } from "../../../context/ToastContext";
 import Loader from "../components/Loader";
 import ThinkingIndicator from "../components/ThinkingIndicator";
 import TypingEffect from "../components/TypingEffect";

@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Register from "../features/auth/pages/Register";
 import Login from "../features/auth/pages/login";
+import ResendVerification from "../features/auth/pages/ResendVerification";
 import Dashboard from "../features/chat/pages/Dashboard";
 import Protected from "../features/auth/components/Protected";
 
@@ -38,6 +39,14 @@ export const router = createBrowserRouter([
     element: (
       <PublicRoute>
         <Login />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/resend-verification",
+    element: (
+      <PublicRoute>
+        <ResendVerification />
       </PublicRoute>
     ),
   },

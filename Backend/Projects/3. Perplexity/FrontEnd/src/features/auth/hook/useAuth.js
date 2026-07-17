@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useDispatch } from "react-redux";
-import { login, register, getMe, logout } from "../service/auth.api";
+import { login, register, getMe, logout, resendVerification } from "../service/auth.api";
 import { setUser, setLoading, setError, setAuthChecked, logoutSuccess, registerSuccess } from "../auth.slice";
 
 export const useAuth = () => {
@@ -67,10 +67,24 @@ const handleLogout = async () => {
     }
   };
 
+const handleResendVerification = async (email) => {
+    try {
+        dispatch(setLoading(true));
+        const data = await resendVerification({ email });
+        return data;
+    } catch (error) {
+        dispatch(setError(error.response?.data?.message || "Failed to dispatch email"));
+        throw error;
+    } finally {
+        dispatch(setLoading(false));
+    }
+};
+
     return {
         handleRegister,
         handleLogin,
         handleGetMe,
+        handleResendVerification,
         handleLogout,
     }
 

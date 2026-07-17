@@ -9,7 +9,7 @@ import AuthInput from "../components/AuthInput";
 import PasswordInput from "../components/PasswordInput";
 import AuthButton from "../components/AuthButton";
 import { useAuth } from "../hook/useAuth";
-import { useToast } from "../../chat/context/ToastContext";
+import { useToast } from "../../../context/ToastContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");

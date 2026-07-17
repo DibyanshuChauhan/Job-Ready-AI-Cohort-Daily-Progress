@@ -8,7 +8,7 @@ import PasswordInput from "../components/PasswordInput";
 import AuthButton from "../components/AuthButton";
 
 import { useAuth } from "../hook/useAuth";
-import { useToast } from "../../chat/context/ToastContext";
+import { useToast } from "../../../context/ToastContext";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -20,62 +20,30 @@ const Register = () => {
   const { handleRegister } = useAuth();
   const { showToast } = useToast();
 
-  // Strict password complexity regex matching backend constraints
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Client-Side Pre-flight Validation & Warnings
-    if (!username || !email || !password) {
+    // 1. Presence Validation Check via Custom Toasts
+    if (!username.trim() || !email.trim() || !password) {
       return showToast(
         "All structural identity fields are mandatory.",
-        "warning",
-      );
-    }
-
-    if (username.trim().length < 3 || username.trim().length > 30) {
-      return showToast(
-        "Username length restriction: Must be between 3 and 30 characters.",
-        "warning",
-      );
-    }
-
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    if (!usernameRegex.test(username)) {
-      return showToast(
-        "Username syntax error: Only letters, numbers, and underscores permitted.",
-        "warning",
-      );
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      return showToast(
-        "Invalid address syntax: Please verify email format.",
-        "warning",
-      );
-    }
-
-    if (!passwordRegex.test(password)) {
-      return showToast(
-        "Security baseline failed: Password metrics must satisfy all complexity constraints.",
-        "error",
+        "warning"
       );
     }
 
     try {
+      // Set button to spinning state and bypass the info toast to avoid double-toasts
       setFormLoading(true);
-      showToast("Provisioning core credentials and building node...", "info");
 
       const payload = { username, email, password };
+      
+      // Dispatching to your backend layer directly
       await handleRegister(payload);
 
-      // Success sequence
+      // Triggers if backend yields a 2xx success payload
       showToast(
         "Workspace initialized! A verification link has been dispatched to your inbox.",
-        "success",
+        "success"
       );
 
       setUsername("");
@@ -83,12 +51,13 @@ const Register = () => {
       setPassword("");
       navigate("/login");
     } catch (error) {
-      // 2. Parse and catch structural express-validator array payloads sent by the server
+      // 2. Safely parse and catch express-validator array payloads returned by the server
       if (
         error.response?.data?.errors &&
         Array.isArray(error.response.data.errors)
       ) {
         error.response.data.errors.forEach((err) => {
+          // Renders the exact custom message defined inside your backend validator file
           showToast(err.msg, "error");
         });
       } else {
@@ -96,7 +65,7 @@ const Register = () => {
         showToast(
           error.response?.data?.message ||
             "Workspace construction rejected by authentication cluster node.",
-          "error",
+          "error"
         );
       }
     } finally {
@@ -141,7 +110,7 @@ const Register = () => {
           autoComplete="new-password"
         />
 
-        {/* Dynamic High-End Interactive Requirement Checklist HUD Element */}
+        {/* High-End Instructional Matrix Checklist HUD Element */}
         <div className="bg-neutral-950/40 border border-neutral-900 rounded-xl p-3.5 text-[10px] font-mono text-neutral-500 space-y-1.5 transition-all duration-300">
           <p className="font-bold uppercase tracking-wider text-neutral-400 mb-1 flex items-center gap-1.5">
             <FiShield size={11} className="text-neutral-500" />

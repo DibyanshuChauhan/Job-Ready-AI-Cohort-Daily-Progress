@@ -31,3 +31,8 @@ export const logout = async () => {
   const response = await api.post("/logout");
   return response.data;
 };
+
+export const resendVerification = async ({ email }) => {
+  const response = await api.post("/resend-verification", { email });
+  return response.data;
+};
