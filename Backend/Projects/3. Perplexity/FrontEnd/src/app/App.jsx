@@ -5,11 +5,11 @@ import { useEffect } from "react";
 import "./app.css";
 
 const App = () => {
-const auth = useAuth();
+  const { handleGetMe } = useAuth();
 
-useEffect(() => {
-  auth.handleGetMe()
-}, [auth])
+  useEffect(() => {
+    handleGetMe();
+  }, []);
 
   return (
     <>
