@@ -8,7 +8,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { FiZap, FiX, FiMenu, FiChevronDown } from "react-icons/fi";
+// Added FiMessageSquare and FiMail for clear heading indicators
+import { FiZap, FiX, FiMenu, FiChevronDown, FiMessageSquare, FiMail } from "react-icons/fi";
 
 import Sidebar from "../components/Sidebar";
 import EmailMessageCard from "../components/EmailMessageCard";
@@ -23,7 +24,6 @@ const Dashboard = () => {
   const { showToast } = useToast(); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
-  // NEW: Controls whether the typing animation is permitted to run
   const [animateLatest, setAnimateLatest] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -33,6 +33,8 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
 
   const activeChat = chats[currentChatId];
+  // Determine if the currently loaded workspace is an Email log or Chat thread
+  const isEmailMode = activeChat?.chatType === "email";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,10 +48,9 @@ const Dashboard = () => {
     chat.handleGetChats();
   }, []);
 
-  // Auto-reloads current conversation logs on unexpected refresh
   useEffect(() => {
     if (currentChatId && chats[currentChatId] && chats[currentChatId].messages.length === 0) {
-      setAnimateLatest(false); // Ensure historical messages don't animate on refresh load
+      setAnimateLatest(false);
       chat.handleOpenChat(currentChatId, chats);
     }
   }, [chats, currentChatId]);
@@ -61,12 +62,12 @@ const Dashboard = () => {
       }
 
       setIsThinking(true);
-      setAnimateLatest(true); // NEW: Enable typing animation ONLY for this new active response loop
+      setAnimateLatest(true);
 
       await chat.handleSendMessage({
         message: compiledMessage,
         chatId: currentChatId,
-        chatType: currentMode
+        chatType: currentMode // Safely explicitly tags thread creation in database
       });
 
       if (compiledMessage.startsWith("Send an email")) {
@@ -80,7 +81,7 @@ const Dashboard = () => {
   };
 
   const openChat = (chatId) => {
-    setAnimateLatest(false); // NEW: Disable typing animation when switching threads manually
+    setAnimateLatest(false);
     chat.handleOpenChat(chatId, chats);
     setSidebarOpen(false);
   };
@@ -96,7 +97,7 @@ const Dashboard = () => {
   };
 
   const handleNewThread = () => {
-    setAnimateLatest(false); // NEW: Clean animation slate for fresh workspaces
+    setAnimateLatest(false);
     chat.handleOpenChat(null, chats);
     setSidebarOpen(false);
     showToast("New operational workspace initialized.", "info");
@@ -147,13 +148,40 @@ const Dashboard = () => {
           </header>
 
           <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-24 py-8 space-y-8 scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-transparent">
+            
+            {/* NEW: DYNAMIC SEPARATE SPACE HEADERS & TAGS */}
+            {activeChat?.messages && activeChat.messages.length > 0 && (
+              <div className="border-b border-neutral-900 pb-4 mb-2">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-neutral-500">
+                  {isEmailMode ? (
+                    <>
+                      <FiMail size={14} className="text-teal-400" />
+                      <span>Email workspace automation logs</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiMessageSquare size={14} className="text-teal-400" />
+                      <span>Interactive AI Assistant chat</span>
+                    </>
+                  )}
+                </div>
+                <h1 className="text-xl font-bold tracking-tight text-neutral-200 mt-1">
+                  {isEmailMode ? "📧 Mail Dispatch Workspace" : "💬 AI Intelligence Thread"}
+                </h1>
+              </div>
+            )}
+
             {activeChat?.messages && activeChat.messages.length > 0 ? (
               activeChat.messages.map((msg, index) => {
                 const isLatestMessage = index === activeChat.messages.length - 1;
 
                 if (msg.role === "user") {
                   return (
-                    <div key={msg.id || msg._id || index} className="flex justify-end">
+                    <div key={msg.id || msg._id || index} className="flex flex-col items-end gap-1.5">
+                      {/* Added clear indicator tags on individual messages */}
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-600 font-bold px-1">
+                        User Prompt
+                      </span>
                       <div className="max-w-[80%] sm:max-w-[65%] bg-neutral-800 border border-neutral-700/40 rounded-2xl rounded-tr-sm px-4.5 py-3 text-sm text-neutral-100 shadow-lg shadow-black/10 leading-relaxed">
                         {msg.content}
                       </div>
@@ -161,11 +189,11 @@ const Dashboard = () => {
                   );
                 }
 
-                if (msg.role === "email") {
+                if (msg.role === "email" || isEmailMode) {
                   return (
                     <div key={msg.id || msg._id || index} className="flex gap-4 max-w-3xl">
                       <div className="h-8 w-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0 border border-teal-500/20 text-teal-400">
-                        <FiZap size={15} />
+                        <FiMail size={15} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <EmailMessageCard
@@ -183,7 +211,9 @@ const Dashboard = () => {
                       <FiZap size={15} />
                     </div>
                     <div className="flex-1 text-sm leading-relaxed text-neutral-300 space-y-4">
-                      {/* NEW CONDITION: Only use typing animation if it's the latest message AND animateLatest is true */}
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-teal-500 font-bold">
+                        AI Assistant response
+                      </div>
                       {isLatestMessage && animateLatest ? (
                         <TypingEffect text={String(msg.content || "")} speed={12} />
                       ) : (
@@ -223,11 +253,10 @@ const Dashboard = () => {
                   <FiZap size={22} />
                 </div>
                 <h3 className="text-lg font-semibold text-neutral-200">
-                  Where will your curiosity lead?
+                  Unified Command Environment
                 </h3>
                 <p className="text-xs text-neutral-500 leading-relaxed">
-                  Search real-time internet indices or compile sophisticated email
-                  briefs dynamically in a unified command environment.
+                  Toggle workspace selectors at the bottom of your workspace to initialize separate spaces for search queries or compiled mail archives.
                 </p>
               </div>
             )}
