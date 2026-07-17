@@ -49,7 +49,7 @@ export const registerController = async (req, res) => {
                         Please verify your email address by clicking the button below:
                     </p>
                     <a
-                        href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"
+                        href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
                         style="
                             display:inline-block;
                             padding:12px 24px;
@@ -66,7 +66,7 @@ export const registerController = async (req, res) => {
                         Or copy and paste this link into your browser:
                     </p>
                     <p>
-                        http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}
+                        https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
                     </p>
                     <hr />
                     <p>
@@ -149,7 +149,7 @@ export const verifyEmail = async (req, res) => {
                     </p>
 
                     <a
-                        href="http://localhost:3000/login"
+                        href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/login"
                         style="
                             display:inline-block;
                             margin:24px 0;
@@ -200,7 +200,7 @@ export const verifyEmail = async (req, res) => {
                 </p>
 
                 <a
-                    href="http://localhost:5173/login"
+                    href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/login"
                     style="
                         display:inline-block;
                         margin:24px 0;
@@ -432,7 +432,7 @@ export const resendVerificationEmail = async (req, res) => {
                     </p>
 
                     <a
-                        href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"
+                        href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
                         style="
                             display:inline-block;
                             padding:12px 24px;
@@ -451,7 +451,7 @@ export const resendVerificationEmail = async (req, res) => {
                     </p>
 
                     <p>
-                        http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}
+                        https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
                     </p>
 
                     <hr />
