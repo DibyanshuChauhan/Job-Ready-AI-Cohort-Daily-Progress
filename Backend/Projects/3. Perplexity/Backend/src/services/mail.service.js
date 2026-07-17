@@ -1,12 +1,10 @@
 import dns from "dns";
 import nodemailer from "nodemailer";
 
-// Force IPv4 — Render has no outbound IPv6 route, so IPv6-resolved
-// addresses for smtp.gmail.com fail with ENETUNREACH.
-dns.setDefaultResultOrder("ipv4first");
-
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
         type: "OAuth2",
         user: process.env.GOOGLE_USER,
@@ -14,7 +12,11 @@ const transporter = nodemailer.createTransport({
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         clientId: process.env.GOOGLE_CLIENT_ID
     },
-    family: 4, // belt-and-suspenders: force IPv4 at the socket level too
+    // Force IPv4 resolution at the socket layer — Render has no
+    // outbound IPv6 route, so IPv6-resolved addresses fail with ENETUNREACH.
+    lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+    },
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,
     socketTimeout: 15_000,
