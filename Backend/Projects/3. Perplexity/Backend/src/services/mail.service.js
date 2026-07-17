@@ -1,33 +1,29 @@
-import dns from "dns";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    service: "gmail",
     auth: {
         type: "OAuth2",
         user: process.env.GOOGLE_USER,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         clientId: process.env.GOOGLE_CLIENT_ID
-    },
-    // Force IPv4 resolution at the socket layer — Render has no
-    // outbound IPv6 route, so IPv6-resolved addresses fail with ENETUNREACH.
-    lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-    },
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 15_000,
-});
+    }
+})
 
 transporter.verify()
-    .then(() => console.log("Email transporter is ready to send emails"))
-    .catch((err) => console.error("Email transporter verification failed: ", err));
+.then(() => { console.log("Email transporter is ready to send emails"); })
+.catch((err) => { console.error("Email transporter verification failed: ", err) })
 
-export const sendEmail = async ({ to, subject, html, text }) => {
-    const mailOptions = { from: process.env.GOOGLE_USER, to, subject, html, text };
+export const sendEmail = async ( { to, subject, html, text } ) => {
+    const mailOptions = {
+        from: process.env.GOOGLE_USER,
+        to,
+        subject,
+        html,
+        text
+    };
+
     const details = await transporter.sendMail(mailOptions);
-    console.log("Email sent: ", details);
-};
+    console.log("Email sent: ", details)
+}
