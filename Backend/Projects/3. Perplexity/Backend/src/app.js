@@ -10,7 +10,6 @@ import chatRouter from "./routes/chat.routes.js";
 
 const app = express();
 
-// Resolve the directory name for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -33,8 +32,7 @@ const publicFolderPath = path.join(__dirname, "public");
 
 app.use(express.static(publicFolderPath));
 
-// This lets React Router handle the page navigation seamlessly in production
-app.get("*", (req, res) => {
+app.get("*any", (req, res) => {
     res.sendFile(path.join(publicFolderPath, "index.html"));
 });
 
