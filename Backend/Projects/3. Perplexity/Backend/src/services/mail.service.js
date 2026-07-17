@@ -1,4 +1,9 @@
+import dns from "dns";
 import nodemailer from "nodemailer";
+
+// Force IPv4 — Render has no outbound IPv6 route, so IPv6-resolved
+// addresses for smtp.gmail.com fail with ENETUNREACH.
+dns.setDefaultResultOrder("ipv4first");
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -9,9 +14,10 @@ const transporter = nodemailer.createTransport({
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         clientId: process.env.GOOGLE_CLIENT_ID
     },
-    connectionTimeout: 10_000, // 10s to establish connection
-    greetingTimeout: 10_000,   // 10s for SMTP greeting
-    socketTimeout: 15_000,     // 15s max per socket op
+    family: 4, // belt-and-suspenders: force IPv4 at the socket level too
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
 });
 
 transporter.verify()
