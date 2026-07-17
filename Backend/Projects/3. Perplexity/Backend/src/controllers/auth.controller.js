@@ -58,54 +58,54 @@ export const registerController = async (req, res) => {
         try {
             console.log("Sending verification email...");
 
-            // await sendEmail({
-            //     to: email,
-            //     subject: "Welcome to Perplexity!",
-            //     html: `
-            //     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
-            //         <h2>Welcome to Perplexity 🚀</h2>
+            await sendEmail({
+                to: email,
+                subject: "Welcome to Perplexity!",
+                html: `
+                <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+                    <h2>Welcome to Perplexity 🚀</h2>
 
-            //         <p>Hello <strong>${username}</strong>,</p>
+                    <p>Hello <strong>${username}</strong>,</p>
 
-            //         <p>
-            //             Thank you for registering.
-            //         </p>
+                    <p>
+                        Thank you for registering.
+                    </p>
 
-            //         <p>
-            //             Please verify your email by clicking the button below.
-            //         </p>
+                    <p>
+                        Please verify your email by clicking the button below.
+                    </p>
 
-            //         <a
-            //             href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
-            //             style="
-            //                 display:inline-block;
-            //                 padding:12px 24px;
-            //                 background:#4F46E5;
-            //                 color:white;
-            //                 text-decoration:none;
-            //                 border-radius:6px;
-            //             "
-            //         >
-            //             Verify Email
-            //         </a>
+                    <a
+                        href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
+                        style="
+                            display:inline-block;
+                            padding:12px 24px;
+                            background:#4F46E5;
+                            color:white;
+                            text-decoration:none;
+                            border-radius:6px;
+                        "
+                    >
+                        Verify Email
+                    </a>
 
-            //         <p style="margin-top:20px;">
-            //             If the button doesn't work, copy this link:
-            //         </p>
+                    <p style="margin-top:20px;">
+                        If the button doesn't work, copy this link:
+                    </p>
 
-            //         <p>
-            //             https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
-            //         </p>
+                    <p>
+                        https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
+                    </p>
 
-            //         <hr>
+                    <hr>
 
-            //         <p>
-            //             Regards,<br>
-            //             <strong>Perplexity Team</strong>
-            //         </p>
-            //     </div>
-            //     `,
-            // });
+                    <p>
+                        Regards,<br>
+                        <strong>Perplexity Team</strong>
+                    </p>
+                </div>
+                `,
+            });
 
             console.log("✅ Verification email sent");
         } catch (mailError) {
