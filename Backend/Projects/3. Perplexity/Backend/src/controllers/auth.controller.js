@@ -8,10 +8,7 @@ export const registerController = async (req, res) => {
 
         console.log("==================================");
         console.log("🚀 Registration Request Received");
-        console.log({
-            username,
-            email,
-        });
+        console.log({ username, email });
         console.log("==================================");
 
         // 1. Check if user already exists
@@ -54,88 +51,12 @@ export const registerController = async (req, res) => {
 
         console.log("✅ Verification token generated");
 
-        // 4. Send verification email
-        try {
-            console.log("Sending verification email...");
-
-            await sendEmail({
-                to: email,
-                subject: "Welcome to Perplexity!",
-                html: `
-                <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
-                    <h2>Welcome to Perplexity 🚀</h2>
-
-                    <p>Hello <strong>${username}</strong>,</p>
-
-                    <p>
-                        Thank you for registering.
-                    </p>
-
-                    <p>
-                        Please verify your email by clicking the button below.
-                    </p>
-
-                    <a
-                        href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
-                        style="
-                            display:inline-block;
-                            padding:12px 24px;
-                            background:#4F46E5;
-                            color:white;
-                            text-decoration:none;
-                            border-radius:6px;
-                        "
-                    >
-                        Verify Email
-                    </a>
-
-                    <p style="margin-top:20px;">
-                        If the button doesn't work, copy this link:
-                    </p>
-
-                    <p>
-                        https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
-                    </p>
-
-                    <hr>
-
-                    <p>
-                        Regards,<br>
-                        <strong>Perplexity Team</strong>
-                    </p>
-                </div>
-                `,
-            });
-
-            console.log("✅ Verification email sent");
-        } catch (mailError) {
-            console.error("==================================");
-            console.error("❌ EMAIL SENDING FAILED");
-            console.error("Message:", mailError.message);
-            console.error("Stack:", mailError.stack);
-
-            if (mailError.code) {
-                console.error("Code:", mailError.code);
-            }
-
-            if (mailError.response) {
-                console.error("Response:", mailError.response);
-            }
-
-            console.error("==================================");
-
-            return res.status(500).json({
-                success: false,
-                message: "User created successfully, but failed to send verification email.",
-                error: mailError.message,
-            });
-        }
-
+        // 4. Respond immediately — registration is complete regardless of email outcome
         console.log("==================================");
         console.log("✅ Registration Completed");
         console.log("==================================");
 
-        return res.status(201).json({
+        res.status(201).json({
             success: true,
             message: "User registered successfully. Please verify your email.",
             user: {
@@ -144,6 +65,78 @@ export const registerController = async (req, res) => {
                 email: newUser.email,
             },
         });
+
+        // 5. Send verification email AFTER responding (fire-and-forget, doesn't block the client)
+        sendEmail({
+            to: email,
+            subject: "Welcome to Perplexity!",
+            html: `
+            <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333;">
+                <h2>Welcome to Perplexity 🚀</h2>
+
+                <p>Hello <strong>${username}</strong>,</p>
+
+                <p>
+                    Thank you for registering.
+                </p>
+
+                <p>
+                    Please verify your email by clicking the button below.
+                </p>
+
+                
+                    href="https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
+                    style="
+                        display:inline-block;
+                        padding:12px 24px;
+                        background:#4F46E5;
+                        color:white;
+                        text-decoration:none;
+                        border-radius:6px;
+                    "
+                >
+                    Verify Email
+                </a>
+
+                <p style="margin-top:20px;">
+                    If the button doesn't work, copy this link:
+                </p>
+
+                <p>
+                    https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/auth/verify-email?token=${emailVerificationToken}
+                </p>
+
+                <hr>
+
+                <p>
+                    Regards,<br>
+                    <strong>Perplexity Team</strong>
+                </p>
+            </div>
+            `,
+        })
+            .then(() => {
+                console.log("✅ Verification email sent to", email);
+            })
+            .catch((mailError) => {
+                console.error("==================================");
+                console.error("❌ EMAIL SENDING FAILED (post-registration)");
+                console.error("Message:", mailError.message);
+                console.error("Stack:", mailError.stack);
+
+                if (mailError.code) {
+                    console.error("Code:", mailError.code);
+                }
+
+                if (mailError.response) {
+                    console.error("Response:", mailError.response);
+                }
+
+                console.error("==================================");
+                // User is already registered and already got a 201 response.
+                // They can hit /resend-verification if this fails.
+            });
+
     } catch (error) {
         console.error("==================================");
         console.error("❌ REGISTER CONTROLLER ERROR");
