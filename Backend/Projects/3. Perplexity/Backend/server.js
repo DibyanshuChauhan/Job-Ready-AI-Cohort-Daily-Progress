@@ -1,12 +1,25 @@
 import "dotenv/config";
+import dns from "dns";
+
 import app from "./src/app.js";
 import connectToDb from "./src/config/db.js";
 
-import dns from "dns";
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
-connectToDb();
+const PORT = process.env.PORT || 3000;
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("server is running on port " + process.env.PORT);
-});
+const startServer = async () => {
+    try {
+    await connectToDb();
+
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
+} catch (error) {
+    console.error("❌ Failed to start the server");
+    console.error(error);
+    process.exit(1);
+}
+};
+
+startServer();
