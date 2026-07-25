@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    // ============================
+    // JavaScript Type Coercion
+    // ============================
+
+    // string + number = string
+    // "10" + 5 = "105"
+
+    // string - number = number
+    // "10" - 5 = 5
+
+    // string * number = number
+    // "10" * 5 = 50
+
+    // string / number = number
+    // "10" / 2 = 5
+
+    // string % number = number
+    // "10" % 3 = 1
+
+    // string + boolean = string
+    // "10" + true = "10true"
+
+    // string - boolean = number
+    // "10" - true = 9
+
+    // boolean + boolean = number
+    // true + true = 2
+
+    // true = 1
+    // false = 0
+
+    // number + boolean = number
+    // 10 + true = 11
+
+    // null + number = number
+    // null + 5 = 5
+
+    // undefined + number = NaN
+    // undefined + 5 = NaN
+
+    // ============================
+    // Arrays
+    // ============================
+
+    // array + array = string
+    // [1,2] + [3,4] = "1,23,4"
+
+    // [1] + 1 = "11"
+    // [1,2] + 1 = "1,21"
+
+    // [] + [] = ""
+
+    // [] + {} = "[object Object]"
+
+    // {} + [] = 0 (depends on context)
+
+    // [] == false → true
+
+    // [] == 0 → true
+
+    // [0] == 0 → true
+
+    // [1] == 1 → true
+
+    // [1,2] == "1,2" → true
+
+    // ============================
+    // Objects
+    // ============================
+
+    // {} + {} = "[object Object][object Object]"
+
+    // {} + "" = "[object Object]"
+
+    // Object == Object → false
+    // {} == {} → false
+
+    // [] == [] → false
+
+    // ============================
+    // Equality (== vs ===)
+    // ============================
+
+    // 0 == false → true
+
+    // "" == false → true
+
+    // null == undefined → true
+
+    // null === undefined → false
+
+    // "5" == 5 → true
+
+    // "5" === 5 → false
+
+    // NaN == NaN → false
+
+    // NaN === NaN → false
+
+    // ============================
+    // typeof Issues
+    // ============================
+
+    // typeof null = "object"
+
+    // typeof [] = "object"
+
+    // typeof NaN = "number"
+
+    // typeof function(){} = "function"
+
+    // ============================
+    // Truthy & Falsy
+    // ============================
+
+    // false is falsy
+
+    // 0 is falsy
+
+    // -0 is falsy
+
+    // "" is falsy
+
+    // null is falsy
+
+    // undefined is falsy
+
+    // NaN is falsy
+
+    // [] is truthy
+
+    // {} is truthy
+
+    // "false" is truthy
+
+    // "0" is truthy
+
+    // ============================
+    // Floating Point Precision
+    // ============================
+
+    // 0.1 + 0.2 = 0.30000000000000004
+
+    // 1.005.toFixed(2) = "1.00"
+
+    // ============================
+    // Automatic Type Conversion
+    // ============================
+
+    // Number("") = 0
+
+    // Number(" ") = 0
+
+    // Number(null) = 0
+
+    // Number(undefined) = NaN
+
+    // Number(true) = 1
+
+    // Number(false) = 0
+
+    // Boolean("false") = true
+
+    // Boolean("0") = true
+
+    // Boolean([]) = true
+
+    // Boolean({}) = true
+
+    // Boolean("") = false
+
+    // ============================
+    // String Conversion
+    // ============================
+
+    // String(null) = "null"
+
+    // String(undefined) = "undefined"
+
+    // String(true) = "true"
+
+    // String([1,2,3]) = "1,2,3"
+
+    // String({}) = "[object Object]"
+
+    // ============================
+    // Arithmetic Weirdness
+    // ============================
+
+    // 5 + null = 5
+
+    // 5 + undefined = NaN
+
+    // 5 - null = 5
+
+    // 5 - undefined = NaN
+
+    // Infinity - Infinity = NaN
+
+    // 1 / 0 = Infinity
+
+    // -1 / 0 = -Infinity
+
+    // 0 / 0 = NaN
+
+    // ============================
+    // Miscellaneous
+    // ============================
+
+    // [] instanceof Array → true
+
+    // [] instanceof Object → true
+
+    // function(){} instanceof Object → true
+
+    // Math.max() = -Infinity
+
+    // Math.min() = Infinity
+
+    // parseInt("10px") = 10
+
+    // parseInt("10.99") = 10
+
+    // parseFloat("10.99px") = 10.99
+</script>
+</body>
+</html>
