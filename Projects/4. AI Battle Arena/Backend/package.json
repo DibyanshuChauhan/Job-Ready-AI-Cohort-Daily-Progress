@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch server.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "@types/express": "^5.0.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "langchain": "^1.5.4"
+    "langchain": "^1.5.4",
+    "zod": "^4.4.3"
   }
 }
