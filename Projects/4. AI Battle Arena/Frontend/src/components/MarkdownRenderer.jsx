@@ -27,6 +27,28 @@ function parseMarkdown(md) {
       continue;
     }
 
+    // Markdown Table
+    if (line.trim().startsWith('|') && lines[i + 1] && lines[i + 1].includes('---')) {
+      const tableLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      if (tableLines.length >= 2) {
+        const parseRow = (rowStr) => {
+          const cells = rowStr.split('|');
+          if (cells[0].trim() === '') cells.shift();
+          if (cells.length > 0 && cells[cells.length - 1].trim() === '') cells.pop();
+          return cells.map(c => c.trim());
+        };
+
+        const headers = parseRow(tableLines[0]);
+        const rows = tableLines.slice(2).map(parseRow);
+        nodes.push({ type: 'table', headers, rows });
+        continue;
+      }
+    }
+
     // H1
     if (line.startsWith('# ')) {
       nodes.push({ type: 'h1', content: line.slice(2) });
@@ -219,6 +241,33 @@ export default function MarkdownRenderer({ content }) {
             return <blockquote key={i}>{renderInline(node.content)}</blockquote>;
           case 'code':
             return <CodeBlock key={i} lang={node.lang} content={node.content} />;
+          case 'table':
+            return (
+              <div key={i} style={{ margin: '14px 0', overflowX: 'auto', borderRadius: 10, border: '1px solid var(--border)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border)' }}>
+                      {node.headers.map((header, hIdx) => (
+                        <th key={hIdx} style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--text)', borderRight: '1px solid var(--border)' }}>
+                          {renderInline(header)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {node.rows.map((row, rIdx) => (
+                      <tr key={rIdx} style={{ borderBottom: rIdx === node.rows.length - 1 ? 'none' : '1px solid var(--border)' }}>
+                        {row.map((cell, cIdx) => (
+                          <td key={cIdx} style={{ padding: '10px 14px', color: 'var(--text)', borderRight: cIdx === row.length - 1 ? 'none' : '1px solid var(--border)' }}>
+                            {renderInline(cell)}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
           default:
             return null;
         }
