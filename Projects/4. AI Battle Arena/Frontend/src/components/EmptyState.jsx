@@ -2,7 +2,7 @@ const SUGGESTIONS = [
   { icon: '🔄', text: 'Explain recursion' },
   { icon: '🔍', text: 'What is RAG?' },
   { icon: '🌐', text: 'Design a REST API' },
-  { icon: '⚛️',  text: 'Create a React auth flow' },
+  { icon: '⚛️', text: 'Create a React auth flow' },
 ];
 
 export default function EmptyState({ onSuggestion }) {
@@ -59,7 +59,7 @@ export default function EmptyState({ onSuggestion }) {
 
       {/* ── Model badges ── */}
       <div className="flex gap-2 mt-8 flex-wrap justify-center">
-        {['GPT-4o', 'Claude 3.5', 'AI Judge'].map((m) => (
+        {['Mistral', 'Cohere', 'AI Judge'].map((m) => (
           <span key={m} className="badge badge-primary">{m}</span>
         ))}
       </div>

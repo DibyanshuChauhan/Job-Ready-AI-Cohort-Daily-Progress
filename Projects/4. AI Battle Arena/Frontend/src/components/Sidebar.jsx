@@ -81,14 +81,14 @@ export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNew
           className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
           style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
         >
-          JD
+          DC
         </div>
         <div className="flex-1 min-w-0">
           <p
             className="text-[13px] font-semibold text-foreground leading-tight"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            John Doe
+            Divyanshu Chauhan
           </p>
           <span className="badge badge-violet mt-0.5">Pro Plan</span>
         </div>

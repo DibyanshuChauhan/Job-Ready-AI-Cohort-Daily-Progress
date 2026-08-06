@@ -61,7 +61,7 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
           tabIndex={0}
           aria-label="Open user menu"
         >
-          JD
+          DC
         </div>
       </div>
     </header>

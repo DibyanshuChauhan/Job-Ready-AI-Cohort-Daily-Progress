@@ -58,7 +58,7 @@ function ChatEntry({ entry }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SolutionCard
           solutionNum={1}
-          modelName="GPT-4o"
+          modelName="Mistral"
           content={data?.solution_1}
           isLoading={isLoading}
           skeletonDelay={0}
@@ -66,7 +66,7 @@ function ChatEntry({ entry }) {
         />
         <SolutionCard
           solutionNum={2}
-          modelName="Claude 3.5"
+          modelName="Cohere"
           content={data?.solution_2}
           isLoading={isLoading}
           skeletonDelay={120}

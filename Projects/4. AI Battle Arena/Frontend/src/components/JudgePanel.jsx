@@ -67,7 +67,7 @@ function JudgeSkeleton() {
       <div className="h-px mb-5" style={{ background: 'rgba(245,158,11,0.15)' }} />
       <div className="skeleton w-1/2 h-10 rounded-full mx-auto mb-6" />
       <div className="grid grid-cols-2 gap-5 mb-5">
-        {[0,1].map(i => (
+        {[0, 1].map(i => (
           <div key={i}>
             <div className="skeleton w-3/5 h-3.5 mb-2" />
             <div className="skeleton w-2/5 h-7 mb-2" />
@@ -75,8 +75,8 @@ function JudgeSkeleton() {
           </div>
         ))}
       </div>
-      {[100,85,90,78].map((w,i) => (
-        <div key={i} className="skeleton h-3.5 mb-2" style={{ width:`${w}%` }} />
+      {[100, 85, 90, 78].map((w, i) => (
+        <div key={i} className="skeleton h-3.5 mb-2" style={{ width: `${w}%` }} />
       ))}
       <p className="text-center text-[13px] mt-5" style={{ color: 'rgba(245,158,11,0.55)' }}>
         ⭐ Analyzing responses…
@@ -87,11 +87,11 @@ function JudgeSkeleton() {
 
 export default function JudgePanel({ judge, isLoading }) {
   if (isLoading) return <JudgeSkeleton />;
-  if (!judge)    return null;
+  if (!judge) return null;
 
   const { solution_1_score: s1, solution_2_score: s2, solution_1_reasoning: r1, solution_2_reasoning: r2 } = judge;
-  const winner     = s1 >= s2 ? 1 : 2;
-  const winReason  = winner === 1 ? r1 : r2;
+  const winner = s1 >= s2 ? 1 : 2;
+  const winReason = winner === 1 ? r1 : r2;
   const loseReason = winner === 1 ? r2 : r1;
 
   const highlights = winReason
@@ -194,8 +194,8 @@ export default function JudgePanel({ judge, isLoading }) {
 
       {/* ── Accordions ── */}
       <div className="px-6 pb-6">
-        <Accordion title={`Why Solution ${winner} won?`}           content={winReason  || 'No detailed reasoning provided.'} />
-        <Accordion title={`Why Solution ${winner===1?2:1} scored lower?`} content={loseReason || 'No detailed reasoning provided.'} />
+        <Accordion title={`Why Solution ${winner} won?`} content={winReason || 'No detailed reasoning provided.'} />
+        <Accordion title={`Why Solution ${winner === 1 ? 2 : 1} scored lower?`} content={loseReason || 'No detailed reasoning provided.'} />
       </div>
     </div>
   );
