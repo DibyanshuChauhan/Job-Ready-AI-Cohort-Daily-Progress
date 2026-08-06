@@ -8,8 +8,6 @@ import UserPromptCard from '../components/UserPromptCard';
 import SolutionCard from '../components/SolutionCard';
 import JudgePanel from '../components/JudgePanel';
 
-
-
 /* ─── Toast ─── */
 function Toast({ message, onDone }) {
   useEffect(() => {
