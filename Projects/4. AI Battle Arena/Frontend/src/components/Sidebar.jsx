@@ -4,27 +4,41 @@ const NAV_ITEMS = [
   { id: 'favorites', icon: '⭐',  label: 'Favorites'    },
 ];
 
-export default function Sidebar({ activeNav, onNavChange, onNewChat }) {
+export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNewChat }) {
   return (
     <aside
       aria-label="Sidebar navigation"
-      className="fixed inset-y-0 left-0 z-30 flex flex-col w-[260px] bg-sidebar border-r border-line"
+      className={`fixed inset-y-0 left-0 z-40 flex flex-col w-[260px] bg-sidebar border-r border-line transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}
     >
-      {/* ── Logo ── */}
+      {/* ── Header / Logo + Close Button ── */}
       <div className="px-5 pt-6 pb-5">
-        <div className="flex items-center gap-3 mb-7">
-          <div
-            className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[18px] flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
-          >
-            ⚡
+        <div className="flex items-center justify-between gap-3 mb-7">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[18px] flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
+            >
+              ⚡
+            </div>
+            <span
+              className="gradient-text text-[18px] font-bold tracking-tight"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              DualMind AI
+            </span>
           </div>
-          <span
-            className="gradient-text text-[18px] font-bold tracking-tight"
-            style={{ fontFamily: 'var(--font-display)' }}
+
+          {/* Close button for mobile menu */}
+          <button
+            onClick={onClose}
+            className="icon-btn lg:hidden text-lg w-8 h-8 flex items-center justify-center rounded-lg"
+            aria-label="Close menu"
+            title="Close menu"
           >
-            DualMind AI
-          </span>
+            ✕
+          </button>
         </div>
 
         {/* ── Nav ── */}
@@ -37,6 +51,7 @@ export default function Sidebar({ activeNav, onNavChange, onNewChat }) {
                   onClick={() => {
                     onNavChange(item.id);
                     if (item.id === 'new') onNewChat();
+                    if (onClose) onClose();
                   }}
                   aria-current={activeNav === item.id ? 'page' : undefined}
                 >

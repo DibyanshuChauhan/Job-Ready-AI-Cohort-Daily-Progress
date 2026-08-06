@@ -140,8 +140,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-base relative">
-      {/* Sidebar (fixed, hidden on mobile) */}
+      {/* Sidebar drawer (fixed on desktop, slide-over on mobile) */}
       <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
         activeNav={activeNav}
         onNavChange={setActiveNav}
         onNewChat={handleNewChat}
@@ -150,7 +152,7 @@ export default function App() {
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-[25] lg:hidden"
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden"
           onClick={handleOverlayClick}
           aria-hidden="true"
         />
