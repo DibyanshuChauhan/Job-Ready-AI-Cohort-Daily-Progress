@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import EmptyState from '../components/EmptyState';
@@ -10,7 +11,7 @@ import JudgePanel from '../components/JudgePanel';
 /* ─── Mock AI response data ─── */
 const MOCK_DATA = {
   problem: 'Explain the concept of Recursion in detail',
-  solution_1: `## What is Recursion?€
+  solution_1: `## What is Recursion?
 
 **Recursion** is a programming technique where a function calls itself to solve a problem by breaking it into smaller, simpler sub-problems.
 
@@ -254,11 +255,13 @@ export default function App() {
     setEntries(prev => [...prev, newEntry]);
     setIsLoading(true);
     try {
-      const result = await simulateFetch(query);
+      const response = await axios.post('http://localhost:3000/invoke', { input: query });
+      const result = response.data.result;
       setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e));
-    } catch {
+    } catch (err) {
+      console.error('Error invoking backend graph:', err);
       setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, isLoading: false, error: true } : e));
-      setToast('⚠️ Something went wrong. Please try again.');
+      setToast('⚠️ Something went wrong connecting to the backend. Please try again.');
     } finally {
       setIsLoading(false);
     }

@@ -2,7 +2,6 @@ const NAV_ITEMS = [
   { id: 'new',       icon: '✏️',  label: 'New Chat'     },
   { id: 'history',   icon: '💬',  label: 'Chat History' },
   { id: 'favorites', icon: '⭐',  label: 'Favorites'    },
-  { id: 'settings',  icon: '⚙️',  label: 'Settings'     },
 ];
 
 export default function Sidebar({ activeNav, onNavChange, onNewChat }) {
