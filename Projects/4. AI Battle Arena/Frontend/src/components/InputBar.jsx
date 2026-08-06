@@ -48,8 +48,8 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
         <div
           className="flex items-end gap-2.5 rounded-2xl px-4 py-3 transition-all duration-200"
           style={{
-            background: '#18181B',
-            border: `1px solid ${canSend ? 'rgba(99,102,241,0.4)' : '#27272A'}`,
+            background: 'var(--color-card)',
+            border: `1px solid ${canSend ? 'rgba(99,102,241,0.4)' : 'var(--color-line)'}`,
             boxShadow: canSend ? '0 0 0 2px rgba(99,102,241,0.08)' : 'none',
           }}
         >

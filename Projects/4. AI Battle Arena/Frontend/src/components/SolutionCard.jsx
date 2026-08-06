@@ -69,8 +69,8 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
     <div
       className="bg-card rounded-[20px] flex flex-col card-hover animate-fade-in-up relative overflow-hidden"
       style={{
-        border: isWinner ? '1px solid rgba(16,185,129,0.35)' : '1px solid #27272A',
-        boxShadow: isWinner ? '0 0 30px rgba(16,185,129,0.07), 0 4px 24px rgba(0,0,0,0.4)' : '0 4px 24px rgba(0,0,0,0.4)',
+        border: isWinner ? '1px solid rgba(16,185,129,0.35)' : '1px solid var(--color-line)',
+        boxShadow: isWinner ? '0 0 30px rgba(16,185,129,0.07), 0 4px 24px rgba(0,0,0,0.15)' : '0 4px 24px rgba(0,0,0,0.15)',
       }}
     >
       {/* Winner ribbon */}
@@ -143,7 +143,7 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
         {!expanded && (
           <div
             className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-            style={{ background: 'linear-gradient(to bottom, transparent, #18181B)' }}
+            style={{ background: 'linear-gradient(to bottom, transparent, var(--color-card))' }}
           />
         )}
       </div>

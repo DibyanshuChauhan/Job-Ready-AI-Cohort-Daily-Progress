@@ -4,9 +4,8 @@
 
 @import "tailwindcss";
 
-/* ── Custom design tokens via @theme ── */
-@theme {
-  /* Colors */
+/* ── Theme custom properties (Dark mode default) ── */
+:root {
   --color-base:         #09090B;
   --color-card:         #18181B;
   --color-sidebar:      #0F0F11;
@@ -24,6 +23,54 @@
   --color-foreground:   #FAFAFA;
   --color-muted:        #A1A1AA;
   --color-subtle:       #71717A;
+
+  --border:             #27272A;
+  --text:               #FAFAFA;
+  --text-muted:         #A1A1AA;
+}
+
+/* ── Light mode overrides ── */
+html.light {
+  --color-base:         #F8FAFC;
+  --color-card:         #FFFFFF;
+  --color-sidebar:      #F1F5F9;
+  --color-line:         #E2E8F0;
+  --color-line-hover:   #CBD5E1;
+  --color-line-subtle:  #F8FAFC;
+
+  --color-primary:      #4F46E5;
+  --color-primary-light:#6366F1;
+  --color-violet:       #7C3AED;
+
+  --color-foreground:   #0F172A;
+  --color-muted:        #475569;
+  --color-subtle:       #64748B;
+
+  --border:             #E2E8F0;
+  --text:               #0F172A;
+  --text-muted:         #475569;
+}
+
+/* ── Custom design tokens via @theme ── */
+@theme {
+  /* Dynamic Theme Colors */
+  --color-base:         var(--color-base);
+  --color-card:         var(--color-card);
+  --color-sidebar:      var(--color-sidebar);
+  --color-line:         var(--color-line);
+  --color-line-hover:   var(--color-line-hover);
+  --color-line-subtle:  var(--color-line-subtle);
+
+  --color-primary:      var(--color-primary);
+  --color-primary-light:var(--color-primary-light);
+  --color-violet:       var(--color-violet);
+  --color-emerald:      #10B981;
+  --color-amber:        #F59E0B;
+  --color-rose:         #EF4444;
+
+  --color-foreground:   var(--color-foreground);
+  --color-muted:        var(--color-muted);
+  --color-subtle:       var(--color-subtle);
 
   /* Typography */
   --font-display:  'Plus Jakarta Sans', system-ui, sans-serif;
@@ -68,6 +115,7 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
@@ -77,21 +125,21 @@
     font-size: 16px;
     line-height: 1.6;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* ── Custom styled scrollbar ── */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #3f3f46 transparent;
+    scrollbar-color: var(--color-line-hover) transparent;
   }
   ::-webkit-scrollbar       { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #3f3f46;
+    background: var(--color-line-hover);
     border-radius: 99px;
     transition: background 0.2s;
   }
-  ::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
   /* ── Focus visible ── */
   :focus-visible {
@@ -106,7 +154,7 @@
 @layer utilities {
   /* Gradient text */
   .gradient-text {
-    background: linear-gradient(135deg, #818CF8, #A78BFA);
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -118,11 +166,15 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--color-line);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  html.light .glass {
+    background: rgba(255, 255, 255, 0.85);
   }
 
   /* Skeleton shimmer */
   .skeleton {
-    background: linear-gradient(90deg, #27272A 0%, #3f3f46 50%, #27272A 100%);
+    background: linear-gradient(90deg, var(--color-line) 0%, var(--color-line-hover) 50%, var(--color-line) 100%);
     background-size: 600px 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 6px;
@@ -135,15 +187,19 @@
     border-radius: 24px;
     animation: pulse-glow 3s ease-in-out infinite;
   }
+  html.light .judge-card {
+    background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(99,102,241,0.03));
+    border: 2px solid rgba(245,158,11,0.3);
+  }
 
   /* Card glow on hover */
   .card-hover {
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.3s ease;
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 40px rgba(99,102,241,0.09);
-    border-color: #3F3F46;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15), 0 0 40px rgba(99,102,241,0.09);
+    border-color: var(--color-line-hover);
   }
 
   /* Code block */
@@ -158,12 +214,15 @@
     overflow-x: auto;
     margin: 14px 0;
   }
+  html.light .code-block {
+    background: #F1F5F9;
+  }
 
   /* Progress bar */
   .progress-track {
     height: 8px;
     border-radius: 99px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(125,125,125,0.12);
     overflow: hidden;
   }
 
@@ -222,7 +281,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 18px;
-    background: rgba(24,24,27,0.8);
+    background: var(--color-card);
     border: 1px solid var(--color-line);
     border-radius: 14px;
     font-size: 14px;
@@ -248,9 +307,9 @@
     font-weight: 600;
     letter-spacing: 0.02em;
   }
-  .badge-primary  { background: rgba(99,102,241,0.18); color: #818CF8; border: 1px solid rgba(99,102,241,0.28); }
-  .badge-violet   { background: rgba(139,92,246,0.18); color: #C4B5FD; border: 1px solid rgba(139,92,246,0.28); }
-  .badge-emerald  { background: rgba(16,185,129,0.18); color: #34D399;  border: 1px solid rgba(16,185,129,0.28); }
+  .badge-primary  { background: rgba(99,102,241,0.18); color: var(--color-primary-light); border: 1px solid rgba(99,102,241,0.28); }
+  .badge-violet   { background: rgba(139,92,246,0.18); color: var(--color-violet); border: 1px solid rgba(139,92,246,0.28); }
+  .badge-emerald  { background: rgba(16,185,129,0.18); color: #10B981;  border: 1px solid rgba(16,185,129,0.28); }
   .badge-winner   {
     background: rgba(16,185,129,0.14);
     color: #10B981;
@@ -292,8 +351,8 @@
   .md-content h1 { font-size: 19px; font-weight: 700; }
   .md-content h2 { font-size: 17px; font-weight: 600; }
   .md-content h3 { font-size: 15px; font-weight: 600; }
-  .md-content p  { color: #E4E4E7; margin-bottom: 11px; line-height: 1.7; font-size: 15px; }
-  .md-content ul, .md-content ol { margin: 8px 0 12px 18px; color: #E4E4E7; }
+  .md-content p  { color: var(--color-foreground); margin-bottom: 11px; line-height: 1.7; font-size: 15px; }
+  .md-content ul, .md-content ol { margin: 8px 0 12px 18px; color: var(--color-foreground); }
   .md-content li { margin-bottom: 4px; line-height: 1.6; font-size: 15px; }
   .md-content strong { color: var(--color-foreground); font-weight: 600; }
   .md-content em     { color: var(--color-primary-light); font-style: italic; }

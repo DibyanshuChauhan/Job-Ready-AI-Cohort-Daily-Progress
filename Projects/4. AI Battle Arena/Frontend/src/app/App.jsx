@@ -95,6 +95,15 @@ export default function App() {
   const [toast,        setToast]        = useState(null);
   const bottomRef = useRef(null);
 
+  /* ── Sync Theme (Light / Dark) ── */
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+    }
+  }, [isDark]);
+
   /* ── Auto-scroll to bottom on new entry/load ── */
   useEffect(() => {
     if (entries.length > 0) {
