@@ -1,68 +1,65 @@
+import { Bot, Sparkles, ArrowRight, Code2, Search, Globe, Atom } from 'lucide-react';
+
 const SUGGESTIONS = [
-  { icon: '🔄', text: 'Explain recursion' },
-  { icon: '🔍', text: 'What is RAG?' },
-  { icon: '🌐', text: 'Design a REST API' },
-  { icon: '⚛️', text: 'Create a React auth flow' },
+  { icon: Code2,  text: 'Explain recursion with visual steps' },
+  { icon: Search, text: 'What is Retrieval-Augmented Generation (RAG)?' },
+  { icon: Globe,  text: 'Design a scalable REST API architecture' },
+  { icon: Atom,   text: 'Create a React authorization hook' },
 ];
 
 export default function EmptyState({ onSuggestion }) {
   return (
-    <div className="flex flex-col items-center justify-center flex-1 px-6 py-16 text-center animate-fade-in">
-
-      {/* ── Robot with glow ── */}
-      <div
-        className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-5xl mb-7"
-        style={{
-          background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)',
-          border: '1px solid rgba(99,102,241,0.14)',
-        }}
-      >
-        🤖
+    <div className="flex flex-col items-center justify-center flex-1 px-6 py-16 text-center animate-fade-in relative z-10">
+      {/* SaaS Feature Badge */}
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-6">
+        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+        <span>Dual Model Arena v2.4</span>
       </div>
 
-      {/* ── Headline ── */}
+      {/* Hero Headline */}
       <h2
-        className="gradient-text font-bold leading-tight tracking-tight mb-3 max-w-[500px]"
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(22px, 4vw, 32px)',
-        }}
+        className="gradient-text font-extrabold leading-tight tracking-tight mb-3 max-w-[560px] font-display"
+        style={{ fontSize: 'clamp(24px, 4vw, 36px)' }}
       >
-        Compare Two AI Solutions Instantly
+        Compare Two AI Models Side-by-Side
       </h2>
 
-      {/* ── Subtitle ── */}
-      <p className="text-muted text-[15px] leading-relaxed max-w-[460px] mb-9">
-        Ask a question and receive two independent AI‑generated answers, followed
-        by an AI Judge that evaluates both and recommends the best response.
+      {/* Subtitle */}
+      <p className="text-muted text-[14.5px] leading-relaxed max-w-[480px] mb-10">
+        Prompt once and evaluate answers from Mistral and Cohere in real-time. An autonomous AI Judge scores and recommends the superior solution.
       </p>
 
-      {/* ── Suggestion chips ── */}
+      {/* Suggestion Chips */}
       <div
-        className="grid grid-cols-2 gap-2.5 w-full max-w-[480px]"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-[520px]"
         role="group"
         aria-label="Suggested prompts"
       >
-        {SUGGESTIONS.map((s) => (
-          <button
-            key={s.text}
-            className="chip text-left"
-            onClick={() => onSuggestion(s.text)}
-            aria-label={`Try: ${s.text}`}
-          >
-            <span className="text-base">{s.icon}</span>
-            <span className="flex-1">{s.text}</span>
-            <span className="text-subtle text-xs">→</span>
-          </button>
-        ))}
+        {SUGGESTIONS.map((s) => {
+          const Icon = s.icon;
+          return (
+            <button
+              key={s.text}
+              className="chip text-left group"
+              onClick={() => onSuggestion(s.text)}
+              aria-label={`Try: ${s.text}`}
+            >
+              <Icon className="w-4 h-4 text-indigo-400 flex-shrink-0 group-hover:text-indigo-300 transition-colors" />
+              <span className="flex-1 text-[13.5px] line-clamp-1">{s.text}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-subtle group-hover:translate-x-0.5 group-hover:text-foreground transition-all" />
+            </button>
+          );
+        })}
       </div>
 
-      {/* ── Model badges ── */}
-      <div className="flex gap-2 mt-8 flex-wrap justify-center">
-        {['Mistral', 'Cohere', 'AI Judge'].map((m) => (
-          <span key={m} className="badge badge-primary">{m}</span>
-        ))}
+      {/* Model Tech Badges */}
+      <div className="flex items-center gap-2.5 mt-10 flex-wrap justify-center">
+        <span className="text-xs text-subtle font-medium">Evaluated Models:</span>
+        <span className="badge badge-primary">Mistral 7B</span>
+        <span className="badge badge-violet">Cohere Command</span>
+        <span className="badge badge-emerald">Autonomous Judge</span>
       </div>
     </div>
   );
 }
+

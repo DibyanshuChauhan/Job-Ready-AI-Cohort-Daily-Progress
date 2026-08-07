@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import axios from 'axios';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import EmptyState from '../components/EmptyState';
@@ -11,17 +12,17 @@ import JudgePanel from '../components/JudgePanel';
 /* ─── Toast ─── */
 function Toast({ message, onDone }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 2500);
+    const t = setTimeout(onDone, 3000);
     return () => clearTimeout(t);
   }, [onDone]);
   return (
     <div
-      className="fixed bottom-32 right-6 z-[9999] animate-fade-in-up bg-card border border-line rounded-xl px-5 py-3 text-[14px] text-foreground"
-      style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.4)' }}
+      className="fixed bottom-28 right-6 z-[9999] animate-fade-in-up bg-card/95 backdrop-blur-md border border-rose-500/30 rounded-xl px-4 py-3 text-[13.5px] text-foreground flex items-center gap-2.5 shadow-2xl shadow-rose-950/20"
       role="status"
       aria-live="polite"
     >
-      {message}
+      <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+      <span>{message}</span>
     </div>
   );
 }
@@ -37,22 +38,18 @@ function ChatEntry({ entry }) {
 
       {/* AI Responses label */}
       <div className="flex items-center gap-3">
-        <span className="text-[13px] text-subtle font-medium whitespace-nowrap">AI Responses</span>
+        <span className="text-[12.5px] text-subtle font-semibold uppercase tracking-wider font-display">
+          AI Model Responses
+        </span>
         <div className="flex-1 h-px bg-line" />
         {isLoading && (
-          <span className="flex items-center gap-1.5 text-[12px] text-primary-light">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
-              style={{
-                border: '1.5px solid rgba(99,102,241,0.3)',
-                borderTop: '1.5px solid #818CF8',
-                animation: 'spin-fast 0.8s linear infinite',
-              }}
-            />
-            AI models responding…
+          <span className="flex items-center gap-1.5 text-[12px] text-indigo-400 font-medium">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+            Dual models processing in parallel…
           </span>
         )}
       </div>
+
 
       {/* Solutions side-by-side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

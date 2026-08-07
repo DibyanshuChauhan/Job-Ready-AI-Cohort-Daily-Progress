@@ -1,7 +1,9 @@
+import { SquarePlus, MessageSquare, Star, Zap, X, MoreHorizontal } from 'lucide-react';
+
 const NAV_ITEMS = [
-  { id: 'new',       icon: '✏️',  label: 'New Chat'     },
-  { id: 'history',   icon: '💬',  label: 'Chat History' },
-  { id: 'favorites', icon: '⭐',  label: 'Favorites'    },
+  { id: 'new',       icon: SquarePlus,    label: 'New Arena Chat' },
+  { id: 'history',   icon: MessageSquare, label: 'Chat History'   },
+  { id: 'favorites', icon: Star,          label: 'Favorites'      },
 ];
 
 export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNewChat }) {
@@ -12,88 +14,94 @@ export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNew
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}
     >
-      {/* ── Header / Logo + Close Button ── */}
+      {/* Brand Header */}
       <div className="px-5 pt-6 pb-5">
-        <div className="flex items-center justify-between gap-3 mb-7">
+        <div className="flex items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[18px] flex-shrink-0"
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-500/20"
               style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
             >
-              ⚡
+              <Zap className="w-4 h-4 fill-white" />
             </div>
-            <span
-              className="gradient-text text-[18px] font-bold tracking-tight"
-              style={{ fontFamily: 'var(--font-display)' }}
-            >
+            <span className="gradient-text text-[17px] font-bold tracking-tight font-display">
               DualMind AI
             </span>
           </div>
 
-          {/* Close button for mobile menu */}
           <button
             onClick={onClose}
             className="icon-btn lg:hidden text-lg w-8 h-8 flex items-center justify-center rounded-lg"
             aria-label="Close menu"
-            title="Close menu"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* ── Nav ── */}
+        {/* Navigation */}
         <nav>
           <ul className="flex flex-col gap-1 list-none">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.id}>
-                <button
-                  className={`nav-item ${activeNav === item.id ? 'active' : ''}`}
-                  onClick={() => {
-                    onNavChange(item.id);
-                    if (item.id === 'new') onNewChat();
-                    if (onClose) onClose();
-                  }}
-                  aria-current={activeNav === item.id ? 'page' : undefined}
-                >
-                  <span className="text-base">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              </li>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeNav === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                    onClick={() => {
+                      onNavChange(item.id);
+                      if (item.id === 'new') onNewChat();
+                      if (onClose) onClose();
+                    }}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Model Spec Box */}
+      <div className="mx-4 my-2 p-3.5 rounded-xl bg-card/60 border border-line/60">
+        <div className="flex items-center justify-between text-[11px] text-subtle mb-1.5">
+          <span>Active Pair</span>
+          <span className="text-indigo-400 font-medium">v2.4 Engine</span>
+        </div>
+        <div className="flex items-center justify-between text-[12px] font-medium text-foreground">
+          <span>Mistral vs Cohere</span>
+          <span className="badge badge-primary text-[10px] py-0">Parallel</span>
+        </div>
+      </div>
 
-      {/* Divider */}
+      <div className="flex-1" />
       <div className="h-px bg-line mx-5" />
 
-      {/* ── User profile ── */}
+      {/* User Profile */}
       <div
-        className="flex items-center gap-3 mx-2 my-2 p-3 rounded-xl transition-colors duration-150 hover:bg-[rgba(99,102,241,0.07)]"
+        className="flex items-center gap-3 mx-3 my-3 p-2.5 rounded-xl transition-colors duration-150 hover:bg-white/5 cursor-pointer"
         role="button"
         tabIndex={0}
         aria-label="User profile menu"
       >
         <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
           style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
         >
           DC
         </div>
         <div className="flex-1 min-w-0">
-          <p
-            className="text-[13px] font-semibold text-foreground leading-tight"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
+          <p className="text-[13px] font-semibold text-foreground leading-tight truncate font-display">
             Divyanshu Chauhan
           </p>
-          <span className="badge badge-violet mt-0.5">Pro Plan</span>
+          <span className="badge badge-violet mt-0.5 text-[10px]">Pro Plan</span>
         </div>
-        <span className="text-subtle text-base">⋯</span>
+        <MoreHorizontal className="w-4 h-4 text-subtle" />
       </div>
     </aside>
   );
 }
+

@@ -1,149 +1,26 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import { Check, Copy } from 'lucide-react';
 
-// Lightweight markdown-to-JSX parser
-function parseMarkdown(md) {
-  if (!md) return [];
-  const lines = md.split('\n');
-  const nodes = [];
-  let i = 0;
+/* Preprocess raw AI text to handle LaTeX delimiters and malformed backticks */
+function preprocessMarkdown(text) {
+  if (!text) return '';
+  let result = text;
 
-  while (i < lines.length) {
-    const line = lines[i];
+  // 1. Convert LaTeX block math: \[ ... \] -> \n$$\n...\n$$\n
+  result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, math) => `\n$$\n${math.trim()}\n$$\n`);
 
-    // Blank line
-    if (line.trim() === '') { i++; continue; }
+  // 2. Convert LaTeX inline math: \( ... \) -> $...$
+  result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math.trim()}$`);
 
-    // Code block
-    if (line.startsWith('```')) {
-      const lang = line.slice(3).trim();
-      const codeLines = [];
-      i++;
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i]);
-        i++;
-      }
-      nodes.push({ type: 'code', lang, content: codeLines.join('\n') });
-      i++;
-      continue;
-    }
+  // 3. Fix malformed lone-backtick lines that AI models sometimes output instead of ```
+  // Convert lines that contain only a single backticks ` to triple backticks ```
+  result = result.replace(/(^|\n)[ \t]*`[ \t]*(\n|$)/g, '$1```\n$2');
 
-    // Markdown Table
-    if (line.trim().startsWith('|') && lines[i + 1] && lines[i + 1].includes('---')) {
-      const tableLines = [];
-      while (i < lines.length && lines[i].trim().startsWith('|')) {
-        tableLines.push(lines[i]);
-        i++;
-      }
-      if (tableLines.length >= 2) {
-        const parseRow = (rowStr) => {
-          const cells = rowStr.split('|');
-          if (cells[0].trim() === '') cells.shift();
-          if (cells.length > 0 && cells[cells.length - 1].trim() === '') cells.pop();
-          return cells.map(c => c.trim());
-        };
-
-        const headers = parseRow(tableLines[0]);
-        const rows = tableLines.slice(2).map(parseRow);
-        nodes.push({ type: 'table', headers, rows });
-        continue;
-      }
-    }
-
-    // H1
-    if (line.startsWith('# ')) {
-      nodes.push({ type: 'h1', content: line.slice(2) });
-      i++; continue;
-    }
-    // H2
-    if (line.startsWith('## ')) {
-      nodes.push({ type: 'h2', content: line.slice(3) });
-      i++; continue;
-    }
-    // H3
-    if (line.startsWith('### ')) {
-      nodes.push({ type: 'h3', content: line.slice(4) });
-      i++; continue;
-    }
-
-    // Blockquote
-    if (line.startsWith('> ')) {
-      nodes.push({ type: 'blockquote', content: line.slice(2) });
-      i++; continue;
-    }
-
-    // Unordered list
-    if (line.match(/^[-*+] /)) {
-      const items = [];
-      while (i < lines.length && lines[i].match(/^[-*+] /)) {
-        items.push(lines[i].replace(/^[-*+] /, ''));
-        i++;
-      }
-      nodes.push({ type: 'ul', items });
-      continue;
-    }
-
-    // Ordered list
-    if (line.match(/^\d+\. /)) {
-      const items = [];
-      while (i < lines.length && lines[i].match(/^\d+\. /)) {
-        items.push(lines[i].replace(/^\d+\. /, ''));
-        i++;
-      }
-      nodes.push({ type: 'ol', items });
-      continue;
-    }
-
-    // Paragraph
-    nodes.push({ type: 'p', content: line });
-    i++;
-  }
-
-  return nodes;
-}
-
-// Inline markdown (bold, italic, code, links)
-function renderInline(text) {
-  if (!text) return null;
-  const parts = [];
-  let remaining = text;
-  let key = 0;
-
-  while (remaining.length > 0) {
-    // Bold **text**
-    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
-    // Italic *text*
-    const italicMatch = remaining.match(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/);
-    // Inline code `text`
-    const codeMatch = remaining.match(/`(.+?)`/);
-
-    const candidates = [
-      boldMatch   && { index: boldMatch.index,   len: boldMatch[0].length,   type: 'bold',   inner: boldMatch[1] },
-      italicMatch && { index: italicMatch.index,  len: italicMatch[0].length,  type: 'italic',  inner: italicMatch[1] },
-      codeMatch   && { index: codeMatch.index,    len: codeMatch[0].length,    type: 'code',    inner: codeMatch[1] },
-    ].filter(Boolean).sort((a, b) => a.index - b.index);
-
-    if (candidates.length === 0) {
-      parts.push(<span key={key++}>{remaining}</span>);
-      break;
-    }
-
-    const first = candidates[0];
-    if (first.index > 0) {
-      parts.push(<span key={key++}>{remaining.slice(0, first.index)}</span>);
-    }
-
-    if (first.type === 'bold') {
-      parts.push(<strong key={key++}>{first.inner}</strong>);
-    } else if (first.type === 'italic') {
-      parts.push(<em key={key++}>{first.inner}</em>);
-    } else if (first.type === 'code') {
-      parts.push(<code key={key++}>{first.inner}</code>);
-    }
-
-    remaining = remaining.slice(first.index + first.len);
-  }
-
-  return parts;
+  return result;
 }
 
 function CodeBlock({ lang, content }) {
@@ -157,121 +34,116 @@ function CodeBlock({ lang, content }) {
   };
 
   return (
-    <div className="code-block" style={{ margin: '14px 0' }}>
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '8px 14px',
-          borderBottom: '1px solid var(--border)',
-          background: 'rgba(0,0,0,0.3)',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 11,
-            color: 'var(--text-muted)',
-            textTransform: 'lowercase',
-          }}
-        >
-          {lang || 'code'}
-        </span>
+    <div className="code-block my-3.5 relative overflow-hidden rounded-xl border border-line bg-[#0B0D14] shadow-md">
+      {/* Header toolbar */}
+      <div className="flex items-center justify-between px-3.5 py-2 border-b border-line bg-black/40 text-[11px] font-code text-subtle">
+        <span className="lowercase font-medium">{lang || 'code'}</span>
         <button
           onClick={handleCopy}
           aria-label="Copy code"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all border cursor-pointer"
           style={{
             background: copied ? 'rgba(16,185,129,0.15)' : 'rgba(99,102,241,0.1)',
-            border: `1px solid ${copied ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.2)'}`,
-            borderRadius: 6,
-            padding: '3px 10px',
-            fontSize: 11,
-            fontWeight: 600,
-            color: copied ? '#10B981' : 'var(--primary-light)',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
+            borderColor: copied ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.2)',
+            color: copied ? '#34D399' : '#A5B4FC',
           }}
         >
-          {copied ? '✓ Copied' : 'Copy'}
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 text-emerald-400" />
+              <span>Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3" />
+              <span>Copy</span>
+            </>
+          )}
         </button>
       </div>
-      <pre style={{ padding: '14px', margin: 0, overflowX: 'auto' }}>
-        <code style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#E4E4E7' }}>
-          {content}
-        </code>
+
+      {/* Code content */}
+      <pre className="p-4 m-0 overflow-x-auto font-code text-[13px] leading-relaxed text-slate-200">
+        <code>{content}</code>
       </pre>
     </div>
   );
 }
 
 export default function MarkdownRenderer({ content }) {
-  const nodes = parseMarkdown(content);
+  const processed = useMemo(() => preprocessMarkdown(content), [content]);
 
   return (
-    <div className="md-content" style={{ fontSize: 15, lineHeight: 1.7 }}>
-      {nodes.map((node, i) => {
-        switch (node.type) {
-          case 'h1':
-            return <h1 key={i} style={{ marginTop: i === 0 ? 0 : undefined }}>{renderInline(node.content)}</h1>;
-          case 'h2':
-            return <h2 key={i}>{renderInline(node.content)}</h2>;
-          case 'h3':
-            return <h3 key={i}>{renderInline(node.content)}</h3>;
-          case 'p':
-            return <p key={i}>{renderInline(node.content)}</p>;
-          case 'ul':
+    <div className="md-content text-[14.5px] leading-relaxed font-sans">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        components={{
+          code({ inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            const lang = match ? match[1] : '';
+            const codeString = String(children).replace(/\n$/, '');
+
+            if (!inline && (match || codeString.includes('\n') || className)) {
+              return <CodeBlock lang={lang} content={codeString} />;
+            }
             return (
-              <ul key={i}>
-                {node.items.map((item, j) => (
-                  <li key={j}>{renderInline(item)}</li>
-                ))}
-              </ul>
+              <code
+                className="font-code text-[12.5px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20"
+                {...props}
+              >
+                {children}
+              </code>
             );
-          case 'ol':
+          },
+          table({ children }) {
             return (
-              <ol key={i} style={{ marginLeft: 18 }}>
-                {node.items.map((item, j) => (
-                  <li key={j}>{renderInline(item)}</li>
-                ))}
-              </ol>
-            );
-          case 'blockquote':
-            return <blockquote key={i}>{renderInline(node.content)}</blockquote>;
-          case 'code':
-            return <CodeBlock key={i} lang={node.lang} content={node.content} />;
-          case 'table':
-            return (
-              <div key={i} style={{ margin: '14px 0', overflowX: 'auto', borderRadius: 10, border: '1px solid var(--border)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--border)' }}>
-                      {node.headers.map((header, hIdx) => (
-                        <th key={hIdx} style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--text)', borderRight: '1px solid var(--border)' }}>
-                          {renderInline(header)}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {node.rows.map((row, rIdx) => (
-                      <tr key={rIdx} style={{ borderBottom: rIdx === node.rows.length - 1 ? 'none' : '1px solid var(--border)' }}>
-                        {row.map((cell, cIdx) => (
-                          <td key={cIdx} style={{ padding: '10px 14px', color: 'var(--text)', borderRight: cIdx === row.length - 1 ? 'none' : '1px solid var(--border)' }}>
-                            {renderInline(cell)}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
+              <div className="my-4 overflow-x-auto rounded-xl border border-line shadow-sm">
+                <table className="w-full border-collapse text-left text-sm">
+                  {children}
                 </table>
               </div>
             );
-          default:
-            return null;
-        }
-      })}
+          },
+          thead({ children }) {
+            return <thead className="bg-white/5 border-b border-line font-semibold text-foreground">{children}</thead>;
+          },
+          th({ children }) {
+            return <th className="px-3.5 py-2.5 border-r border-line last:border-r-0 font-display">{children}</th>;
+          },
+          td({ children }) {
+            return <td className="px-3.5 py-2.5 border-b border-line/50 border-r last:border-r-0 text-muted">{children}</td>;
+          },
+          h1({ children }) {
+            return <h1 className="text-[18px] font-bold text-foreground font-display mt-4 mb-2">{children}</h1>;
+          },
+          h2({ children }) {
+            return <h2 className="text-[16px] font-bold text-foreground font-display mt-4 mb-2">{children}</h2>;
+          },
+          h3({ children }) {
+            return <h3 className="text-[14.5px] font-semibold text-foreground font-display mt-3 mb-1.5">{children}</h3>;
+          },
+          p({ children }) {
+            return <p className="mb-2.5 text-foreground leading-relaxed">{children}</p>;
+          },
+          ul({ children }) {
+            return <ul className="list-disc pl-5 mb-3 space-y-1 text-foreground">{children}</ul>;
+          },
+          ol({ children }) {
+            return <ol className="list-decimal pl-5 mb-3 space-y-1 text-foreground">{children}</ol>;
+          },
+          blockquote({ children }) {
+            return (
+              <blockquote className="border-l-3 border-primary pl-3.5 my-3 italic text-muted bg-primary/5 py-1 rounded-r-lg">
+                {children}
+              </blockquote>
+            );
+          },
+        }}
+      >
+        {processed}
+      </ReactMarkdown>
     </div>
   );
 }
+
