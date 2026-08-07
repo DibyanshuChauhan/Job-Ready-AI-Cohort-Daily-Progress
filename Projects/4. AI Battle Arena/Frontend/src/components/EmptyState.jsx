@@ -55,7 +55,7 @@ export default function EmptyState({ onSuggestion }) {
       {/* Model Tech Badges */}
       <div className="flex items-center gap-2.5 mt-10 flex-wrap justify-center">
         <span className="text-xs text-subtle font-medium">Evaluated Models:</span>
-        <span className="badge badge-primary">Mistral 7B</span>
+        <span className="badge badge-primary">Mistral Medium</span>
         <span className="badge badge-violet">Cohere Command</span>
         <span className="badge badge-emerald">Autonomous Judge</span>
       </div>

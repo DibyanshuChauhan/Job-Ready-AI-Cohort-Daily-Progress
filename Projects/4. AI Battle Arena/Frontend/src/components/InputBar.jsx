@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { Paperclip, Mic, ArrowUp, Loader2 } from 'lucide-react';
+import { ArrowUp, Loader2 } from 'lucide-react';
 
 export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
   const [value, setValue] = useState(defaultValue);
@@ -43,33 +43,13 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
       <div className="max-w-[900px] mx-auto flex flex-col gap-2">
         {/* Input box */}
         <div
-          className="flex items-end gap-2 rounded-2xl px-3.5 py-2.5 transition-all duration-200"
+          className="flex items-end gap-2 rounded-2xl px-4 py-2.5 transition-all duration-200"
           style={{
             background: 'var(--color-card)',
             border: `1px solid ${canSend ? 'rgba(99,102,241,0.5)' : 'var(--color-line)'}`,
             boxShadow: canSend ? '0 0 20px rgba(99,102,241,0.12)' : '0 4px 20px rgba(0,0,0,0.15)',
           }}
         >
-          {/* Action Tools */}
-          <div className="flex items-center gap-1 pb-0.5">
-            <button
-              className="icon-btn w-8 h-8 text-subtle hover:text-foreground"
-              aria-label="Attach file"
-              title="Attach file"
-              disabled={isLoading}
-            >
-              <Paperclip className="w-4 h-4" />
-            </button>
-            <button
-              className="icon-btn w-8 h-8 text-subtle hover:text-foreground"
-              aria-label="Voice input"
-              title="Voice input"
-              disabled={isLoading}
-            >
-              <Mic className="w-4 h-4" />
-            </button>
-          </div>
-
           {/* Text Area */}
           <textarea
             ref={textareaRef}
@@ -118,4 +98,5 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
     </div>
   );
 }
+
 

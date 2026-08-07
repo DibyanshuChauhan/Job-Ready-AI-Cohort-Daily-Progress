@@ -1,4 +1,4 @@
-import { Menu, Moon, Sun, Bell, Sparkles } from 'lucide-react';
+import { Menu, Moon, Sun } from 'lucide-react';
 
 export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
   return (
@@ -41,17 +41,9 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        <button className="icon-btn relative" aria-label="Notifications">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary ring-2 ring-card" />
-        </button>
-
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white cursor-pointer shadow-sm hover:opacity-90 transition-opacity"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white shadow-sm"
           style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
-          role="button"
-          tabIndex={0}
-          aria-label="Open user menu"
         >
           DC
         </div>
@@ -59,4 +51,5 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
     </header>
   );
 }
+
 

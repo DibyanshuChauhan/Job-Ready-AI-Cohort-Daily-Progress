@@ -82,7 +82,6 @@ function ChatEntry({ entry }) {
 /* ─── Root App ─── */
 export default function App() {
   const [isDark,       setIsDark]       = useState(true);
-  const [activeNav,    setActiveNav]    = useState('new');
   const [entries,      setEntries]      = useState([]);
   const [isLoading,    setIsLoading]    = useState(false);
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
@@ -121,8 +120,8 @@ export default function App() {
       setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e));
     } catch (err) {
       console.error('Error invoking backend graph:', err);
-      setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, isLoading: false, error: true } : e));
-      setToast('⚠️ Something went wrong connecting to the backend. Please try again.');
+      setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, isLoading: false } : e));
+      setToast('Something went wrong connecting to the backend. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -148,10 +147,9 @@ export default function App() {
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        activeNav={activeNav}
-        onNavChange={setActiveNav}
         onNewChat={handleNewChat}
       />
+
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (

@@ -1,12 +1,6 @@
-import { SquarePlus, MessageSquare, Star, Zap, X, MoreHorizontal } from 'lucide-react';
+import { SquarePlus, Zap, X } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { id: 'new',       icon: SquarePlus,    label: 'New Arena Chat' },
-  { id: 'history',   icon: MessageSquare, label: 'Chat History'   },
-  { id: 'favorites', icon: Star,          label: 'Favorites'      },
-];
-
-export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNewChat }) {
+export default function Sidebar({ isOpen, onClose, onNewChat }) {
   return (
     <aside
       aria-label="Sidebar navigation"
@@ -38,31 +32,17 @@ export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNew
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav>
-          <ul className="flex flex-col gap-1 list-none">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeNav === item.id;
-              return (
-                <li key={item.id}>
-                  <button
-                    className={`nav-item ${isActive ? 'active' : ''}`}
-                    onClick={() => {
-                      onNavChange(item.id);
-                      if (item.id === 'new') onNewChat();
-                      if (onClose) onClose();
-                    }}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        {/* Primary Action Button */}
+        <button
+          className="nav-item active flex items-center gap-2.5 w-full py-2.5 px-3 rounded-xl text-[13.5px] font-medium"
+          onClick={() => {
+            onNewChat();
+            if (onClose) onClose();
+          }}
+        >
+          <SquarePlus className="w-4 h-4 text-indigo-400" />
+          <span>New Arena Chat</span>
+        </button>
       </div>
 
       {/* Model Spec Box */}
@@ -81,12 +61,7 @@ export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNew
       <div className="h-px bg-line mx-5" />
 
       {/* User Profile */}
-      <div
-        className="flex items-center gap-3 mx-3 my-3 p-2.5 rounded-xl transition-colors duration-150 hover:bg-white/5 cursor-pointer"
-        role="button"
-        tabIndex={0}
-        aria-label="User profile menu"
-      >
+      <div className="flex items-center gap-3 mx-3 my-3 p-2.5 rounded-xl">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
           style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
@@ -99,9 +74,9 @@ export default function Sidebar({ isOpen, onClose, activeNav, onNavChange, onNew
           </p>
           <span className="badge badge-violet mt-0.5 text-[10px]">Pro Plan</span>
         </div>
-        <MoreHorizontal className="w-4 h-4 text-subtle" />
       </div>
     </aside>
   );
 }
+
 

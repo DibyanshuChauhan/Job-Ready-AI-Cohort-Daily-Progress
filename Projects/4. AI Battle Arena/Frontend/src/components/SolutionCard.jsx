@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bot, Copy, Check, ThumbsUp, ThumbsDown, ChevronDown, Trophy, Sparkles } from 'lucide-react';
+import { Bot, Copy, Check, ChevronDown, Trophy } from 'lucide-react';
 import MarkdownRenderer from './MarkdownRenderer';
 
 function countWords(text)  { return text?.trim().split(/\s+/).filter(Boolean).length || 0; }
@@ -17,9 +17,7 @@ function SkeletonCard({ delay = 0 }) {
           <div className="skeleton w-24 h-4" />
           <div className="skeleton w-16 h-5 rounded-full" />
         </div>
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map(i => <div key={i} className="skeleton w-7 h-7 rounded-lg" />)}
-        </div>
+        <div className="skeleton w-7 h-7 rounded-lg" />
       </div>
       {[100, 88, 95, 72, 84].map((w, i) => (
         <div key={i} className="skeleton h-3.5 mb-2.5" style={{ width: `${w}%`, animationDelay: `${delay + i * 60}ms` }} />
@@ -30,8 +28,6 @@ function SkeletonCard({ delay = 0 }) {
 }
 
 export default function SolutionCard({ solutionNum, modelName, content, isLoading, skeletonDelay, isWinner }) {
-  const [liked,    setLiked]    = useState(false);
-  const [disliked, setDisliked] = useState(false);
   const [copied,   setCopied]   = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -46,8 +42,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
       setTimeout(() => setCopied(false), 2000);
     });
   };
-  const handleLike    = () => { setLiked(p => !p); if (!liked) setDisliked(false); };
-  const handleDislike = () => { setDisliked(p => !p); if (!disliked) setLiked(false); };
 
   if (isLoading) return <SkeletonCard delay={skeletonDelay || 0} />;
 
@@ -88,18 +82,9 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
           <button className={`icon-btn w-7 h-7 ${copied ? 'active' : ''}`} onClick={handleCopy} aria-label="Copy" title="Copy">
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
-          <button className={`icon-btn w-7 h-7 ${liked ? 'active' : ''}`} onClick={handleLike} aria-label="Like">
-            <ThumbsUp className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className={`icon-btn w-7 h-7 ${disliked ? 'active' : ''}`}
-            onClick={handleDislike}
-            aria-label="Dislike"
-          >
-            <ThumbsDown className="w-3.5 h-3.5" />
-          </button>
         </div>
       </div>
+
 
       <div className="h-px bg-line mx-4" />
 
