@@ -13,7 +13,6 @@ export const arenaApi = {
   /**
    * Invokes the parallel model battle and judge evaluation.
    * @param {string} prompt
-   * @returns {Promise<import('../arena.types').ArenaGraphResult>}
    */
   async invokeBattle(prompt) {
     const response = await apiClient.post('/arena/invoke', { input: prompt });
@@ -21,7 +20,41 @@ export const arenaApi = {
   },
 
   /**
-   * Health check for arena service
+   * Retrieves past battle history from MongoDB.
+   */
+  async getHistory() {
+    const response = await apiClient.get('/arena/history');
+    return response.data.result || [];
+  },
+
+  /**
+   * Retrieves a specific past comparison by ID.
+   * @param {string} id
+   */
+  async getHistoryById(id) {
+    const response = await apiClient.get(`/arena/history/${id}`);
+    return response.data.result;
+  },
+
+  /**
+   * Deletes a specific history record from MongoDB.
+   * @param {string} id
+   */
+  async deleteHistory(id) {
+    const response = await apiClient.delete(`/arena/history/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Clears all history records from MongoDB.
+   */
+  async clearAllHistory() {
+    const response = await apiClient.delete('/arena/history');
+    return response.data;
+  },
+
+  /**
+   * Health check for arena service.
    */
   async checkHealth() {
     const response = await apiClient.get('/arena/health');

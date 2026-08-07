@@ -15,3 +15,13 @@ export interface ArenaGraphResult {
 export interface ArenaInvokeInput {
   input: string;
 }
+
+export interface ChatHistoryItem {
+  _id: string;
+  prompt: string;
+  solution_1: string;
+  solution_2: string;
+  judge: JudgeEvaluation;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+}

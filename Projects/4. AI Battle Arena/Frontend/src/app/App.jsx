@@ -67,7 +67,19 @@ export default function App() {
   const [inputDefault, setInputDefault] = useState('');
   const bottomRef = useRef(null);
 
-  const { entries, isLoading, toast, submitPrompt, clearChat, dismissToast } = useArena();
+  const {
+    entries,
+    history,
+    activeHistoryId,
+    isLoading,
+    isLoadingHistory,
+    toast,
+    submitPrompt,
+    selectHistoryItem,
+    deleteHistoryItem,
+    clearChat,
+    dismissToast,
+  } = useArena();
 
   /* Sync Theme (Light / Dark) */
   useEffect(() => {
@@ -101,11 +113,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-base relative">
-      {/* Sidebar drawer */}
+      {/* Sidebar drawer with MongoDB Chat History */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNewChat={handleNewChat}
+        history={history}
+        activeHistoryId={activeHistoryId}
+        onSelectHistory={selectHistoryItem}
+        onDeleteHistory={deleteHistoryItem}
+        isLoadingHistory={isLoadingHistory}
       />
 
       {/* Mobile sidebar overlay */}
