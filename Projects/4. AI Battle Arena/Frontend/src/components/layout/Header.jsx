@@ -51,5 +51,3 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
     </header>
   );
 }
-
-

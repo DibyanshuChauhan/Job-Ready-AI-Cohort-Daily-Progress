@@ -17,7 +17,6 @@ function preprocessMarkdown(text) {
   result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math.trim()}$`);
 
   // 3. Fix malformed lone-backtick lines that AI models sometimes output instead of ```
-  // Convert lines that contain only a single backticks ` to triple backticks ```
   result = result.replace(/(^|\n)[ \t]*`[ \t]*(\n|$)/g, '$1```\n$2');
 
   return result;
@@ -146,4 +145,3 @@ export default function MarkdownRenderer({ content }) {
     </div>
   );
 }
-

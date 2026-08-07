@@ -1,4 +1,4 @@
-import { Bot, Sparkles, ArrowRight, Code2, Search, Globe, Atom } from 'lucide-react';
+import { Sparkles, ArrowRight, Code2, Search, Globe, Atom } from 'lucide-react';
 
 const SUGGESTIONS = [
   { icon: Code2,  text: 'Explain recursion with visual steps' },
@@ -62,4 +62,3 @@ export default function EmptyState({ onSuggestion }) {
     </div>
   );
 }
-

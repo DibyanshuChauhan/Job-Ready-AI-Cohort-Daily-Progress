@@ -158,4 +158,3 @@ export default function JudgePanel({ judge, isLoading }) {
     </div>
   );
 }
-

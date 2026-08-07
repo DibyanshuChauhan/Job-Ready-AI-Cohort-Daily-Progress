@@ -1,38 +1,27 @@
 import express from "express";
-import { runGraph } from "./AI/graph.ai.js";
-import { success } from "zod";
 import cors from "cors";
+import { arenaRouter } from "./features/arena/arena.routes.js";
+import { errorMiddleware } from "./common/middlewares/error.middleware.js";
 
 const app = express();
 
-// Using cors to allow our frontend to access our backend   
-app.use(cors({
-    origin: "http://localhost:5173",
+// CORS configuration for local and staging environments
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true
-}))
+    credentials: true,
+  })
+);
 
-// Middleware to parse JSON request bodies
+// Middleware to parse incoming JSON payloads
 app.use(express.json());
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-    res.send("Hello, World!");
-});
+// Mount feature routers (supports both /api/arena and root /invoke for backward compatibility)
+app.use("/api/arena", arenaRouter);
+app.use("/", arenaRouter);
 
-app.get("/use-graph", async (req, res) => {
-    const result = await runGraph("Explain the concept of Recursion in detail");
-    res.json(result);
-});
-
-app.post("/invoke", async (req, res) => {
-    const { input } = req.body;
-    const result = await runGraph(input);
-    res.status(200).json({
-        message: "Graph executed successfully",
-        success: true,
-        result
-    });
-});
+// Global production error handling middleware
+app.use(errorMiddleware);
 
 export default app;

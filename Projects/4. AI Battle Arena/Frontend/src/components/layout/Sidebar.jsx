@@ -78,5 +78,3 @@ export default function Sidebar({ isOpen, onClose, onNewChat }) {
     </aside>
   );
 }
-
-

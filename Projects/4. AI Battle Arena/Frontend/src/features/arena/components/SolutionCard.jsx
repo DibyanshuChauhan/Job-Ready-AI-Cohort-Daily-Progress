@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bot, Copy, Check, ChevronDown, Trophy } from 'lucide-react';
-import MarkdownRenderer from './MarkdownRenderer';
+import MarkdownRenderer from '../../../components/ui/MarkdownRenderer';
 
 function countWords(text)  { return text?.trim().split(/\s+/).filter(Boolean).length || 0; }
 function readTime(words)   { return `${Math.max(1, Math.ceil(words / 200))} min read`; }
@@ -85,7 +85,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
         </div>
       </div>
 
-
       <div className="h-px bg-line mx-4" />
 
       {/* Main Response Content */}
@@ -120,4 +119,3 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
     </div>
   );
 }
-

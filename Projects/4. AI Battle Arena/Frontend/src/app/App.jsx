@@ -1,34 +1,17 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import axios from 'axios';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
-import EmptyState from '../components/EmptyState';
-import InputBar from '../components/InputBar';
-import UserPromptCard from '../components/UserPromptCard';
-import SolutionCard from '../components/SolutionCard';
-import JudgePanel from '../components/JudgePanel';
+import { useState, useRef, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import Header from '../components/layout/Header';
+import Sidebar from '../components/layout/Sidebar';
+import Toast from '../components/layout/Toast';
+import EmptyState from '../features/arena/components/EmptyState';
+import InputBar from '../features/arena/components/InputBar';
+import UserPromptCard from '../features/arena/components/UserPromptCard';
+import SolutionCard from '../features/arena/components/SolutionCard';
+import JudgePanel from '../features/arena/components/JudgePanel';
+import { useArena } from '../features/arena/hooks/useArena';
 
-/* ─── Toast ─── */
-function Toast({ message, onDone }) {
-  useEffect(() => {
-    const t = setTimeout(onDone, 3000);
-    return () => clearTimeout(t);
-  }, [onDone]);
-  return (
-    <div
-      className="fixed bottom-28 right-6 z-[9999] animate-fade-in-up bg-card/95 backdrop-blur-md border border-rose-500/30 rounded-xl px-4 py-3 text-[13.5px] text-foreground flex items-center gap-2.5 shadow-2xl shadow-rose-950/20"
-      role="status"
-      aria-live="polite"
-    >
-      <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
-      <span>{message}</span>
-    </div>
-  );
-}
-
-/* ─── Single chat turn ─── */
-function ChatEntry({ entry }) {
+/* Single chat turn */
+function ChatTurn({ entry }) {
   const { prompt, data, isLoading } = entry;
   const isWinner1 = data && data.judge?.solution_1_score >= data.judge?.solution_2_score;
 
@@ -36,7 +19,7 @@ function ChatEntry({ entry }) {
     <div className="flex flex-col gap-6">
       <UserPromptCard prompt={prompt} />
 
-      {/* AI Responses label */}
+      {/* AI Responses Status Label */}
       <div className="flex items-center gap-3">
         <span className="text-[12.5px] text-subtle font-semibold uppercase tracking-wider font-display">
           AI Model Responses
@@ -50,12 +33,11 @@ function ChatEntry({ entry }) {
         )}
       </div>
 
-
-      {/* Solutions side-by-side */}
+      {/* Solutions side-by-side comparison */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SolutionCard
           solutionNum={1}
-          modelName="Mistral"
+          modelName="Mistral Medium"
           content={data?.solution_1}
           isLoading={isLoading}
           skeletonDelay={0}
@@ -63,7 +45,7 @@ function ChatEntry({ entry }) {
         />
         <SolutionCard
           solutionNum={2}
-          modelName="Cohere"
+          modelName="Cohere Command"
           content={data?.solution_2}
           isLoading={isLoading}
           skeletonDelay={120}
@@ -71,7 +53,7 @@ function ChatEntry({ entry }) {
         />
       </div>
 
-      {/* Judge */}
+      {/* Autonomous Judge Recommendation */}
       {(isLoading || data?.judge) && (
         <JudgePanel judge={data?.judge} isLoading={isLoading} />
       )}
@@ -79,17 +61,15 @@ function ChatEntry({ entry }) {
   );
 }
 
-/* ─── Root App ─── */
 export default function App() {
-  const [isDark,       setIsDark]       = useState(true);
-  const [entries,      setEntries]      = useState([]);
-  const [isLoading,    setIsLoading]    = useState(false);
-  const [sidebarOpen,  setSidebarOpen]  = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputDefault, setInputDefault] = useState('');
-  const [toast,        setToast]        = useState(null);
   const bottomRef = useRef(null);
 
-  /* ── Sync Theme (Light / Dark) ── */
+  const { entries, isLoading, toast, submitPrompt, clearChat, dismissToast } = useArena();
+
+  /* Sync Theme (Light / Dark) */
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.remove('light');
@@ -98,7 +78,7 @@ export default function App() {
     }
   }, [isDark]);
 
-  /* ── Auto-scroll to bottom on new entry/load ── */
+  /* Auto-scroll to bottom on new entry or status update */
   useEffect(() => {
     if (entries.length > 0) {
       const t = setTimeout(() => {
@@ -108,99 +88,71 @@ export default function App() {
     }
   }, [entries, isLoading]);
 
-  /* ── Submit handler ── */
-  const handleSubmit = useCallback(async (query) => {
-    if (isLoading) return;
-    const newEntry = { id: Date.now(), prompt: query, data: null, isLoading: true };
-    setEntries(prev => [...prev, newEntry]);
-    setIsLoading(true);
-    try {
-      const response = await axios.post('http://localhost:3000/invoke', { input: query });
-      const result = response.data.result;
-      setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e));
-    } catch (err) {
-      console.error('Error invoking backend graph:', err);
-      setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, isLoading: false } : e));
-      setToast('Something went wrong connecting to the backend. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading]);
-
   const handleSuggestion = (text) => {
     setInputDefault(text);
     setTimeout(() => setInputDefault(''), 50);
-    handleSubmit(text);
+    submitPrompt(text);
   };
 
   const handleNewChat = () => {
-    setEntries([]);
+    clearChat();
     setInputDefault('');
   };
 
-  /* ── Mobile sidebar overlay ── */
-  const handleOverlayClick = () => setSidebarOpen(false);
-
   return (
     <div className="min-h-screen bg-base relative">
-      {/* Sidebar drawer (fixed on desktop, slide-over on mobile) */}
+      {/* Sidebar drawer */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNewChat={handleNewChat}
       />
 
-
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 lg:hidden"
-          onClick={handleOverlayClick}
+          onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* ── Content column: offset from fixed sidebar ── */}
+      {/* Main Content Area */}
       <div className="lg:ml-[260px] flex flex-col min-h-screen">
-        {/* Sticky header */}
         <Header
           isDark={isDark}
-          onToggleTheme={() => setIsDark(p => !p)}
-          onToggleSidebar={() => setSidebarOpen(p => !p)}
+          onToggleTheme={() => setIsDark((p) => !p)}
+          onToggleSidebar={() => setSidebarOpen((p) => !p)}
         />
 
-        {/* Main scroll area: padded for header + input bar */}
         <main
           className="flex flex-col flex-1 pt-16 pb-[100px]"
           aria-label="Chat conversation"
           id="main-content"
         >
           {entries.length === 0 ? (
-            /* ── Empty state fills remaining height ── */
             <div className="flex flex-col flex-1">
               <EmptyState onSuggestion={handleSuggestion} />
             </div>
           ) : (
-            /* ── Conversation feed ── */
             <div className="max-w-[960px] w-full mx-auto px-5 py-7 flex flex-col gap-12">
               {entries.map((entry) => (
-                <ChatEntry key={entry.id} entry={entry} />
+                <ChatTurn key={entry.id} entry={entry} />
               ))}
               <div ref={bottomRef} className="h-1" />
             </div>
           )}
         </main>
 
-        {/* Fixed input bar */}
         <InputBar
-          onSubmit={handleSubmit}
+          onSubmit={submitPrompt}
           isLoading={isLoading}
           defaultValue={inputDefault}
         />
       </div>
 
-      {/* Toast */}
-      {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+      {/* Error Toast */}
+      {toast && <Toast message={toast} onDone={dismissToast} />}
     </div>
   );
 }

@@ -98,5 +98,3 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
     </div>
   );
 }
-
-
