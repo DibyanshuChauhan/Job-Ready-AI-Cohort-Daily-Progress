@@ -1,0 +1,1 @@
+{"version":3,"file":"arena.schema.js","sourceRoot":"","sources":["../../../../src/arena/schemas/arena.schema.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,MAAM,CAAC,MAAM,iBAAiB,GAAG,CAAC,CAAC,MAAM,CAAC;IACxC,KAAK,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,GAAG,CAAC,CAAC,EAAE,8BAA8B,CAAC,CAAC,GAAG,CAAC,IAAI,EAAE,0BAA0B,CAAC;CAC/F,CAAC,CAAC"}
