@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://localhost:3000/api/v1',
   withCredentials: true,
   timeout: 60000,
   headers: {
@@ -11,7 +11,7 @@ const apiClient = axios.create({
 
 export const arenaApi = {
   /**
-   * Invokes the parallel model battle and judge evaluation.
+   * Invokes the parallel model battle and judge evaluation (v1 API).
    * @param {string} prompt
    */
   async invokeBattle(prompt) {
@@ -20,7 +20,7 @@ export const arenaApi = {
   },
 
   /**
-   * Retrieves past battle history from MongoDB.
+   * Retrieves past battle history from MongoDB (v1 API).
    */
   async getHistory() {
     const response = await apiClient.get('/arena/history');
@@ -28,7 +28,7 @@ export const arenaApi = {
   },
 
   /**
-   * Retrieves a specific past comparison by ID.
+   * Retrieves a specific past comparison by ID (v1 API).
    * @param {string} id
    */
   async getHistoryById(id) {
@@ -37,7 +37,7 @@ export const arenaApi = {
   },
 
   /**
-   * Deletes a specific history record from MongoDB.
+   * Deletes a specific history record from MongoDB (v1 API).
    * @param {string} id
    */
   async deleteHistory(id) {
@@ -46,7 +46,7 @@ export const arenaApi = {
   },
 
   /**
-   * Clears all history records from MongoDB.
+   * Clears all history records from MongoDB (v1 API).
    */
   async clearAllHistory() {
     const response = await apiClient.delete('/arena/history');
@@ -54,7 +54,7 @@ export const arenaApi = {
   },
 
   /**
-   * Health check for arena service.
+   * Health check for arena service (v1 API).
    */
   async checkHealth() {
     const response = await apiClient.get('/arena/health');

@@ -8,7 +8,7 @@ const app = express();
 // CORS configuration for local and staging environments
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -17,7 +17,11 @@ app.use(
 // Middleware to parse incoming JSON payloads
 app.use(express.json());
 
-// Mount modular feature routes (supports /api/arena and / for backwards compatibility)
+// API v1 Versioned Routes
+app.use("/api/v1/arena", arenaRouter);
+app.use("/api/v1", arenaRouter);
+
+// Fallback aliases for backward compatibility
 app.use("/api/arena", arenaRouter);
 app.use("/", arenaRouter);
 
