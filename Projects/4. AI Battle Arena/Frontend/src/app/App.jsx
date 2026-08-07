@@ -62,7 +62,16 @@ function ChatTurn({ entry }) {
 }
 
 export default function App() {
-  const [isDark, setIsDark] = useState(true);
+  // Restore theme mode from localStorage (defaults to dark mode)
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const savedTheme = localStorage.getItem('dualmind_theme');
+      return savedTheme ? savedTheme === 'dark' : true;
+    } catch {
+      return true;
+    }
+  });
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputDefault, setInputDefault] = useState('');
   const bottomRef = useRef(null);
@@ -81,8 +90,14 @@ export default function App() {
     dismissToast,
   } = useArena();
 
-  /* Sync Theme (Light / Dark) */
+  /* Sync Theme (Light / Dark) to DOM and localStorage */
   useEffect(() => {
+    try {
+      localStorage.setItem('dualmind_theme', isDark ? 'dark' : 'light');
+    } catch (err) {
+      console.warn('Failed to persist theme to localStorage:', err);
+    }
+
     if (isDark) {
       document.documentElement.classList.remove('light');
     } else {
