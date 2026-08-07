@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { arenaRouter } from "./features/arena/arena.routes.js";
+import { arenaRouter } from "./arena/routes/arena.routes.js";
 import { errorMiddleware } from "./common/middlewares/error.middleware.js";
 
 const app = express();
@@ -17,7 +17,7 @@ app.use(
 // Middleware to parse incoming JSON payloads
 app.use(express.json());
 
-// Mount feature routers (supports both /api/arena and root /invoke for backward compatibility)
+// Mount modular feature routes (supports /api/arena and / for backwards compatibility)
 app.use("/api/arena", arenaRouter);
 app.use("/", arenaRouter);
 

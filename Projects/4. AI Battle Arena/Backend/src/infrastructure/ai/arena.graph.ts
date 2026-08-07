@@ -2,7 +2,7 @@ import { StateGraph, StateSchema, type GraphNode, START, END } from "@langchain/
 import { z } from "zod";
 import { createAgent, HumanMessage, providerStrategy } from "langchain";
 import { LLMProvider } from "./llm.provider.js";
-import type { ArenaGraphResult } from "../../features/arena/arena.types.js";
+import type { ArenaGraphResult } from "../../arena/types/arena.types.js";
 
 const state = new StateSchema({
   problem: z.string().default(""),

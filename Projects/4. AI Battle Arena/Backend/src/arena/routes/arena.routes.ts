@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { ArenaController } from "./arena.controller.js";
+import { ArenaController } from "../controllers/arena.controller.js";
 
 const router = Router();
 
-// Primary invoke endpoint for battle comparison
+// Primary comparison execution route
 router.post("/invoke", ArenaController.invoke);
 
-// Feature health check
+// Arena service health check
 router.get("/health", ArenaController.healthCheck);
 
 export const arenaRouter = router;
