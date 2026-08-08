@@ -1,35 +1,102 @@
 import { ArenaGraphEngine } from "../../infrastructure/ai/arena.graph.js";
-import type { ArenaGraphResult, ChatHistoryItem } from "../types/arena.types.js";
+import type { ArenaGraphResult, ChatHistoryItem, ChatTurnItem } from "../types/arena.types.js";
 import { AppError } from "../../common/errors/app-error.js";
-import { ChatHistoryModel } from "../models/chat-history.model.js";
+import { ChatHistoryModel, type IChatTurn } from "../models/chat-history.model.js";
 
 export class ArenaService {
   /**
    * Executes the dual model parallel battle and autonomous judge evaluation,
-   * and saves the comparison result to MongoDB.
+   * extending an existing session if sessionId is provided or creating a new one.
    */
-  public static async executeBattle(prompt: string): Promise<ArenaGraphResult> {
+  public static async executeBattle(
+    prompt: string,
+    sessionId?: string | null
+  ): Promise<ArenaGraphResult & { sessionId: string; entries: ChatTurnItem[] }> {
     const trimmed = prompt.trim();
     if (!trimmed) {
       throw new AppError("Prompt cannot be empty", 400);
     }
 
     try {
-      const result = await ArenaGraphEngine.execute(trimmed);
+      let historyDoc: any = null;
+      if (sessionId) {
+        try {
+          historyDoc = await (ChatHistoryModel as any).findById(sessionId);
+        } catch (err) {
+          console.warn("⚠️ [ArenaService] Could not find session by ID:", sessionId);
+        }
+      }
 
-      // Persist to MongoDB (non-blocking if database is active)
+      // Build previous turns context if historyDoc exists
+      let previousEntries: IChatTurn[] = [];
+      if (historyDoc) {
+        if (historyDoc.entries && historyDoc.entries.length > 0) {
+          previousEntries = historyDoc.entries;
+        } else if (historyDoc.prompt) {
+          previousEntries = [
+            {
+              prompt: historyDoc.prompt,
+              solution_1: historyDoc.solution_1,
+              solution_2: historyDoc.solution_2,
+              judge: historyDoc.judge,
+            },
+          ];
+        }
+      }
+
+      let historyContext = "";
+      if (previousEntries.length > 0) {
+        historyContext =
+          "Conversation History:\n" +
+          previousEntries
+            .map(
+              (turn, idx) =>
+                `[Turn ${idx + 1}]\nUser: ${turn.prompt}\nMistral: ${turn.solution_1}\nCohere: ${turn.solution_2}`
+            )
+            .join("\n\n");
+      }
+
+      const result = await ArenaGraphEngine.execute(trimmed, historyContext);
+
+      const newTurn: IChatTurn = {
+        prompt: trimmed,
+        solution_1: result.solution_1,
+        solution_2: result.solution_2,
+        judge: result.judge,
+      };
+
       try {
-        await ChatHistoryModel.create({
-          prompt: trimmed,
-          solution_1: result.solution_1,
-          solution_2: result.solution_2,
-          judge: result.judge,
-        });
+        if (historyDoc) {
+          if (!historyDoc.entries || historyDoc.entries.length === 0) {
+            historyDoc.entries = previousEntries;
+          }
+          historyDoc.entries.push(newTurn);
+          historyDoc.solution_1 = result.solution_1;
+          historyDoc.solution_2 = result.solution_2;
+          historyDoc.judge = result.judge;
+          historyDoc.markModified("entries");
+          await historyDoc.save();
+        } else {
+          historyDoc = await ChatHistoryModel.create({
+            prompt: trimmed,
+            solution_1: result.solution_1,
+            solution_2: result.solution_2,
+            judge: result.judge,
+            entries: [newTurn],
+          });
+        }
       } catch (dbErr) {
         console.warn("⚠️ [MongoDB] Failed to persist chat history:", dbErr);
       }
 
-      return result;
+      const activeId = historyDoc ? historyDoc._id.toString() : (sessionId || "");
+      const allEntries = historyDoc && historyDoc.entries ? historyDoc.entries : [newTurn];
+
+      return {
+        ...result,
+        sessionId: activeId,
+        entries: allEntries,
+      };
     } catch (error) {
       console.error("[ArenaService Error]:", error);
       throw new AppError("Failed to execute model battle graph", 502);
@@ -37,18 +104,38 @@ export class ArenaService {
   }
 
   /**
-   * Retrieves past comparisons sorted in reverse chronological order.
+   * Retrieves past chat sessions sorted in reverse chronological order.
    */
   public static async getHistory(limit = 50): Promise<ChatHistoryItem[]> {
     try {
       const docs = await (ChatHistoryModel as any)
         .find({})
-        .sort({ createdAt: -1 })
+        .sort({ updatedAt: -1, createdAt: -1 })
         .limit(limit)
         .lean()
         .exec();
 
-      return (docs || []) as ChatHistoryItem[];
+      return (docs || []).map((doc: any) => {
+        const entries =
+          doc.entries && doc.entries.length > 0
+            ? doc.entries
+            : [
+                {
+                  _id: doc._id,
+                  prompt: doc.prompt,
+                  solution_1: doc.solution_1,
+                  solution_2: doc.solution_2,
+                  judge: doc.judge,
+                  createdAt: doc.createdAt,
+                },
+              ];
+
+        return {
+          ...doc,
+          _id: doc._id.toString(),
+          entries,
+        };
+      });
     } catch (err) {
       console.error("[ArenaService.getHistory Error]:", err);
       return [];
@@ -56,7 +143,7 @@ export class ArenaService {
   }
 
   /**
-   * Retrieves a single comparison by its ID.
+   * Retrieves a single chat session by its ID.
    */
   public static async getHistoryById(id: string): Promise<ChatHistoryItem | null> {
     try {
@@ -64,7 +151,24 @@ export class ArenaService {
       if (!doc) {
         throw new AppError("Chat history item not found", 404);
       }
-      return doc as ChatHistoryItem;
+      const entries =
+        doc.entries && doc.entries.length > 0
+          ? doc.entries
+          : [
+              {
+                _id: doc._id,
+                prompt: doc.prompt,
+                solution_1: doc.solution_1,
+                solution_2: doc.solution_2,
+                judge: doc.judge,
+                createdAt: doc.createdAt,
+              },
+            ];
+      return {
+        ...doc,
+        _id: doc._id.toString(),
+        entries,
+      } as ChatHistoryItem;
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw new AppError("Invalid history ID", 400);
@@ -72,7 +176,7 @@ export class ArenaService {
   }
 
   /**
-   * Deletes a specific comparison by ID.
+   * Deletes a specific comparison session by ID.
    */
   public static async deleteHistory(id: string): Promise<boolean> {
     try {
@@ -97,3 +201,4 @@ export class ArenaService {
     }
   }
 }
+

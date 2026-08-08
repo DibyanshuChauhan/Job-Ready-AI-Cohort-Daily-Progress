@@ -14,6 +14,16 @@ export interface ArenaGraphResult {
 
 export interface ArenaInvokeInput {
   input: string;
+  sessionId?: string | null;
+}
+
+export interface ChatTurnItem {
+  _id?: string;
+  prompt: string;
+  solution_1: string;
+  solution_2: string;
+  judge: JudgeEvaluation;
+  createdAt?: string | Date;
 }
 
 export interface ChatHistoryItem {
@@ -22,6 +32,8 @@ export interface ChatHistoryItem {
   solution_1: string;
   solution_2: string;
   judge: JudgeEvaluation;
+  entries?: ChatTurnItem[];
   createdAt: string | Date;
   updatedAt?: string | Date;
 }
+

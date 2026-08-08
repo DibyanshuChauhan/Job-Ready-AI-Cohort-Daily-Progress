@@ -13,9 +13,10 @@ export const arenaApi = {
   /**
    * Invokes the parallel model battle and judge evaluation (v1 API).
    * @param {string} prompt
+   * @param {string|null} sessionId
    */
-  async invokeBattle(prompt) {
-    const response = await apiClient.post('/arena/invoke', { input: prompt });
+  async invokeBattle(prompt, sessionId = null) {
+    const response = await apiClient.post('/arena/invoke', { input: prompt, sessionId });
     return response.data.result;
   },
 

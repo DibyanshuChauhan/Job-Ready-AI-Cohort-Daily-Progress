@@ -17,8 +17,8 @@ export class ArenaController {
         throw new AppError(`Validation error: ${issues}`, 400);
       }
 
-      const { input } = parseResult.data;
-      const result = await ArenaService.executeBattle(input);
+      const { input, sessionId } = parseResult.data;
+      const result = await ArenaService.executeBattle(input, sessionId);
 
       ApiResponse.success(res, result, "Graph executed successfully", 200);
     } catch (err) {

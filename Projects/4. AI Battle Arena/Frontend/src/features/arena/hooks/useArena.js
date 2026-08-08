@@ -90,14 +90,33 @@ export function useArena() {
 
       setEntries((prev) => [...prev, newEntry]);
       setIsLoading(true);
-      setActiveHistoryId(null);
 
       try {
-        const result = await arenaApi.invokeBattle(trimmed);
-        setEntries((prev) =>
-          prev.map((e) => (e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e))
-        );
-        // Refresh history list so the new battle appears in the sidebar
+        const result = await arenaApi.invokeBattle(trimmed, activeHistoryId);
+
+        if (result?.sessionId) {
+          setActiveHistoryId(result.sessionId);
+        }
+
+        if (result?.entries && Array.isArray(result.entries) && result.entries.length > 0) {
+          const updatedEntries = result.entries.map((turn, index) => ({
+            id: turn._id || turn.id || index + 1,
+            prompt: turn.prompt,
+            data: {
+              solution_1: turn.solution_1,
+              solution_2: turn.solution_2,
+              judge: turn.judge,
+            },
+            isLoading: false,
+          }));
+          setEntries(updatedEntries);
+        } else {
+          setEntries((prev) =>
+            prev.map((e) => (e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e))
+          );
+        }
+
+        // Refresh history list so the sidebar updates
         fetchHistory();
       } catch (err) {
         console.error('[useArena Error]:', err);
@@ -109,25 +128,41 @@ export function useArena() {
         setIsLoading(false);
       }
     },
-    [isLoading, fetchHistory]
+    [isLoading, activeHistoryId, fetchHistory]
   );
 
   // Load a past comparison session from history into the main arena feed
   const selectHistoryItem = useCallback((item) => {
     if (!item) return;
     setActiveHistoryId(item._id);
-    setEntries([
-      {
-        id: item._id,
-        prompt: item.prompt,
-        data: {
-          solution_1: item.solution_1,
-          solution_2: item.solution_2,
-          judge: item.judge,
+
+    if (item.entries && Array.isArray(item.entries) && item.entries.length > 0) {
+      setEntries(
+        item.entries.map((turn, idx) => ({
+          id: turn._id || turn.id || `${item._id}_${idx}`,
+          prompt: turn.prompt,
+          data: {
+            solution_1: turn.solution_1,
+            solution_2: turn.solution_2,
+            judge: turn.judge,
+          },
+          isLoading: false,
+        }))
+      );
+    } else {
+      setEntries([
+        {
+          id: item._id,
+          prompt: item.prompt,
+          data: {
+            solution_1: item.solution_1,
+            solution_2: item.solution_2,
+            judge: item.judge,
+          },
+          isLoading: false,
         },
-        isLoading: false,
-      },
-    ]);
+      ]);
+    }
   }, []);
 
   // Delete a history item

@@ -137,7 +137,13 @@ export default function Sidebar({
                         {item.prompt}
                       </p>
                       <p className="text-[10px] text-subtle mt-0.5 flex items-center gap-1">
-                        <span>{formatTimestamp(item.createdAt)}</span>
+                        <span>{formatTimestamp(item.updatedAt || item.createdAt)}</span>
+                        {item.entries && item.entries.length > 1 && (
+                          <>
+                            <span>·</span>
+                            <span className="text-indigo-400 font-medium">{item.entries.length} turns</span>
+                          </>
+                        )}
                         {item.judge && (
                           <>
                             <span>·</span>

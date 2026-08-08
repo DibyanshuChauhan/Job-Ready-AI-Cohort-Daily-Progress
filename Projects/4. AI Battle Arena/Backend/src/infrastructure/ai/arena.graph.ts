@@ -6,6 +6,7 @@ import type { ArenaGraphResult } from "../../arena/types/arena.types.js";
 
 const state = new StateSchema({
   problem: z.string().default(""),
+  historyContext: z.string().default(""),
   solution_1: z.string().default(""),
   solution_2: z.string().default(""),
   judge: z.object({
@@ -20,9 +21,14 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
   const mistral = LLMProvider.getMistral();
   const cohere = LLMProvider.getCohere();
 
+  let prompt = state.problem;
+  if (state.historyContext && state.historyContext.trim()) {
+    prompt = `${state.historyContext}\n\nUser follow-up question: ${state.problem}`;
+  }
+
   const [mistralResponse, cohereResponse] = await Promise.all([
-    mistral.invoke(state.problem),
-    cohere.invoke(state.problem),
+    mistral.invoke(prompt),
+    cohere.invoke(prompt),
   ]);
 
   return {
@@ -33,7 +39,7 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
 
 const judgeNode: GraphNode<typeof state> = async (state) => {
   const gemini = LLMProvider.getGemini();
-  const { problem, solution_1, solution_2 } = state;
+  const { problem, historyContext, solution_1, solution_2 } = state;
 
   const judge = createAgent({
     model: gemini,
@@ -45,13 +51,17 @@ const judgeNode: GraphNode<typeof state> = async (state) => {
         solution_2_reasoning: z.string(),
       })
     ),
-    systemPrompt: `You are a judge for a problem-solving competition. You will be given a problem and two solutions by two different agents. Your task is to evaluate the solutions based on their correctness, efficiency, and clarity. Provide a score for each solution on a scale of 0 to 10, along with your reasoning for the scores.`,
+    systemPrompt: `You are a judge for a problem-solving competition. You will be given a problem (and optional prior conversation context) and two solutions by two different agents. Your task is to evaluate the solutions based on their correctness, efficiency, and clarity. Provide a score for each solution on a scale of 0 to 10, along with your reasoning for the scores.`,
   });
+
+  const promptText = historyContext && historyContext.trim()
+    ? `${historyContext}\n\nUser Question: ${problem}`
+    : `Problem: ${problem}`;
 
   const judgeResponse = await judge.invoke({
     messages: [
       new HumanMessage(`
-        Problem: ${problem}
+        ${promptText}
 
         Solution 1: ${solution_1}
 
@@ -88,8 +98,12 @@ const compiledGraph = new StateGraph(state)
   .compile();
 
 export class ArenaGraphEngine {
-  public static async execute(problem: string): Promise<ArenaGraphResult> {
-    const result = await compiledGraph.invoke({ problem });
+  public static async execute(
+    problem: string,
+    historyContext: string = ""
+  ): Promise<ArenaGraphResult> {
+    const result = await compiledGraph.invoke({ problem, historyContext });
     return result as ArenaGraphResult;
   }
 }
+
