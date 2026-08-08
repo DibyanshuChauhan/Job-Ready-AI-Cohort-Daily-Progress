@@ -1,5 +1,6 @@
 import { SquarePlus, Zap, X, MessageSquare, Trash2, Clock } from 'lucide-react';
 
+// Format raw ISO timestamps to relative time strings (e.g. "5m ago", "2h ago")
 function formatTimestamp(dateStr) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
@@ -33,7 +34,7 @@ export default function Sidebar({
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}
     >
-      {/* Brand Header */}
+      {/* App brand header */}
       <div className="px-4 pt-5 pb-3">
         <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2.5">
@@ -48,6 +49,7 @@ export default function Sidebar({
             </span>
           </div>
 
+          {/* Mobile close button */}
           <button
             onClick={onClose}
             className="icon-btn lg:hidden text-lg w-8 h-8 flex items-center justify-center rounded-lg"
@@ -57,7 +59,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Primary Action: New Arena Chat */}
+        {/* New chat button */}
         <button
           className="btn-gradient flex items-center justify-center gap-2 w-full py-2.5 px-3.5 rounded-xl text-[13px] font-semibold shadow-md shadow-indigo-500/10"
           onClick={() => {
@@ -70,7 +72,7 @@ export default function Sidebar({
         </button>
       </div>
 
-      {/* Model Spec Box */}
+      {/* Engine version indicator */}
       <div className="mx-3.5 my-1.5 p-3 rounded-xl bg-card/60 border border-line/60">
         <div className="flex items-center justify-between text-[10.5px] text-subtle mb-1">
           <span>Active Engine</span>
@@ -82,7 +84,7 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Chat History Section */}
+      {/* Chat History List */}
       <div className="flex-1 flex flex-col min-h-0 px-3 pt-3">
         <div className="flex items-center justify-between px-2 mb-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-subtle font-display flex items-center gap-1.5">
@@ -96,7 +98,7 @@ export default function Sidebar({
           )}
         </div>
 
-        {/* History List */}
+        {/* Scrollable list of past sessions */}
         <div className="flex-1 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
           {history.length === 0 ? (
             <div className="px-3 py-6 text-center">
@@ -156,7 +158,7 @@ export default function Sidebar({
                     </div>
                   </div>
 
-                  {/* Delete Item Button */}
+                  {/* Delete session button */}
                   <button
                     onClick={(e) => onDeleteHistory(item._id, e)}
                     className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-subtle hover:text-rose-400 hover:bg-rose-500/10 transition-all"
@@ -174,7 +176,7 @@ export default function Sidebar({
 
       <div className="h-px bg-line mx-4 my-2" />
 
-      {/* User Profile */}
+      {/* User profile avatar */}
       <div className="flex items-center gap-3 mx-3 my-2.5 p-2 rounded-xl">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"

@@ -1,62 +1,47 @@
 import axios from 'axios';
 
+// Base API client pointing to backend server
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/api/v1',
   withCredentials: true,
-  timeout: 60000,
+  timeout: 60000, // 60s timeout for model processing
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 export const arenaApi = {
-  /**
-   * Invokes the parallel model battle and judge evaluation (v1 API).
-   * @param {string} prompt
-   * @param {string|null} sessionId
-   */
+  // Send prompt to dual model battle engine. Pass sessionId to continue an active chat.
   async invokeBattle(prompt, sessionId = null) {
     const response = await apiClient.post('/arena/invoke', { input: prompt, sessionId });
     return response.data.result;
   },
 
-  /**
-   * Retrieves past battle history from MongoDB (v1 API).
-   */
+  // Fetch past chat sessions from backend
   async getHistory() {
     const response = await apiClient.get('/arena/history');
     return response.data.result || [];
   },
 
-  /**
-   * Retrieves a specific past comparison by ID (v1 API).
-   * @param {string} id
-   */
+  // Fetch single chat session by ID
   async getHistoryById(id) {
     const response = await apiClient.get(`/arena/history/${id}`);
     return response.data.result;
   },
 
-  /**
-   * Deletes a specific history record from MongoDB (v1 API).
-   * @param {string} id
-   */
+  // Delete a specific session from history
   async deleteHistory(id) {
     const response = await apiClient.delete(`/arena/history/${id}`);
     return response.data;
   },
 
-  /**
-   * Clears all history records from MongoDB (v1 API).
-   */
+  // Delete all chat history
   async clearAllHistory() {
     const response = await apiClient.delete('/arena/history');
     return response.data;
   },
 
-  /**
-   * Health check for arena service (v1 API).
-   */
+  // Health check endpoint
   async checkHealth() {
     const response = await apiClient.get('/arena/health');
     return response.data;

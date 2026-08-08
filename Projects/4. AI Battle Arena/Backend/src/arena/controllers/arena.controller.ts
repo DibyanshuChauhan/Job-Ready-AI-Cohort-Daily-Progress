@@ -5,10 +5,8 @@ import { ApiResponse } from "../../common/utils/api-response.js";
 import { AppError } from "../../common/errors/app-error.js";
 
 export class ArenaController {
-  /**
-   * POST /api/arena/invoke
-   * Handles user comparison prompt requests
-   */
+  // POST /api/v1/arena/invoke
+  // Triggers battle between Mistral and Cohere, plus Gemini judging
   public static async invoke(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const parseResult = ArenaInvokeSchema.safeParse(req.body);
@@ -26,10 +24,8 @@ export class ArenaController {
     }
   }
 
-  /**
-   * GET /api/arena/history
-   * Retrieves all past comparison sessions
-   */
+  // GET /api/v1/arena/history
+  // Returns all past sessions for sidebar navigation
   public static async getHistory(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const history = await ArenaService.getHistory();
@@ -39,10 +35,8 @@ export class ArenaController {
     }
   }
 
-  /**
-   * GET /api/arena/history/:id
-   * Retrieves a specific comparison session by ID
-   */
+  // GET /api/v1/arena/history/:id
+  // Returns details for a specific past session
   public static async getHistoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const rawId = req.params.id;
@@ -57,10 +51,8 @@ export class ArenaController {
     }
   }
 
-  /**
-   * DELETE /api/arena/history/:id
-   * Deletes a specific comparison session
-   */
+  // DELETE /api/v1/arena/history/:id
+  // Delete a single chat session
   public static async deleteHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const rawId = req.params.id;
@@ -75,10 +67,8 @@ export class ArenaController {
     }
   }
 
-  /**
-   * DELETE /api/arena/history
-   * Clears all comparison sessions
-   */
+  // DELETE /api/v1/arena/history
+  // Wipe all stored chat history
   public static async clearAllHistory(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       await ArenaService.clearAllHistory();
@@ -88,10 +78,8 @@ export class ArenaController {
     }
   }
 
-  /**
-   * GET /api/arena/health
-   * Healthcheck for the arena feature
-   */
+  // GET /api/v1/arena/health
+  // Basic health check to make sure backend is up
   public static async healthCheck(_req: Request, res: Response): Promise<void> {
     ApiResponse.success(
       res,

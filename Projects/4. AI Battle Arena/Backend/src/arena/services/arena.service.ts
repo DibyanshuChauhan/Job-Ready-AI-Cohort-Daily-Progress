@@ -4,10 +4,7 @@ import { AppError } from "../../common/errors/app-error.js";
 import { ChatHistoryModel, type IChatTurn } from "../models/chat-history.model.js";
 
 export class ArenaService {
-  /**
-   * Executes the dual model parallel battle and autonomous judge evaluation,
-   * extending an existing session if sessionId is provided or creating a new one.
-   */
+  // Main method to run the battle graph and persist/update the chat session in MongoDB
   public static async executeBattle(
     prompt: string,
     sessionId?: string | null
@@ -18,6 +15,7 @@ export class ArenaService {
     }
 
     try {
+      // Find existing chat session if sessionId was passed
       let historyDoc: any = null;
       if (sessionId) {
         try {
@@ -27,12 +25,13 @@ export class ArenaService {
         }
       }
 
-      // Build previous turns context if historyDoc exists
+      // Collect previous turns to format conversation memory for the models
       let previousEntries: IChatTurn[] = [];
       if (historyDoc) {
         if (historyDoc.entries && historyDoc.entries.length > 0) {
           previousEntries = historyDoc.entries;
         } else if (historyDoc.prompt) {
+          // Handle legacy docs created before multi-turn support
           previousEntries = [
             {
               prompt: historyDoc.prompt,
@@ -44,6 +43,7 @@ export class ArenaService {
         }
       }
 
+      // Format past turns into prompt text so models remember previous context
       let historyContext = "";
       if (previousEntries.length > 0) {
         historyContext =
@@ -56,6 +56,7 @@ export class ArenaService {
             .join("\n\n");
       }
 
+      // Run parallel models + judge
       const result = await ArenaGraphEngine.execute(trimmed, historyContext);
 
       const newTurn: IChatTurn = {
@@ -65,8 +66,10 @@ export class ArenaService {
         judge: result.judge,
       };
 
+      // Save new turn to MongoDB
       try {
         if (historyDoc) {
+          // Append turn to existing session
           if (!historyDoc.entries || historyDoc.entries.length === 0) {
             historyDoc.entries = previousEntries;
           }
@@ -77,6 +80,7 @@ export class ArenaService {
           historyDoc.markModified("entries");
           await historyDoc.save();
         } else {
+          // Create a brand new session document
           historyDoc = await ChatHistoryModel.create({
             prompt: trimmed,
             solution_1: result.solution_1,
@@ -103,9 +107,7 @@ export class ArenaService {
     }
   }
 
-  /**
-   * Retrieves past chat sessions sorted in reverse chronological order.
-   */
+  // Fetch recent chat sessions sorted by latest activity
   public static async getHistory(limit = 50): Promise<ChatHistoryItem[]> {
     try {
       const docs = await (ChatHistoryModel as any)
@@ -116,6 +118,7 @@ export class ArenaService {
         .exec();
 
       return (docs || []).map((doc: any) => {
+        // Ensure legacy docs without entries array get a default entries structure
         const entries =
           doc.entries && doc.entries.length > 0
             ? doc.entries
@@ -142,9 +145,7 @@ export class ArenaService {
     }
   }
 
-  /**
-   * Retrieves a single chat session by its ID.
-   */
+  // Fetch single chat session by ID
   public static async getHistoryById(id: string): Promise<ChatHistoryItem | null> {
     try {
       const doc = await (ChatHistoryModel as any).findById(id).lean().exec();
@@ -175,9 +176,7 @@ export class ArenaService {
     }
   }
 
-  /**
-   * Deletes a specific comparison session by ID.
-   */
+  // Delete a session by ID
   public static async deleteHistory(id: string): Promise<boolean> {
     try {
       const deleted = await (ChatHistoryModel as any).findByIdAndDelete(id).exec();
@@ -188,9 +187,7 @@ export class ArenaService {
     }
   }
 
-  /**
-   * Clears the entire chat history collection.
-   */
+  // Clear all saved history
   public static async clearAllHistory(): Promise<boolean> {
     try {
       await (ChatHistoryModel as any).deleteMany({}).exec();
@@ -201,4 +198,3 @@ export class ArenaService {
     }
   }
 }
-

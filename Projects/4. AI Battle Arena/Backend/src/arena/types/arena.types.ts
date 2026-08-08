@@ -1,3 +1,4 @@
+// Scores and reasoning given by the Gemini judge for both models
 export interface JudgeEvaluation {
   solution_1_score: number;
   solution_2_score: number;
@@ -5,6 +6,7 @@ export interface JudgeEvaluation {
   solution_2_reasoning: string;
 }
 
+// Output from the dual-model execution graph
 export interface ArenaGraphResult {
   problem?: string;
   solution_1: string;
@@ -12,11 +14,13 @@ export interface ArenaGraphResult {
   judge: JudgeEvaluation;
 }
 
+// Service input payload
 export interface ArenaInvokeInput {
   input: string;
   sessionId?: string | null;
 }
 
+// Represents a single turn (question + model answers + judge score)
 export interface ChatTurnItem {
   _id?: string;
   prompt: string;
@@ -26,6 +30,7 @@ export interface ChatTurnItem {
   createdAt?: string | Date;
 }
 
+// Full session history item returned from API
 export interface ChatHistoryItem {
   _id: string;
   prompt: string;
@@ -36,4 +41,3 @@ export interface ChatHistoryItem {
   createdAt: string | Date;
   updatedAt?: string | Date;
 }
-

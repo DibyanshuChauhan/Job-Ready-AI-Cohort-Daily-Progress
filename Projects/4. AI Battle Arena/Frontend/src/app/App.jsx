@@ -10,16 +10,17 @@ import SolutionCard from '../features/arena/components/SolutionCard';
 import JudgePanel from '../features/arena/components/JudgePanel';
 import { useArena } from '../features/arena/hooks/useArena';
 
-/* Single chat turn */
+// Renders one turn exchange (User Prompt -> Mistral & Cohere solutions -> Gemini Judge evaluation)
 function ChatTurn({ entry }) {
   const { prompt, data, isLoading } = entry;
   const isWinner1 = data && data.judge?.solution_1_score >= data.judge?.solution_2_score;
 
   return (
     <div className="flex flex-col gap-6">
+      {/* User prompt bubble */}
       <UserPromptCard prompt={prompt} />
 
-      {/* AI Responses Status Label */}
+      {/* Models divider line & loading spinner */}
       <div className="flex items-center gap-3">
         <span className="text-[12.5px] text-subtle font-semibold uppercase tracking-wider font-display">
           AI Model Responses
@@ -33,7 +34,7 @@ function ChatTurn({ entry }) {
         )}
       </div>
 
-      {/* Solutions side-by-side comparison */}
+      {/* Side-by-side comparison cards for Mistral and Cohere */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SolutionCard
           solutionNum={1}
@@ -53,7 +54,7 @@ function ChatTurn({ entry }) {
         />
       </div>
 
-      {/* Autonomous Judge Recommendation */}
+      {/* Gemini judge recommendation card */}
       {(isLoading || data?.judge) && (
         <JudgePanel judge={data?.judge} isLoading={isLoading} />
       )}
@@ -62,7 +63,7 @@ function ChatTurn({ entry }) {
 }
 
 export default function App() {
-  // Restore theme mode from localStorage (defaults to dark mode)
+  // Theme state (persisted in local storage, defaults to dark mode)
   const [isDark, setIsDark] = useState(() => {
     try {
       const savedTheme = localStorage.getItem('dualmind_theme');
@@ -76,6 +77,7 @@ export default function App() {
   const [inputDefault, setInputDefault] = useState('');
   const bottomRef = useRef(null);
 
+  // Hook managing main arena chat state and MongoDB syncing
   const {
     entries,
     history,
@@ -90,7 +92,7 @@ export default function App() {
     dismissToast,
   } = useArena();
 
-  /* Sync Theme (Light / Dark) to DOM and localStorage */
+  // Apply dark/light class to root element
   useEffect(() => {
     try {
       localStorage.setItem('dualmind_theme', isDark ? 'dark' : 'light');
@@ -105,7 +107,7 @@ export default function App() {
     }
   }, [isDark]);
 
-  /* Auto-scroll to bottom on new entry or status update */
+  // Auto scroll down when new message is added
   useEffect(() => {
     if (entries.length > 0) {
       const t = setTimeout(() => {
@@ -115,12 +117,14 @@ export default function App() {
     }
   }, [entries, isLoading]);
 
+  // Submit starter prompt suggestion when clicked
   const handleSuggestion = (text) => {
     setInputDefault(text);
     setTimeout(() => setInputDefault(''), 50);
     submitPrompt(text);
   };
 
+  // Start fresh chat session
   const handleNewChat = () => {
     clearChat();
     setInputDefault('');
@@ -128,7 +132,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-base relative">
-      {/* Sidebar drawer with MongoDB Chat History */}
+      {/* Sidebar navigation drawer */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -140,7 +144,7 @@ export default function App() {
         isLoadingHistory={isLoadingHistory}
       />
 
-      {/* Mobile sidebar overlay */}
+      {/* Backdrop overlay for mobile drawer */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 lg:hidden"
@@ -149,7 +153,7 @@ export default function App() {
         />
       )}
 
-      {/* Main Content Area */}
+      {/* Main app layout */}
       <div className="lg:ml-[260px] flex flex-col min-h-screen">
         <Header
           isDark={isDark}
@@ -183,7 +187,7 @@ export default function App() {
         />
       </div>
 
-      {/* Error Toast */}
+      {/* Error toast notification */}
       {toast && <Toast message={toast} onDone={dismissToast} />}
     </div>
   );

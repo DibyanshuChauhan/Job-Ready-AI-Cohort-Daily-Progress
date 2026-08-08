@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { arenaApi } from '../api/arena.api.js';
 
+// Keys for caching current session in local storage
 const STORAGE_KEY_ENTRIES = 'dualmind_arena_entries';
 const STORAGE_KEY_ACTIVE_ID = 'dualmind_arena_active_id';
 
 export function useArena() {
-  // Restore current chat conversation from localStorage across page refreshes
+  // Restore current chat turns from local storage on reload
   const [entries, setEntries] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_ENTRIES);
@@ -15,9 +16,10 @@ export function useArena() {
     }
   });
 
+  // History list displayed in sidebar
   const [history, setHistory] = useState([]);
 
-  // Restore active selected history ID from localStorage
+  // Restore active chat session ID from local storage
   const [activeHistoryId, setActiveHistoryId] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY_ACTIVE_ID) || null;
@@ -30,11 +32,10 @@ export function useArena() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Sync entries to localStorage whenever they change
+  // Keep chat feed saved in local storage (stripping out temporary loading flags)
   useEffect(() => {
     try {
       if (entries && entries.length > 0) {
-        // Do not persist transient loading states
         const cleaned = entries.map((e) => ({ ...e, isLoading: false }));
         localStorage.setItem(STORAGE_KEY_ENTRIES, JSON.stringify(cleaned));
       } else {
@@ -45,7 +46,7 @@ export function useArena() {
     }
   }, [entries]);
 
-  // Sync activeHistoryId to localStorage
+  // Keep active session ID saved in local storage
   useEffect(() => {
     try {
       if (activeHistoryId) {
@@ -58,7 +59,7 @@ export function useArena() {
     }
   }, [activeHistoryId]);
 
-  // Load history list from MongoDB
+  // Fetch past sessions from MongoDB
   const fetchHistory = useCallback(async () => {
     try {
       setIsLoadingHistory(true);
@@ -71,16 +72,18 @@ export function useArena() {
     }
   }, []);
 
-  // Fetch history on initial mount
+  // Fetch history on initial page load
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
 
+  // Submit a new question (sends activeHistoryId so backend appends turn to current chat)
   const submitPrompt = useCallback(
     async (query) => {
       const trimmed = query?.trim();
       if (!trimmed || isLoading) return;
 
+      // Add optimistic pending entry to feed
       const newEntry = {
         id: Date.now(),
         prompt: trimmed,
@@ -94,10 +97,12 @@ export function useArena() {
       try {
         const result = await arenaApi.invokeBattle(trimmed, activeHistoryId);
 
+        // Store session ID returned from backend
         if (result?.sessionId) {
           setActiveHistoryId(result.sessionId);
         }
 
+        // If backend returned full updated turns list, display all turns
         if (result?.entries && Array.isArray(result.entries) && result.entries.length > 0) {
           const updatedEntries = result.entries.map((turn, index) => ({
             id: turn._id || turn.id || index + 1,
@@ -111,12 +116,13 @@ export function useArena() {
           }));
           setEntries(updatedEntries);
         } else {
+          // Fallback: replace loading state with result
           setEntries((prev) =>
             prev.map((e) => (e.id === newEntry.id ? { ...e, data: result, isLoading: false } : e))
           );
         }
 
-        // Refresh history list so the sidebar updates
+        // Refresh sidebar history list
         fetchHistory();
       } catch (err) {
         console.error('[useArena Error]:', err);
@@ -131,11 +137,12 @@ export function useArena() {
     [isLoading, activeHistoryId, fetchHistory]
   );
 
-  // Load a past comparison session from history into the main arena feed
+  // Load a session from the sidebar into main chat view
   const selectHistoryItem = useCallback((item) => {
     if (!item) return;
     setActiveHistoryId(item._id);
 
+    // Populate all turn exchanges in the session
     if (item.entries && Array.isArray(item.entries) && item.entries.length > 0) {
       setEntries(
         item.entries.map((turn, idx) => ({
@@ -150,6 +157,7 @@ export function useArena() {
         }))
       );
     } else {
+      // Fallback for single-turn legacy history items
       setEntries([
         {
           id: item._id,
@@ -165,13 +173,15 @@ export function useArena() {
     }
   }, []);
 
-  // Delete a history item
+  // Delete session from sidebar
   const deleteHistoryItem = useCallback(
     async (id, e) => {
       if (e) e.stopPropagation();
       try {
         await arenaApi.deleteHistory(id);
         setHistory((prev) => prev.filter((item) => item._id !== id));
+
+        // If currently viewing deleted session, clear main chat view
         if (activeHistoryId === id) {
           setEntries([]);
           setActiveHistoryId(null);
@@ -184,6 +194,7 @@ export function useArena() {
     [activeHistoryId]
   );
 
+  // Start a fresh chat session
   const clearChat = useCallback(() => {
     setEntries([]);
     setActiveHistoryId(null);
@@ -193,6 +204,7 @@ export function useArena() {
     } catch {}
   }, []);
 
+  // Dismiss toast banner
   const dismissToast = useCallback(() => {
     setToast(null);
   }, []);

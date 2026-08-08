@@ -4,6 +4,7 @@ import { createAgent, HumanMessage, providerStrategy } from "langchain";
 import { LLMProvider } from "./llm.provider.js";
 import type { ArenaGraphResult } from "../../arena/types/arena.types.js";
 
+// State passed between LangGraph nodes
 const state = new StateSchema({
   problem: z.string().default(""),
   historyContext: z.string().default(""),
@@ -17,15 +18,18 @@ const state = new StateSchema({
   }),
 });
 
+// Run Mistral and Cohere concurrently to get two independent answers
 const solutionNode: GraphNode<typeof state> = async (state) => {
   const mistral = LLMProvider.getMistral();
   const cohere = LLMProvider.getCohere();
 
+  // Attach previous chat history if user is asking a follow-up question
   let prompt = state.problem;
   if (state.historyContext && state.historyContext.trim()) {
     prompt = `${state.historyContext}\n\nUser follow-up question: ${state.problem}`;
   }
 
+  // Fetch responses in parallel
   const [mistralResponse, cohereResponse] = await Promise.all([
     mistral.invoke(prompt),
     cohere.invoke(prompt),
@@ -37,6 +41,7 @@ const solutionNode: GraphNode<typeof state> = async (state) => {
   };
 };
 
+// Use Gemini as an unbiased judge to grade both solutions
 const judgeNode: GraphNode<typeof state> = async (state) => {
   const gemini = LLMProvider.getGemini();
   const { problem, historyContext, solution_1, solution_2 } = state;
@@ -89,6 +94,7 @@ const judgeNode: GraphNode<typeof state> = async (state) => {
   };
 };
 
+// Build the workflow graph: START -> generate solutions -> judge -> END
 const compiledGraph = new StateGraph(state)
   .addNode("solution", solutionNode)
   .addNode("judge_node", judgeNode)
@@ -98,6 +104,7 @@ const compiledGraph = new StateGraph(state)
   .compile();
 
 export class ArenaGraphEngine {
+  // Execute the graph for a given user prompt and optional chat history context
   public static async execute(
     problem: string,
     historyContext: string = ""
@@ -106,4 +113,3 @@ export class ArenaGraphEngine {
     return result as ArenaGraphResult;
   }
 }
-
