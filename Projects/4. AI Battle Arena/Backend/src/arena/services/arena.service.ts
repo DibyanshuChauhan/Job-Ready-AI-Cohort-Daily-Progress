@@ -2,8 +2,24 @@ import { ArenaGraphEngine } from "../../infrastructure/ai/arena.graph.js";
 import type { ArenaGraphResult, ChatHistoryItem, ChatTurnItem } from "../types/arena.types.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { ChatHistoryModel, type IChatTurn } from "../models/chat-history.model.js";
+import { LLMProvider } from "../../infrastructure/ai/llm.provider.js";
 
 export class ArenaService {
+  // Use Gemini to generate a short, clean 3-5 word title for a new chat session
+  public static async generateChatTitle(promptText: string): Promise<string> {
+    try {
+      const gemini = LLMProvider.getGemini();
+      const response = await gemini.invoke(
+        `Generate a concise, friendly chat title (3 to 6 words max, no quotes, no prefix like 'Title:') for this prompt:\n"${promptText}"`
+      );
+      const title = response.text ? response.text.trim().replace(/^["']|["']$/g, "") : "";
+      return title || (promptText.length > 40 ? promptText.slice(0, 40) + "..." : promptText);
+    } catch (err) {
+      console.warn("⚠️ [Gemini] Failed to generate chat title, falling back to prompt text:", err);
+      return promptText.length > 40 ? promptText.slice(0, 40) + "..." : promptText;
+    }
+  }
+
   // Main method to run the battle graph and persist/update the chat session in MongoDB
   public static async executeBattle(
     prompt: string,
@@ -80,9 +96,12 @@ export class ArenaService {
           historyDoc.markModified("entries");
           await historyDoc.save();
         } else {
+          // Generate an AI title using Gemini for the new chat session
+          const chatTitle = await ArenaService.generateChatTitle(trimmed);
+
           // Create a brand new session document
           historyDoc = await ChatHistoryModel.create({
-            prompt: trimmed,
+            prompt: chatTitle,
             solution_1: result.solution_1,
             solution_2: result.solution_2,
             judge: result.judge,
