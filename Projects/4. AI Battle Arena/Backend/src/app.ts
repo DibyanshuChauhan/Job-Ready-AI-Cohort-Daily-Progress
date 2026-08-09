@@ -15,13 +15,13 @@ const app = express();
 app.set("trust proxy", 1);
 
 const isProduction =
-  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "production" &&
   !config.FRONTEND_URL.includes("localhost");
 
 const allowedOrigins = [
   config.FRONTEND_URL,
-  "https://job-ready-ai-cohort-daily-progress.vercel.app",
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "http://localhost:3000",
 ].filter(Boolean);
 
@@ -65,7 +65,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Root health check endpoint for Render / monitoring
+// Root health check endpoint
 app.get("/", (_req, res) => {
   res.json({
     status: "ok",
