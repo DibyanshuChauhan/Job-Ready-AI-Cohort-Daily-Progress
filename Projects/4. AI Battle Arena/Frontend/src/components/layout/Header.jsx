@@ -25,7 +25,6 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
       className="glass fixed top-0 left-[260px] right-0 z-20 h-16 flex items-center justify-between px-6 max-lg:left-0"
       role="banner"
     >
-      {/* Left section */}
       <div className="flex items-center gap-3">
         <button
           className="icon-btn lg:hidden"
@@ -49,9 +48,7 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
         </div>
       </div>
 
-      {/* Right section */}
       <div className="flex items-center gap-2.5">
-        {/* Theme switch */}
         <button
           className="icon-btn"
           onClick={onToggleTheme}
@@ -61,7 +58,6 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        {/* User avatar badge */}
         <div className="flex items-center gap-2 pl-1">
           {user?.avatar ? (
             <img
@@ -82,7 +78,6 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
           </span>
         </div>
 
-        {/* Logout button */}
         <button
           onClick={logout}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-subtle hover:text-rose-400 hover:bg-rose-500/10 border border-line/60 hover:border-rose-500/30 transition-all duration-150"
@@ -96,4 +91,3 @@ export default function Header({ onToggleTheme, isDark, onToggleSidebar }) {
     </header>
   );
 }
-

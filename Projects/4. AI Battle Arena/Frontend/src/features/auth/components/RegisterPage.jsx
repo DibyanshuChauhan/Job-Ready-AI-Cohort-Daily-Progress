@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Zap } from 'lucide-react';
 import { useAuthContext } from '../context/AuthContext.jsx';
 
-// Google SVG icon
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -15,7 +14,6 @@ function GoogleIcon() {
   );
 }
 
-// Animated password strength bar
 function PasswordStrength({ password }) {
   if (!password) return null;
 
@@ -56,13 +54,12 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { register, loginWithGoogle, isLoading, error, clearError } = useAuthContext();
 
-  const [displayName, setDisplayName]   = useState('');
-  const [email, setEmail]               = useState('');
-  const [password, setPassword]         = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [fieldErrors, setFieldErrors]   = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // Client-side field validation
   function validate() {
     const errs = {};
     if (!displayName.trim()) errs.displayName = 'Display name is required';
@@ -86,7 +83,7 @@ export default function RegisterPage() {
       await register(email, password, displayName);
       navigate('/', { replace: true });
     } catch {
-      // error is already set in context
+      // Error handled by auth context
     }
   }
 
@@ -104,7 +101,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-base flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Ambient glow */}
+      {/* Background glow */}
       <div
         aria-hidden="true"
         style={{
@@ -117,7 +114,6 @@ export default function RegisterPage() {
       />
 
       <div className="animate-fade-in-up relative z-10 w-full" style={{ maxWidth: '420px' }}>
-        {/* Brand mark */}
         <div className="flex flex-col items-center mb-8 gap-3">
           <div
             style={{
@@ -137,7 +133,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Card */}
         <div
           style={{
             background: 'rgba(18,20,29,0.85)',
@@ -148,7 +143,6 @@ export default function RegisterPage() {
             padding: '32px',
           }}
         >
-          {/* Server error */}
           {error && (
             <div
               role="alert"
@@ -167,7 +161,6 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            {/* Display Name */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label htmlFor="reg-name" style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-muted)' }}>
                 Display name
@@ -186,7 +179,6 @@ export default function RegisterPage() {
               {fieldErrors.displayName && <p style={{ fontSize: '12px', color: '#FDA4AF' }}>{fieldErrors.displayName}</p>}
             </div>
 
-            {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label htmlFor="reg-email" style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-muted)' }}>
                 Email address
@@ -205,7 +197,6 @@ export default function RegisterPage() {
               {fieldErrors.email && <p style={{ fontSize: '12px', color: '#FDA4AF' }}>{fieldErrors.email}</p>}
             </div>
 
-            {/* Password */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label htmlFor="reg-password" style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-muted)' }}>
                 Password
@@ -240,7 +231,6 @@ export default function RegisterPage() {
               {fieldErrors.password && <p style={{ fontSize: '12px', color: '#FDA4AF' }}>{fieldErrors.password}</p>}
             </div>
 
-            {/* Submit */}
             <button
               id="register-submit"
               type="submit"
@@ -257,14 +247,12 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }} />
             <span style={{ fontSize: '12px', color: 'var(--color-subtle)', whiteSpace: 'nowrap' }}>or continue with</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }} />
           </div>
 
-          {/* Google OAuth */}
           <button
             id="register-google"
             type="button"
@@ -286,7 +274,6 @@ export default function RegisterPage() {
             Continue with Google
           </button>
 
-          {/* Footer link */}
           <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13.5px', color: 'var(--color-muted)' }}>
             Already have an account?{' '}
             <Link to="/login" style={{ color: '#818CF8', fontWeight: '600', textDecoration: 'none' }}>

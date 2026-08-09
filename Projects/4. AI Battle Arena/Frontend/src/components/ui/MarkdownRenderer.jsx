@@ -5,18 +5,17 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Check, Copy } from 'lucide-react';
 
-/* Preprocess raw AI text to handle LaTeX delimiters and malformed backticks */
 function preprocessMarkdown(text) {
   if (!text) return '';
   let result = text;
 
-  // 1. Convert LaTeX block math: \[ ... \] -> \n$$\n...\n$$\n
+  // LaTeX block math
   result = result.replace(/\\\[([\s\S]*?)\\\]/g, (_, math) => `\n$$\n${math.trim()}\n$$\n`);
 
-  // 2. Convert LaTeX inline math: \( ... \) -> $...$
+  // LaTeX inline math
   result = result.replace(/\\\(([\s\S]*?)\\\)/g, (_, math) => `$${math.trim()}$`);
 
-  // 3. Fix malformed lone-backtick lines that AI models sometimes output instead of ```
+  // Normalize single backtick lines to code fence
   result = result.replace(/(^|\n)[ \t]*`[ \t]*(\n|$)/g, '$1```\n$2');
 
   return result;
@@ -34,7 +33,6 @@ function CodeBlock({ lang, content }) {
 
   return (
     <div className="code-block my-3.5 relative overflow-hidden rounded-xl border border-line bg-[#0B0D14] shadow-md">
-      {/* Header toolbar */}
       <div className="flex items-center justify-between px-3.5 py-2 border-b border-line bg-black/40 text-[11px] font-code text-subtle">
         <span className="lowercase font-medium">{lang || 'code'}</span>
         <button
@@ -61,7 +59,6 @@ function CodeBlock({ lang, content }) {
         </button>
       </div>
 
-      {/* Code content */}
       <pre className="p-4 m-0 overflow-x-auto font-code text-[13px] leading-relaxed text-slate-200">
         <code>{content}</code>
       </pre>

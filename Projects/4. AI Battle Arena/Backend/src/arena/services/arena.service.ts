@@ -6,7 +6,7 @@ import { LLMProvider } from "../../infrastructure/ai/llm.provider.js";
 import mongoose from "mongoose";
 
 export class ArenaService {
-  // Use Gemini to generate a short, clean 3-5 word title for a new chat session
+  // Generate short title for chat session
   public static async generateChatTitle(promptText: string): Promise<string> {
     try {
       const gemini = LLMProvider.getGemini();
@@ -16,14 +16,10 @@ export class ArenaService {
       const title = response.text ? response.text.trim().replace(/^[\"']|[\"']$/g, "") : "";
       return title || (promptText.length > 40 ? promptText.slice(0, 40) + "..." : promptText);
     } catch (err) {
-      console.warn("⚠️ [Gemini] Failed to generate chat title, falling back to prompt text:", err);
       return promptText.length > 40 ? promptText.slice(0, 40) + "..." : promptText;
     }
   }
 
-  // Main method to run the battle graph and persist/update the chat session in MongoDB.
-  // Every session is scoped to the authenticated userId — users can never access
-  // each other's sessions.
   public static async executeBattle(
     prompt: string,
     sessionId?: string | null,
@@ -34,7 +30,6 @@ export class ArenaService {
       throw new AppError("Prompt cannot be empty", 400);
     }
 
-    // userId is required for all new sessions
     if (!userId) {
       throw new AppError("Not authenticated", 401);
     }
@@ -42,7 +37,6 @@ export class ArenaService {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
     try {
-      // Find existing chat session — only if it belongs to this user
       let historyDoc: any = null;
       if (sessionId) {
         try {
@@ -50,21 +44,16 @@ export class ArenaService {
             _id: sessionId,
             userId: userObjectId,
           });
-          if (!historyDoc) {
-            console.warn("⚠️ [ArenaService] Session not found or doesn't belong to user:", sessionId);
-          }
         } catch (err) {
-          console.warn("⚠️ [ArenaService] Could not find session by ID:", sessionId);
+          // invalid or missing session ID
         }
       }
 
-      // Collect previous turns to format conversation memory for the models
       let previousEntries: IChatTurn[] = [];
       if (historyDoc) {
         if (historyDoc.entries && historyDoc.entries.length > 0) {
           previousEntries = historyDoc.entries;
         } else if (historyDoc.prompt) {
-          // Handle legacy docs created before multi-turn support
           previousEntries = [
             {
               prompt: historyDoc.prompt,
@@ -76,7 +65,6 @@ export class ArenaService {
         }
       }
 
-      // Format past turns into prompt text so models remember previous context
       let historyContext = "";
       if (previousEntries.length > 0) {
         historyContext =
@@ -89,7 +77,6 @@ export class ArenaService {
             .join("\n\n");
       }
 
-      // Run parallel models + judge
       const result = await ArenaGraphEngine.execute(trimmed, historyContext);
 
       const newTurn: IChatTurn = {
@@ -99,10 +86,8 @@ export class ArenaService {
         judge: result.judge,
       };
 
-      // Save new turn to MongoDB (always tagged with userId)
       try {
         if (historyDoc) {
-          // Append turn to existing session
           if (!historyDoc.entries || historyDoc.entries.length === 0) {
             historyDoc.entries = previousEntries;
           }
@@ -113,10 +98,8 @@ export class ArenaService {
           historyDoc.markModified("entries");
           await historyDoc.save();
         } else {
-          // Generate an AI title using Gemini for the new chat session
           const chatTitle = await ArenaService.generateChatTitle(trimmed);
 
-          // Create a brand new session document — scoped to this user
           historyDoc = await ChatHistoryModel.create({
             userId: userObjectId,
             prompt: chatTitle,
@@ -127,7 +110,7 @@ export class ArenaService {
           });
         }
       } catch (dbErr) {
-        console.warn("⚠️ [MongoDB] Failed to persist chat history:", dbErr);
+        console.warn("[MongoDB] Failed to persist chat history:", dbErr);
       }
 
       const activeId = historyDoc ? historyDoc._id.toString() : (sessionId || "");
@@ -145,7 +128,6 @@ export class ArenaService {
     }
   }
 
-  // Fetch recent chat sessions for a specific user, sorted by latest activity
   public static async getHistory(userId: string, limit = 50): Promise<ChatHistoryItem[]> {
     try {
       const userObjectId = new mongoose.Types.ObjectId(userId);
@@ -157,7 +139,6 @@ export class ArenaService {
         .exec();
 
       return (docs || []).map((doc: any) => {
-        // Ensure legacy docs without entries array get a default entries structure
         const entries =
           doc.entries && doc.entries.length > 0
             ? doc.entries
@@ -184,7 +165,6 @@ export class ArenaService {
     }
   }
 
-  // Fetch single chat session by ID — only if it belongs to this user
   public static async getHistoryById(id: string, userId: string): Promise<ChatHistoryItem | null> {
     try {
       const userObjectId = new mongoose.Types.ObjectId(userId);
@@ -219,7 +199,6 @@ export class ArenaService {
     }
   }
 
-  // Delete a session by ID — only if it belongs to this user
   public static async deleteHistory(id: string, userId: string): Promise<boolean> {
     try {
       const userObjectId = new mongoose.Types.ObjectId(userId);
@@ -237,7 +216,6 @@ export class ArenaService {
     }
   }
 
-  // Clear only THIS user's history — never touches other users' data
   public static async clearAllHistory(userId: string): Promise<boolean> {
     try {
       const userObjectId = new mongoose.Types.ObjectId(userId);

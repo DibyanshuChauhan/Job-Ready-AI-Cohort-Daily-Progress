@@ -1,17 +1,12 @@
 import { useState, useCallback } from 'react';
 import { authApi } from '../api/auth.api.js';
 
-/**
- * useAuth — encapsulates register, login, logout, and Google OAuth actions.
- * State is managed here and lifted to AuthContext for global access.
- */
 export function useAuth(onAuthSuccess) {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError]         = useState('');
+  const [error, setError] = useState('');
 
   const clearError = useCallback(() => setError(''), []);
 
-  // ── Register ──────────────────────────────────────────────────────────
   const register = useCallback(async (email, password, displayName) => {
     setIsLoading(true);
     setError('');
@@ -31,7 +26,6 @@ export function useAuth(onAuthSuccess) {
     }
   }, [onAuthSuccess]);
 
-  // ── Login ─────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
     setIsLoading(true);
     setError('');
@@ -51,7 +45,6 @@ export function useAuth(onAuthSuccess) {
     }
   }, [onAuthSuccess]);
 
-  // ── Logout ────────────────────────────────────────────────────────────
   const logout = useCallback(async (onLogoutSuccess) => {
     setIsLoading(true);
     try {
@@ -62,7 +55,6 @@ export function useAuth(onAuthSuccess) {
     }
   }, []);
 
-  // ── Google OAuth ──────────────────────────────────────────────────────
   const loginWithGoogle = useCallback(() => {
     authApi.redirectToGoogle();
   }, []);

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, Zap } from 'lucide-react';
 import { useAuthContext } from '../context/AuthContext.jsx';
 
-// Google SVG icon
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -19,12 +18,11 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, loginWithGoogle, isLoading, error, clearError } = useAuthContext();
 
-  const [email, setEmail]           = useState('');
-  const [password, setPassword]     = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [fieldErrors, setFieldErrors]   = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
 
-  // Client-side field validation
   function validate() {
     const errs = {};
     if (!email.trim()) errs.email = 'Email is required';
@@ -43,13 +41,13 @@ export default function LoginPage() {
       await login(email, password);
       navigate('/', { replace: true });
     } catch {
-      // error is already set in context
+      // Error handled by auth context
     }
   }
 
   return (
     <div className="min-h-screen bg-base flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Ambient background glow */}
+      {/* Background glow */}
       <div
         aria-hidden="true"
         style={{
@@ -65,7 +63,6 @@ export default function LoginPage() {
         className="animate-fade-in-up relative z-10 w-full"
         style={{ maxWidth: '420px' }}
       >
-        {/* Brand mark */}
         <div className="flex flex-col items-center mb-8 gap-3">
           <div
             style={{
@@ -88,7 +85,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Card */}
         <div
           style={{
             background: 'rgba(18,20,29,0.85)',
@@ -99,7 +95,6 @@ export default function LoginPage() {
             padding: '32px',
           }}
         >
-          {/* Global server error */}
           {error && (
             <div
               role="alert"
@@ -118,7 +113,6 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label htmlFor="login-email" style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-muted)' }}>
                 Email address
@@ -147,7 +141,6 @@ export default function LoginPage() {
               {fieldErrors.email && <p style={{ fontSize: '12px', color: '#FDA4AF' }}>{fieldErrors.email}</p>}
             </div>
 
-            {/* Password */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label htmlFor="login-password" style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-muted)' }}>
                 Password
@@ -191,7 +184,6 @@ export default function LoginPage() {
               {fieldErrors.password && <p style={{ fontSize: '12px', color: '#FDA4AF' }}>{fieldErrors.password}</p>}
             </div>
 
-            {/* Submit */}
             <button
               id="login-submit"
               type="submit"
@@ -208,14 +200,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }} />
             <span style={{ fontSize: '12px', color: 'var(--color-subtle)', whiteSpace: 'nowrap' }}>or continue with</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.07)' }} />
           </div>
 
-          {/* Google OAuth */}
           <button
             id="login-google"
             type="button"
@@ -237,7 +227,6 @@ export default function LoginPage() {
             Continue with Google
           </button>
 
-          {/* Footer link */}
           <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13.5px', color: 'var(--color-muted)' }}>
             Don&apos;t have an account?{' '}
             <Link

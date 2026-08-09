@@ -2,8 +2,6 @@ import { z } from "zod";
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../../common/errors/app-error.js";
 
-// ── Zod Schemas ────────────────────────────────────────────────────────────
-
 export const RegisterSchema = z.object({
   email: z
     .string()
@@ -43,7 +41,6 @@ export const LoginSchema = z.object({
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
 
-// ── Middleware generator for Zod request body validation ───────────────────
 export function validateBody<T extends z.ZodTypeAny>(schema: T) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.body);

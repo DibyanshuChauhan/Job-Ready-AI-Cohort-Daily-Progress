@@ -2,34 +2,28 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { authApi } from '../api/auth.api.js';
 import { useAuth } from '../hooks/useAuth.js';
 
-// ── Context shape ──────────────────────────────────────────────────────────
 const AuthContext = createContext(null);
 
-/**
- * AuthProvider — wraps the whole app and holds the authenticated user.
- * On mount it calls /me to hydrate the user from the JWT cookie if one exists.
- */
 export function AuthProvider({ children }) {
-  const [user, setUser]               = useState(null);
-  const [isHydrating, setIsHydrating] = useState(true); // true while /me is in-flight
+  const [user, setUser] = useState(null);
+  const [isHydrating, setIsHydrating] = useState(true);
 
-  // Hydrate user from JWT cookie on first load
+  // Check if session cookie is valid on mount
   useEffect(() => {
     const hydrate = async () => {
       try {
         const data = await authApi.me();
         setUser(data?.user ?? null);
       } catch {
-        setUser(null); // Not logged in — that's fine
+        setUser(null);
       } finally {
         setIsHydrating(false);
       }
     };
 
-    // Also handle ?auth=success redirect from Google OAuth callback
+    // Clean up query param after Google OAuth redirect
     const params = new URLSearchParams(window.location.search);
     if (params.get('auth') === 'success') {
-      // Remove query param from URL cleanly
       window.history.replaceState({}, '', window.location.pathname);
     }
 
@@ -70,7 +64,6 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ── Convenience hook ──────────────────────────────────────────────────────
 export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) {

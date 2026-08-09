@@ -11,7 +11,6 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
       textareaRef.current.focus();
       autoResize({ target: textareaRef.current });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultValue]);
 
   const handleSubmit = () => {
@@ -41,7 +40,6 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
   return (
     <div className="glass fixed bottom-0 left-[260px] right-0 z-20 px-6 pt-3.5 pb-4 max-lg:left-0">
       <div className="max-w-[900px] mx-auto flex flex-col gap-2">
-        {/* Input box */}
         <div
           className="flex items-end gap-2 rounded-2xl px-4 py-2.5 transition-all duration-200"
           style={{
@@ -50,7 +48,6 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
             boxShadow: canSend ? '0 0 20px rgba(99,102,241,0.12)' : '0 4px 20px rgba(0,0,0,0.15)',
           }}
         >
-          {/* Text Area */}
           <textarea
             ref={textareaRef}
             id="chat-input"
@@ -65,7 +62,6 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
             style={{ maxHeight: 160, scrollbarWidth: 'none' }}
           />
 
-          {/* Send Button */}
           <button
             className="btn-gradient w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             onClick={handleSubmit}
@@ -80,7 +76,6 @@ export default function InputBar({ onSubmit, isLoading, defaultValue = '' }) {
           </button>
         </div>
 
-        {/* Footer Shortcut Hints */}
         <p className="text-center text-[11px] text-subtle flex items-center justify-center gap-1.5">
           <span>DualMind AI synthesizes responses in parallel</span>
           <span>·</span>

@@ -10,7 +10,7 @@ export class Database {
     }
 
     if (!config.MONGO_URI) {
-      console.warn("⚠️ [MongoDB]: MONGO_URI is not defined in environment config.");
+      console.warn("[MongoDB] MONGO_URI is not defined in environment config.");
       return;
     }
 
@@ -22,19 +22,18 @@ export class Database {
       });
 
       this.isConnected = true;
-      console.log(" Connected to MongoDB successfully.");
+      console.log("Connected to MongoDB successfully.");
 
       mongoose.connection.on("error", (err) => {
-        console.error("❌ [MongoDB] Connection error:", err);
+        console.error("[MongoDB] Connection error:", err);
       });
 
       mongoose.connection.on("disconnected", () => {
-        console.warn("⚠️ [MongoDB] Disconnected from MongoDB.");
+        console.warn("[MongoDB] Disconnected from MongoDB.");
         this.isConnected = false;
       });
     } catch (err) {
-      console.error("❌ [MongoDB] Initial connection failed:", err);
-      // Allow the app to proceed even if MongoDB is starting or offline
+      console.error("[MongoDB] Initial connection failed:", err);
     }
   }
 

@@ -14,17 +14,14 @@ import LoginPage from '../features/auth/components/LoginPage.jsx';
 import RegisterPage from '../features/auth/components/RegisterPage.jsx';
 import { useAuthContext } from '../features/auth/context/AuthContext.jsx';
 
-// Renders one turn exchange (User Prompt -> Mistral & Cohere solutions -> Gemini Judge evaluation)
 function ChatTurn({ entry }) {
   const { prompt, data, isLoading } = entry;
   const isWinner1 = data && data.judge?.solution_1_score >= data.judge?.solution_2_score;
 
   return (
     <div className="flex flex-col gap-6">
-      {/* User prompt bubble */}
       <UserPromptCard prompt={prompt} />
 
-      {/* Models divider line & loading spinner */}
       <div className="flex items-center gap-3">
         <span className="text-[12.5px] text-subtle font-semibold uppercase tracking-wider font-display">
           AI Model Responses
@@ -38,7 +35,6 @@ function ChatTurn({ entry }) {
         )}
       </div>
 
-      {/* Side-by-side comparison cards for Mistral and Cohere */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SolutionCard
           solutionNum={1}
@@ -58,7 +54,6 @@ function ChatTurn({ entry }) {
         />
       </div>
 
-      {/* Gemini judge recommendation card */}
       {(isLoading || data?.judge) && (
         <JudgePanel judge={data?.judge} isLoading={isLoading} />
       )}
@@ -66,7 +61,6 @@ function ChatTurn({ entry }) {
   );
 }
 
-// ── Protected Arena view — only shown to authenticated users ──────────────
 function ArenaView() {
   const [isDark, setIsDark] = useState(() => {
     try {
@@ -95,7 +89,6 @@ function ArenaView() {
     dismissToast,
   } = useArena();
 
-  // Apply dark/light class to root element
   useEffect(() => {
     try {
       localStorage.setItem('dualmind_theme', isDark ? 'dark' : 'light');
@@ -109,7 +102,6 @@ function ArenaView() {
     }
   }, [isDark]);
 
-  // Auto scroll down when new message is added
   useEffect(() => {
     if (entries.length > 0) {
       const t = setTimeout(() => {
@@ -189,7 +181,6 @@ function ArenaView() {
   );
 }
 
-// ── Full-screen spinner shown while /me is hydrating ─────────────────────
 function HydrationSpinner() {
   return (
     <div
@@ -201,11 +192,9 @@ function HydrationSpinner() {
   );
 }
 
-// ── Root App — handles routing + auth gating ──────────────────────────────
 export default function App() {
   const { isAuthenticated, isHydrating } = useAuthContext();
 
-  // Wait for /me check to finish before rendering any route
   if (isHydrating) return <HydrationSpinner />;
 
   return (
@@ -222,7 +211,6 @@ export default function App() {
         path="/"
         element={isAuthenticated ? <ArenaView /> : <Navigate to="/login" replace />}
       />
-      {/* Catch-all */}
       <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
     </Routes>
   );

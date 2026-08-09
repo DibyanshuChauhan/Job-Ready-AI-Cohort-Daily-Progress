@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Bot, Copy, Check, ChevronDown, Trophy } from 'lucide-react';
 import MarkdownRenderer from '../../../components/ui/MarkdownRenderer';
 
-function countWords(text)  { return text?.trim().split(/\s+/).filter(Boolean).length || 0; }
-function readTime(words)   { return `${Math.max(1, Math.ceil(words / 200))} min read`; }
+function countWords(text) { return text?.trim().split(/\s+/).filter(Boolean).length || 0; }
+function readTime(words) { return `${Math.max(1, Math.ceil(words / 200))} min read`; }
 
 function SkeletonCard({ delay = 0 }) {
   return (
@@ -28,10 +28,10 @@ function SkeletonCard({ delay = 0 }) {
 }
 
 export default function SolutionCard({ solutionNum, modelName, content, isLoading, skeletonDelay, isWinner }) {
-  const [copied,   setCopied]   = useState(false);
+  const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const words    = countWords(content);
+  const words = countWords(content);
   const isPrimary = solutionNum === 1;
   const badgeClass = isPrimary ? 'badge-primary' : 'badge-violet';
 
@@ -53,7 +53,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
         boxShadow: isWinner ? '0 0 25px rgba(16,185,129,0.08), 0 4px 20px rgba(0,0,0,0.2)' : '0 4px 20px rgba(0,0,0,0.15)',
       }}
     >
-      {/* Top Card Header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div
@@ -77,7 +76,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-1 flex-shrink-0">
           <button className={`icon-btn w-7 h-7 ${copied ? 'active' : ''}`} onClick={handleCopy} aria-label="Copy" title="Copy">
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -87,7 +85,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
 
       <div className="h-px bg-line mx-4" />
 
-      {/* Main Response Content */}
       <div
         className="px-4 py-3 flex-1 relative overflow-hidden transition-all duration-300"
         style={{ maxHeight: expanded ? 2000 : 400 }}
@@ -101,7 +98,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
         )}
       </div>
 
-      {/* Expand / Collapse Button */}
       <button
         onClick={() => setExpanded(p => !p)}
         className="px-4 pb-2 text-[12.5px] font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 bg-transparent border-none cursor-pointer transition-colors"
@@ -110,7 +106,6 @@ export default function SolutionCard({ solutionNum, modelName, content, isLoadin
         <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Metrics Footer */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-t border-line text-[11.5px] text-subtle">
         <span>{words} words</span>
         <span>·</span>

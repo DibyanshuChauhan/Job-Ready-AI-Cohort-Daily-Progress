@@ -86,7 +86,6 @@ export default function JudgePanel({ judge, isLoading }) {
 
   return (
     <div className="judge-card animate-fade-in-up delay-200">
-      {/* Header */}
       <div className="px-6 pt-5 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -109,7 +108,6 @@ export default function JudgePanel({ judge, isLoading }) {
 
       <div className="h-px bg-amber-500/15 mx-6" />
 
-      {/* Scores comparison */}
       <div className="grid grid-cols-2 gap-4 px-6 py-5">
         {[
           { num: 1, score: s1, isPrimary: winner === 1, delay: 0 },
@@ -131,7 +129,6 @@ export default function JudgePanel({ judge, isLoading }) {
         ))}
       </div>
 
-      {/* Rationale Key Highlights */}
       <div className="px-6 pb-4">
         <h3 className="text-[14px] font-bold text-foreground mb-2.5 font-display">
           Key Evaluation Summary
@@ -150,7 +147,6 @@ export default function JudgePanel({ judge, isLoading }) {
         )}
       </div>
 
-      {/* Accordions */}
       <div className="px-6 pb-5">
         <Accordion title={`Why Solution ${winner} won?`} content={winReason || 'No detailed reasoning provided.'} />
         <Accordion title={`Why Solution ${winner === 1 ? 2 : 1} scored lower?`} content={loseReason || 'No detailed reasoning provided.'} />

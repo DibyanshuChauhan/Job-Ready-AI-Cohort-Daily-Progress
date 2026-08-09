@@ -1,10 +1,5 @@
-/* =========================================
-   DualMind AI — Premium SaaS Design System
-   ========================================= */
-
 @import "tailwindcss";
 
-/* ── Theme Custom Properties (Dark mode default) ── */
 :root {
   --color-base:         #08090D;
   --color-card:         #12141D;
@@ -29,7 +24,6 @@
   --text-muted:         #94A3B8;
 }
 
-/* ── Light mode overrides ── */
 html.light {
   --color-base:         #F8FAFC;
   --color-card:         #FFFFFF;
@@ -51,7 +45,6 @@ html.light {
   --text-muted:         #475569;
 }
 
-/* ── Custom design tokens via @theme ── */
 @theme {
   --color-base:         var(--color-base);
   --color-card:         var(--color-card);
@@ -71,12 +64,10 @@ html.light {
   --color-muted:        var(--color-muted);
   --color-subtle:       var(--color-subtle);
 
-  /* Typography */
   --font-display:  'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-sans:     'Inter', system-ui, -apple-system, sans-serif;
   --font-code:     'JetBrains Mono', monospace;
 
-  /* Animations */
   --animate-fade-in-up:  fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-fade-in:     fadeIn 0.25s ease-out both;
   --animate-shimmer:     shimmer 1.5s ease-in-out infinite;
@@ -84,7 +75,6 @@ html.light {
   --animate-pulse-glow:  pulse-glow 3s ease-in-out infinite;
 }
 
-/* ── Keyframes ── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -106,7 +96,6 @@ html.light {
   50%       { box-shadow: 0 0 45px rgba(245,158,11,0.28); }
 }
 
-/* ── Base Layer ── */
 @layer base {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -125,7 +114,6 @@ html.light {
     overflow-x: hidden;
   }
 
-  /* Ambient background light grid overlay */
   body::before {
     content: "";
     position: fixed;
@@ -135,7 +123,6 @@ html.light {
     z-index: 0;
   }
 
-  /* Styled scrollbar */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-line-hover) transparent;
@@ -154,9 +141,7 @@ html.light {
   }
 }
 
-/* ── Utility Layer ── */
 @layer utilities {
-  /* Gradient text */
   .gradient-text {
     background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
     -webkit-background-clip: text;
@@ -164,7 +149,6 @@ html.light {
     background-clip: text;
   }
 
-  /* Glassmorphism header */
   .glass {
     background: rgba(12, 13, 20, 0.78);
     backdrop-filter: blur(18px);
@@ -176,7 +160,6 @@ html.light {
     background: rgba(255, 255, 255, 0.85);
   }
 
-  /* Skeleton shimmer */
   .skeleton {
     background: linear-gradient(90deg, var(--color-line-subtle) 0%, var(--color-line-hover) 50%, var(--color-line-subtle) 100%);
     background-size: 600px 100%;
@@ -184,7 +167,6 @@ html.light {
     border-radius: 8px;
   }
 
-  /* Judge card styling */
   .judge-card {
     background: linear-gradient(135deg, rgba(245,158,11,0.07), rgba(99,102,241,0.03));
     border: 1px solid rgba(245,158,11,0.3);
@@ -196,7 +178,6 @@ html.light {
     border: 1px solid rgba(245,158,11,0.35);
   }
 
-  /* Interactive card hover */
   .card-hover {
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
   }
@@ -206,7 +187,6 @@ html.light {
     border-color: rgba(99,102,241,0.35);
   }
 
-  /* Code block */
   .code-block {
     background: #0B0D14;
     border: 1px solid var(--color-line);
@@ -220,7 +200,6 @@ html.light {
     background: #F8FAFC;
   }
 
-  /* Nav item */
   .nav-item {
     display: flex;
     align-items: center;
@@ -247,7 +226,6 @@ html.light {
     border: 1px solid rgba(99,102,241,0.2);
   }
 
-  /* Icon button */
   .icon-btn {
     display: inline-flex;
     align-items: center;
@@ -272,7 +250,6 @@ html.light {
     border-color: rgba(99,102,241,0.3);
   }
 
-  /* Chip */
   .chip {
     display: flex;
     align-items: center;
@@ -295,7 +272,6 @@ html.light {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
   }
 
-  /* Badge */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -318,7 +294,6 @@ html.light {
     font-weight: 700;
   }
 
-  /* Gradient button */
   .btn-gradient {
     background: linear-gradient(135deg, #6366F1, #8B5CF6);
     color: white;
@@ -339,7 +314,6 @@ html.light {
     box-shadow: none;
   }
 
-  /* Markdown content typography */
   .md-content h1, .md-content h2, .md-content h3 {
     font-family: var(--font-display);
     color: var(--color-foreground);
@@ -371,7 +345,6 @@ html.light {
     margin: 10px 0;
   }
 
-  /* Delay utilities */
   .delay-100 { animation-delay: 0.10s; }
   .delay-200 { animation-delay: 0.20s; }
   .delay-300 { animation-delay: 0.30s; }

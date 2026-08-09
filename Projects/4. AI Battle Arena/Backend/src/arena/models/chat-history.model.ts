@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import type { JudgeEvaluation } from "../types/arena.types.js";
 
-// Individual turn inside a multi-turn chat
 export interface IChatTurn {
   _id?: mongoose.Types.ObjectId;
   prompt: string;
@@ -11,9 +10,8 @@ export interface IChatTurn {
   createdAt?: Date;
 }
 
-// Full ChatHistory document in MongoDB
 export interface IChatHistoryDoc extends Document {
-  userId: Types.ObjectId;           // ← owner of this session
+  userId: Types.ObjectId;
   prompt: string;
   solution_1: string;
   solution_2: string;
@@ -23,7 +21,6 @@ export interface IChatHistoryDoc extends Document {
   updatedAt: Date;
 }
 
-// Sub-schema for storing judge scores & reasoning
 const JudgeSchema = new Schema<JudgeEvaluation>(
   {
     solution_1_score: { type: Number, required: true, default: 0 },
@@ -34,7 +31,6 @@ const JudgeSchema = new Schema<JudgeEvaluation>(
   { _id: false }
 );
 
-// Sub-schema for each message exchange turn in a session
 const ChatTurnSchema = new Schema<IChatTurn>(
   {
     prompt: { type: String, required: true },
@@ -45,26 +41,20 @@ const ChatTurnSchema = new Schema<IChatTurn>(
   { timestamps: true }
 );
 
-// Main chat session schema
 const ChatHistorySchema = new Schema<IChatHistoryDoc>(
   {
-    // ── Owner ──────────────────────────────────────────────────────────────
-    // Every session belongs to exactly one registered user.
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "userId is required"],
       index: true,
     },
-
-    // First prompt used as the chat title
     prompt: {
       type: String,
       required: [true, "Prompt is required"],
       trim: true,
       index: true,
     },
-    // Top-level fields kept for backwards compatibility with legacy single-turn documents
     solution_1: {
       type: String,
       required: true,
@@ -79,7 +69,6 @@ const ChatHistorySchema = new Schema<IChatHistoryDoc>(
       type: JudgeSchema,
       required: true,
     },
-    // Array of all turns in this chat session
     entries: {
       type: [ChatTurnSchema],
       default: [],
@@ -90,7 +79,6 @@ const ChatHistorySchema = new Schema<IChatHistoryDoc>(
   }
 );
 
-// Fast per-user history listing (most-recent first)
 ChatHistorySchema.index({ userId: 1, updatedAt: -1 });
 ChatHistorySchema.index({ userId: 1, createdAt: -1 });
 
