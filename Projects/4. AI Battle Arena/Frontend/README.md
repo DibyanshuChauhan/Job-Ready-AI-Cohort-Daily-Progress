@@ -1,17 +1,18 @@
 <div align="center">
 
-# 🎨 DualMind AI Arena — Frontend Web Application
-### *High-Performance React 18 & Vite Interface with Feature-First Architecture & LaTeX Math Rendering*
+# 🎨 DualMind AI Arena - Frontend Web Application
+### *High-Performance React 19 & Vite 6 Interface with Tailwind CSS v4, Feature-First Architecture & LaTeX Math Engine*
 
 [![Author](https://img.shields.io/badge/Author-Dibyanshu_Chauhan-6366F1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/DibyanshuChauhan)
-[![React](https://img.shields.io/badge/React-18.x-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.x-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![CSS3](https://img.shields.io/badge/Vanilla_CSS-Tailored_Design-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![React Router](https://img.shields.io/badge/React_Router-v7.x-CA4245?style=for-the-badge&logo=react-router&logoColor=white)](https://reactrouter.com/)
 [![KaTeX](https://img.shields.io/badge/KaTeX-Math_Engine-319795?style=for-the-badge&logo=latex&logoColor=white)](https://katex.org/)
 [![Lucide](https://img.shields.io/badge/Lucide_React-Icons-F56565?style=for-the-badge&logo=feather&logoColor=white)](https://lucide.dev/)
 
 <p align="center">
-  The <b>DualMind Frontend</b> delivers a responsive, sleek, and intuitive SaaS experience for comparing dual AI model outputs side-by-side. Built with <b>React 18</b>, <b>Vite</b>, and a custom <b>Glassmorphism Dark Void</b> design system.
+  The <b>DualMind Frontend</b> delivers a responsive, sleek, and intuitive SaaS experience for comparing dual AI model outputs side-by-side. Built with <b>React 19</b>, <b>Vite 6</b>, <b>Tailwind CSS v4</b>, and a custom <b>Dark Void</b> design system with strict authentication route guards and multi-turn state management.
 </p>
 
 </div>
@@ -20,35 +21,49 @@
 
 ## 🏛️ Frontend Layered & Feature-First Architecture
 
-The frontend is structured into 4 decoupled modular layers:
+The application is engineered into 4 decoupled, reusable layers:
 
 ```mermaid
 graph TD
     subgraph Layer1 ["1. Atomic UI Primitives Layer"]
-        Markdown["MarkdownRenderer.jsx (GFM, Code & KaTeX)"]
-        CodeBlock["CodeBlock (Syntax Highlight & Copy)"]
+        Markdown["MarkdownRenderer.jsx (GFM, KaTeX & Math)"]
+        CodeBlock["CodeBlock (Syntax Highlighting & Copy)"]
     end
 
     subgraph Layer2 ["2. Shell Layout Layer"]
-        Header["Header.jsx (Status & Theme Switcher)"]
-        Sidebar["Sidebar.jsx (Navigation & MongoDB History)"]
-        Toast["Toast.jsx (Status Alerts)"]
+        Header["Header.jsx (Theme Switcher & User Profile)"]
+        Sidebar["Sidebar.jsx (Multi-Turn Chat History Drawer)"]
+        Toast["Toast.jsx (Status & Error Alerts)"]
     end
 
-    subgraph Layer3 ["3. Domain Feature Components Layer"]
-        EmptyState["EmptyState.jsx (Hero & Suggestions)"]
-        InputBar["InputBar.jsx (Floating Auto-Resize Input)"]
-        SolutionCard["SolutionCard.jsx (Dual Model Outputs)"]
-        JudgePanel["JudgePanel.jsx (Meters, Takeaways & Accordions)"]
-        UserPrompt["UserPromptCard.jsx (User Bubble)"]
+    subgraph Layer3 ["3. Domain Feature Modules"]
+        subgraph Auth_Module ["features/auth"]
+            LoginPage["LoginPage.jsx (Email & Google OAuth)"]
+            RegisterPage["RegisterPage.jsx (Validated Signup)"]
+            AuthCtx["AuthContext.jsx (Session Hydration)"]
+            UseAuthHook["useAuth.js (Auth Action Handlers)"]
+        end
+        subgraph Arena_Module ["features/arena"]
+            EmptyState["EmptyState.jsx (Hero & Suggestions)"]
+            InputBar["InputBar.jsx (Floating Auto-Resize Input)"]
+            SolutionCard["SolutionCard.jsx (Dual Model Cards)"]
+            JudgePanel["JudgePanel.jsx (Meters, Reasonings & Verdict)"]
+            UserPrompt["UserPromptCard.jsx (User Bubble)"]
+            UseArenaHook["useArena.js (Multi-Turn State & Persistence)"]
+        end
     end
 
-    subgraph Layer4 ["4. Application & Network Layer"]
-        Hook["useArena.js (State, History & LocalStorage)"]
-        API["arena.api.js (Axios HTTP Client /api/v1)"]
-        AppRoot["App.jsx (Root Composition Shell)"]
+    subgraph Layer4 ["4. Application Root & Network Gateway"]
+        AppRoot["App.jsx (Route Guards & Turn Composition)"]
+        RouterEntry["main.jsx (BrowserRouter & Providers)"]
+        AuthAPI["auth.api.js (Axios Auth Client)"]
+        ArenaAPI["arena.api.js (Axios Arena Client)"]
     end
 
+    RouterEntry --> AuthCtx
+    AuthCtx --> AppRoot
+    AppRoot --> LoginPage
+    AppRoot --> RegisterPage
     AppRoot --> Header
     AppRoot --> Sidebar
     AppRoot --> Toast
@@ -57,106 +72,110 @@ graph TD
     AppRoot --> SolutionCard
     AppRoot --> JudgePanel
     AppRoot --> UserPrompt
-    AppRoot --> Hook
-    Hook --> API
+    UseArenaHook --> ArenaAPI
+    UseAuthHook --> AuthAPI
     SolutionCard --> Markdown
     Markdown --> CodeBlock
 ```
 
 ---
 
-## 🌐 How Frontend Connects to the Internet & Backend
+## 🔐 Authentication & Protected Route Guards
 
-The frontend communicates with the backend through a dedicated, isolated Axios client ([arena.api.js](file:///c:/Users/DELL/Desktop/Job-Ready-AI-Cohort-Daily-Progress/Projects/4.%20AI%20Battle%20Arena/Frontend/src/features/arena/api/arena.api.js)):
+DualMind features a non-blocking session hydration engine that verifies the user's HTTP-Only cookie on boot:
 
-```javascript
-const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
-  withCredentials: true,
-  timeout: 60000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+```mermaid
+flowchart TD
+    AppLaunch["App Mounts (main.jsx)"] --> Hydrate["AuthContext: GET /api/v1/auth/me"]
+    Hydrate --> Check{Is Valid Session?}
+    Check -->|Yes| SetUser["Set user state & render ArenaView (/)"]
+    Check -->|No| RedirectLogin["Redirect to /login"]
+    
+    subgraph AuthPages ["Authentication Actions"]
+        LoginAction["User logs in or uses Google SSO"] --> SetCookie["Server issues HTTP-only Cookie"]
+        SetCookie --> SyncUser["Set user in AuthContext"]
+        SyncUser --> NavigateHome["Navigate to /"]
+        LogoutAction["User clicks Logout"] --> ClearCookie["Server clears cookie"]
+        ClearCookie --> ResetUser["Reset user state to null"]
+    end
 ```
 
-### Endpoints Consumed:
-1. `POST /arena/invoke`: Sends `{ input: prompt }`, receives `{ solution_1, solution_2, judge }`.
-2. `GET /arena/history`: Fetches past comparison documents saved in MongoDB.
-3. `GET /arena/history/:id`: Re-fetches a specific battle record.
-4. `DELETE /arena/history/:id`: Deletes a record from MongoDB.
-5. `GET /arena/health`: Healthcheck probe.
+### Route Table:
+| Route | Access Level | Component | Description |
+| :--- | :---: | :--- | :--- |
+| `/login` | Public / Guest | `LoginPage.jsx` | Email/password signin + Google OAuth redirect |
+| `/register` | Public / Guest | `RegisterPage.jsx` | New user account creation with validation |
+| `/` | **Protected** | `ArenaView` (`App.jsx`) | Main AI Battle Arena & Multi-Turn workspace |
+| `*` | Dynamic | `Navigate` | Fallback route redirecting based on auth status |
 
 ---
 
-## 💎 Design System & Aesthetic Tokens
+## 🌌 Dark Void SaaS Design System & CSS Tokens
 
-The frontend uses a custom **Dark Void SaaS Design System**:
+The user interface follows a modern **Dark Void** aesthetic palette with seamless light/dark mode toggling:
 
-| Token / Variable | Hex Value | Application |
-| :--- | :--- | :--- |
-| **`--color-base`** | `#08090D` | Deep void app background |
-| **`--color-card`** | `#12141D` | Elevated glass card background |
-| **`--color-sidebar`** | `#0C0D14` | Left navigation drawer background |
-| **`--color-primary`** | `#6366F1` | Vibrant Indigo accent (Model 1) |
-| **`--color-violet`** | `#7C3AED` | Deep Violet accent (Model 2) |
-| **`--color-emerald`** | `#10B981` | Emerald accent for Winner ribbons |
-| **`--color-amber`** | `#F59E0B` | Amber accent for AI Judge decisions |
-| **`Typography`** | *Plus Jakarta Sans*, *Inter*, *JetBrains Mono* | Modern typography for headings, body text, and code |
+| Token / CSS Variable | Dark Void Hex | Daylight Mode | UI Application |
+| :--- | :--- | :--- | :--- |
+| **`--color-base`** | `#08090D` | `#F8FAFC` | Main application background |
+| **`--color-card`** | `#12141D` | `#FFFFFF` | Elevated glass cards & containers |
+| **`--color-sidebar`** | `#0C0D14` | `#F1F5F9` | Left history drawer background |
+| **`--color-primary`** | `#6366F1` | `#4F46E5` | Vibrant Indigo accent (Mistral Medium) |
+| **`--color-violet`** | `#7C3AED` | `#6D28D9` | Deep Violet accent (Cohere Command) |
+| **`--color-emerald`** | `#10B981` | `#059669` | Emerald accent for Winner ribbon badges |
+| **`--color-amber`** | `#F59E0B` | `#D97706` | Amber accent for AI Judge decisions |
+| **`--font-display`** | *Plus Jakarta Sans* | *Plus Jakarta Sans* | Heading titles and brand typography |
+| **`--font-body`** | *Inter* | *Inter* | Body text and descriptions |
+| **`--font-mono`** | *JetBrains Mono* | *JetBrains Mono* | Code blocks and inline telemetry |
 
 ---
 
-## 🧩 Component Breakdown & Capabilities
+## 🧩 Feature Component Breakdown
 
-### 1. `InputBar.jsx`
-- **Floating Glass Bar**: Positioned at the bottom with border focus glows.
-- **Auto-Resizing Textarea**: Expands dynamically up to `160px` as the user types long queries.
+### 1. `SolutionCard.jsx` (Dual Model Outputs)
+- **Side-by-Side Comparison**: Renders Mistral Medium and Cohere Command outputs concurrently.
+- **Dynamic Winner Ribbons**: Highlights the winning solution with glowing emerald badges.
+- **Content Telemetry**: Displays word counts and estimated read time (`Math.ceil(words / 200)`).
+- **Interactive Collapsing**: Toggle full expansion or collapse for quick scanning.
+- **One-Click Clipboard Copy**: Copies markdown content with real-time feedback.
+- **Smooth Skeleton Shimmer**: Animated loading placeholders during AI inference.
+
+### 2. `JudgePanel.jsx` (Autonomous AI Verdict)
+- **Verdict Summary**: Summarizes the arbitrator's decision and score breakdown.
+- **Animated Progress Meters**: Smoothly transitions score progress bars on a 0–10 scale.
+- **Detailed Accordions**: Expandable sections detailing specific reasoning for both models.
+
+### 3. `InputBar.jsx` (Floating Dynamic Input)
+- **Auto-Resizing Textarea**: Dynamically expands up to `160px` as prompt length grows.
 - **Keyboard Shortcuts**:
-  - `Enter`: Submits prompt.
-  - `Shift + Enter`: Inserts new line.
+  - `Enter`: Submits prompt to the battle engine.
+  - `Shift + Enter`: Inserts a new line.
+- **Interactive Loading States**: Spinner animations and disabled states while generation is in flight.
 
-### 2. `SolutionCard.jsx`
-- **Dual Solution Cards**: Displays solutions from **Mistral Medium** and **Cohere Command** side-by-side.
-- **Metadata**: Word count calculation and estimated read time (`Math.ceil(words / 200)`).
-- **One-Click Copy**: Copies full markdown text to clipboard with instant feedback.
-- **Accordion Toggle**: Expands to full height or collapses for easy scanning.
-- **Skeleton Shimmering**: Smooth loading placeholders while waiting for AI generation.
+### 4. `Sidebar.jsx` (Scoped Multi-Turn History)
+- **MongoDB Synchronization**: Chronologically lists all past conversation sessions.
+- **AI Generated Titles**: Concise 3–6 word titles generated by Gemini for easy identification.
+- **Session Switching**: Click any thread to immediately restore all conversation turns.
+- **Thread Deletion**: Quick hover-to-delete action that cleans up both client state and database.
+- **User Profile & Logout**: Displays logged-in user email, avatar, and 1-click logout button.
 
-### 3. `JudgePanel.jsx`
-- **Autonomous Verdict**: Displays the winner badge and score summary.
-- **Animated Progress Meters**: Smoothly transitions score bars on a 0–10 scale.
-- **Key Takeaways**: Bullet points highlighting why the winning solution outperformed.
-- **Expandable Accordions**: In-depth explanations for both solutions.
-
-### 4. `Sidebar.jsx` (Interactive Chat History)
-- **MongoDB Sync**: Lists all past comparisons in chronological order with relative timestamps (`Just now`, `5m ago`, `2d ago`).
-- **Instant Restore**: Click any history item to reopen the prompt, dual solutions, and judge metrics into the main view.
-- **Quick Deletion**: Hover over any chat item to delete it from both the UI and database.
-- **"New Arena Chat"**: Resets to the hero view for a clean prompt.
-
-### 5. `MarkdownRenderer.jsx` (Math & Code Engine)
-- **LaTeX Math Support**: Converts LaTeX math delimiters (`\(...\)` $\rightarrow$ `$..$` and `\[...\]` $\rightarrow$ `$$..$$`) and renders beautiful mathematical equations via **KaTeX**.
-- **GFM Tables & Quotes**: Auto-formats markdown tables and stylized blockquotes.
+### 5. `MarkdownRenderer.jsx` (KaTeX & Code Engine)
+- **LaTeX Math Support**: Converts LaTeX syntax (`\(...\)` $\to$ `$...$` and `\[...\]` $\to$ `$$...$$`) and renders equations via **KaTeX**.
 - **Syntax Highlighting**: Preformatted code containers with language tags and copy buttons.
+- **GFM Formatting**: Stylized markdown tables, task lists, and blockquotes.
 
 ---
 
-## 💾 Client State & LocalStorage Persistence
+## 💾 Client State & Multi-Turn Synchronization
 
 ```mermaid
 graph LR
-    UserAction["User Interaction (Chat / Mode / History)"] --> Hook["useArena.js / App.jsx"]
-    Hook --> State["React Component State"]
-    Hook --> LocalStorage["Browser LocalStorage"]
-    LocalStorage -->|On Reload| Hook
-    Hook -->|Restore Session| State
+    UserAction["User Submits Prompt / Selects Session"] --> Hook["useArena.js"]
+    Hook --> State["React Entries & Active Session State"]
+    Hook --> API["arenaApi.invokeBattle(prompt, activeId)"]
+    API --> State
+    State --> MainView["Renders ChatTurns list in App.jsx"]
+    MainView --> AutoScroll["Smooth scroll into bottomRef"]
 ```
-
-| LocalStorage Key | Type | Description |
-| :--- | :--- | :--- |
-| **`dualmind_arena_entries`** | `JSON Array` | Persists current prompt, dual responses, and judge scores across page refreshes |
-| **`dualmind_arena_active_id`** | `String` | Persists the ID of the actively selected chat history item |
-| **`dualmind_theme`** | `'dark' \| 'light'` | Persists the user's Dark / Light daylight mode preference |
 
 ---
 
@@ -164,20 +183,27 @@ graph LR
 
 ### 1. Install Dependencies
 ```bash
+cd Frontend
 npm install
 ```
+
+---
 
 ### 2. Start Vite Development Server
 ```bash
 npm run dev
 ```
-*Application opens on `http://localhost:5173`.*
+> Application launches on `http://localhost:5173`
 
-### 3. Production Build
+---
+
+### 3. Build for Production
 ```bash
 npm run build
 ```
-*Compiles the optimized production bundle into `dist/`.*
+> Compiles the optimized production assets into `dist/`
+
+---
 
 ### 4. Preview Production Bundle
 ```bash
@@ -191,6 +217,9 @@ npm run preview
 <div align="center">
 
 ### **Divyanshu Chauhan**
+*Full Stack AI Engineer & Software Developer*
+
 [![GitHub](https://img.shields.io/badge/GitHub-DibyanshuChauhan-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/DibyanshuChauhan)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dibyanshuchauhan/)
 
 </div>
