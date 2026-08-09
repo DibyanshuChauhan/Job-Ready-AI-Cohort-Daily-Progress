@@ -7,7 +7,7 @@ import type { IUser } from "../types/auth.types.js";
 
 function setAuthCookie(res: Response, token: string) {
   const isProduction =
-    process.env.NODE_ENV === "production" &&
+    process.env.NODE_ENV === "production" ||
     !config.FRONTEND_URL.includes("localhost");
 
   res.cookie("token", token, {
@@ -81,7 +81,7 @@ export class AuthController {
 
   static logout(_req: Request, res: Response): void {
     const isProduction =
-      process.env.NODE_ENV === "production" &&
+      process.env.NODE_ENV === "production" ||
       !config.FRONTEND_URL.includes("localhost");
 
     res.clearCookie("token", {

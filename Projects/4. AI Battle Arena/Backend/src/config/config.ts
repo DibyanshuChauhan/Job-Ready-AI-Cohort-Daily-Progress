@@ -21,9 +21,11 @@ const config = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || "",
   GOOGLE_CALLBACK_URL:
     process.env.GOOGLE_CALLBACK_URL ||
-    "http://localhost:3000/auth/google/callback",
+    "https://job-ready-ai-cohort-daily-progress-2.onrender.com/auth/google/callback",
 
-  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+  FRONTEND_URL:
+    process.env.FRONTEND_URL ||
+    "https://job-ready-ai-cohort-daily-progress.vercel.app",
 };
 
 export default config;
