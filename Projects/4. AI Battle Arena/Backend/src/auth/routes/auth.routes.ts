@@ -2,9 +2,8 @@ import { Router } from "express";
 import passport from "passport";
 import { AuthController } from "../controllers/auth.controller.js";
 import {
-  registerValidator,
-  loginValidator,
-  handleValidationErrors,
+  validateRegister,
+  validateLogin,
 } from "../validators/auth.validator.js";
 
 // ── Import strategy so it registers itself with passport ──
@@ -16,16 +15,14 @@ const router = Router();
 // POST /api/v1/auth/register
 router.post(
   "/register",
-  registerValidator,          // express-validator chain
-  handleValidationErrors,     // collect & throw validation errors
+  validateRegister,
   AuthController.register
 );
 
 // POST /api/v1/auth/login
 router.post(
   "/login",
-  loginValidator,
-  handleValidationErrors,
+  validateLogin,
   AuthController.login
 );
 

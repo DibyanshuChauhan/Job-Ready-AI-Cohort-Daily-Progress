@@ -3,9 +3,15 @@ export { AuthController } from "./controllers/auth.controller.js";
 export { AuthService } from "./services/auth.service.js";
 export { UserModel } from "./models/user.model.js";
 export {
-  registerValidator,
-  loginValidator,
-  handleValidationErrors,
+  RegisterSchema,
+  LoginSchema,
+  validateRegister,
+  validateLogin,
+  validateBody,
+} from "./validators/auth.validator.js";
+export type {
+  RegisterInput,
+  LoginInput,
 } from "./validators/auth.validator.js";
 export type {
   IUser,
