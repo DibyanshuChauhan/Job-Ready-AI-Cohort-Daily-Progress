@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Sidebar from '../components/layout/Sidebar';
@@ -9,6 +10,9 @@ import UserPromptCard from '../features/arena/components/UserPromptCard';
 import SolutionCard from '../features/arena/components/SolutionCard';
 import JudgePanel from '../features/arena/components/JudgePanel';
 import { useArena } from '../features/arena/hooks/useArena';
+import LoginPage from '../features/auth/components/LoginPage.jsx';
+import RegisterPage from '../features/auth/components/RegisterPage.jsx';
+import { useAuthContext } from '../features/auth/context/AuthContext.jsx';
 
 // Renders one turn exchange (User Prompt -> Mistral & Cohere solutions -> Gemini Judge evaluation)
 function ChatTurn({ entry }) {
@@ -62,8 +66,8 @@ function ChatTurn({ entry }) {
   );
 }
 
-export default function App() {
-  // Theme state (persisted in local storage, defaults to dark mode)
+// ── Protected Arena view — only shown to authenticated users ──────────────
+function ArenaView() {
   const [isDark, setIsDark] = useState(() => {
     try {
       const savedTheme = localStorage.getItem('dualmind_theme');
@@ -77,7 +81,6 @@ export default function App() {
   const [inputDefault, setInputDefault] = useState('');
   const bottomRef = useRef(null);
 
-  // Hook managing main arena chat state and MongoDB syncing
   const {
     entries,
     history,
@@ -99,7 +102,6 @@ export default function App() {
     } catch (err) {
       console.warn('Failed to persist theme to localStorage:', err);
     }
-
     if (isDark) {
       document.documentElement.classList.remove('light');
     } else {
@@ -117,14 +119,12 @@ export default function App() {
     }
   }, [entries, isLoading]);
 
-  // Submit starter prompt suggestion when clicked
   const handleSuggestion = (text) => {
     setInputDefault(text);
     setTimeout(() => setInputDefault(''), 50);
     submitPrompt(text);
   };
 
-  // Start fresh chat session
   const handleNewChat = () => {
     clearChat();
     setInputDefault('');
@@ -132,7 +132,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-base relative">
-      {/* Sidebar navigation drawer */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -144,7 +143,6 @@ export default function App() {
         isLoadingHistory={isLoadingHistory}
       />
 
-      {/* Backdrop overlay for mobile drawer */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 lg:hidden"
@@ -153,7 +151,6 @@ export default function App() {
         />
       )}
 
-      {/* Main app layout */}
       <div className="lg:ml-[260px] flex flex-col min-h-screen">
         <Header
           isDark={isDark}
@@ -187,8 +184,46 @@ export default function App() {
         />
       </div>
 
-      {/* Error toast notification */}
       {toast && <Toast message={toast} onDone={dismissToast} />}
     </div>
+  );
+}
+
+// ── Full-screen spinner shown while /me is hydrating ─────────────────────
+function HydrationSpinner() {
+  return (
+    <div
+      className="min-h-screen bg-base flex items-center justify-center"
+      aria-label="Loading"
+    >
+      <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+    </div>
+  );
+}
+
+// ── Root App — handles routing + auth gating ──────────────────────────────
+export default function App() {
+  const { isAuthenticated, isHydrating } = useAuthContext();
+
+  // Wait for /me check to finish before rendering any route
+  if (isHydrating) return <HydrationSpinner />;
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/"
+        element={isAuthenticated ? <ArenaView /> : <Navigate to="/login" replace />}
+      />
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
+    </Routes>
   );
 }
