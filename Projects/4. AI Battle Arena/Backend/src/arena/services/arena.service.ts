@@ -3,6 +3,7 @@ import type { ArenaGraphResult, ChatHistoryItem, ChatTurnItem } from "../types/a
 import { AppError } from "../../common/errors/app-error.js";
 import { ChatHistoryModel, type IChatTurn } from "../models/chat-history.model.js";
 import { LLMProvider } from "../../infrastructure/ai/llm.provider.js";
+import mongoose from "mongoose";
 
 export class ArenaService {
   // Use Gemini to generate a short, clean 3-5 word title for a new chat session
@@ -12,7 +13,7 @@ export class ArenaService {
       const response = await gemini.invoke(
         `Generate a concise, friendly chat title (3 to 6 words max, no quotes, no prefix like 'Title:') for this prompt:\n"${promptText}"`
       );
-      const title = response.text ? response.text.trim().replace(/^["']|["']$/g, "") : "";
+      const title = response.text ? response.text.trim().replace(/^[\"']|[\"']$/g, "") : "";
       return title || (promptText.length > 40 ? promptText.slice(0, 40) + "..." : promptText);
     } catch (err) {
       console.warn("⚠️ [Gemini] Failed to generate chat title, falling back to prompt text:", err);
@@ -20,22 +21,38 @@ export class ArenaService {
     }
   }
 
-  // Main method to run the battle graph and persist/update the chat session in MongoDB
+  // Main method to run the battle graph and persist/update the chat session in MongoDB.
+  // Every session is scoped to the authenticated userId — users can never access
+  // each other's sessions.
   public static async executeBattle(
     prompt: string,
-    sessionId?: string | null
+    sessionId?: string | null,
+    userId?: string
   ): Promise<ArenaGraphResult & { sessionId: string; entries: ChatTurnItem[] }> {
     const trimmed = prompt.trim();
     if (!trimmed) {
       throw new AppError("Prompt cannot be empty", 400);
     }
 
+    // userId is required for all new sessions
+    if (!userId) {
+      throw new AppError("Not authenticated", 401);
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
     try {
-      // Find existing chat session if sessionId was passed
+      // Find existing chat session — only if it belongs to this user
       let historyDoc: any = null;
       if (sessionId) {
         try {
-          historyDoc = await (ChatHistoryModel as any).findById(sessionId);
+          historyDoc = await (ChatHistoryModel as any).findOne({
+            _id: sessionId,
+            userId: userObjectId,
+          });
+          if (!historyDoc) {
+            console.warn("⚠️ [ArenaService] Session not found or doesn't belong to user:", sessionId);
+          }
         } catch (err) {
           console.warn("⚠️ [ArenaService] Could not find session by ID:", sessionId);
         }
@@ -82,7 +99,7 @@ export class ArenaService {
         judge: result.judge,
       };
 
-      // Save new turn to MongoDB
+      // Save new turn to MongoDB (always tagged with userId)
       try {
         if (historyDoc) {
           // Append turn to existing session
@@ -99,8 +116,9 @@ export class ArenaService {
           // Generate an AI title using Gemini for the new chat session
           const chatTitle = await ArenaService.generateChatTitle(trimmed);
 
-          // Create a brand new session document
+          // Create a brand new session document — scoped to this user
           historyDoc = await ChatHistoryModel.create({
+            userId: userObjectId,
             prompt: chatTitle,
             solution_1: result.solution_1,
             solution_2: result.solution_2,
@@ -122,15 +140,17 @@ export class ArenaService {
       };
     } catch (error) {
       console.error("[ArenaService Error]:", error);
+      if (error instanceof AppError) throw error;
       throw new AppError("Failed to execute model battle graph", 502);
     }
   }
 
-  // Fetch recent chat sessions sorted by latest activity
-  public static async getHistory(limit = 50): Promise<ChatHistoryItem[]> {
+  // Fetch recent chat sessions for a specific user, sorted by latest activity
+  public static async getHistory(userId: string, limit = 50): Promise<ChatHistoryItem[]> {
     try {
+      const userObjectId = new mongoose.Types.ObjectId(userId);
       const docs = await (ChatHistoryModel as any)
-        .find({})
+        .find({ userId: userObjectId })
         .sort({ updatedAt: -1, createdAt: -1 })
         .limit(limit)
         .lean()
@@ -164,10 +184,14 @@ export class ArenaService {
     }
   }
 
-  // Fetch single chat session by ID
-  public static async getHistoryById(id: string): Promise<ChatHistoryItem | null> {
+  // Fetch single chat session by ID — only if it belongs to this user
+  public static async getHistoryById(id: string, userId: string): Promise<ChatHistoryItem | null> {
     try {
-      const doc = await (ChatHistoryModel as any).findById(id).lean().exec();
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const doc = await (ChatHistoryModel as any)
+        .findOne({ _id: id, userId: userObjectId })
+        .lean()
+        .exec();
       if (!doc) {
         throw new AppError("Chat history item not found", 404);
       }
@@ -195,21 +219,29 @@ export class ArenaService {
     }
   }
 
-  // Delete a session by ID
-  public static async deleteHistory(id: string): Promise<boolean> {
+  // Delete a session by ID — only if it belongs to this user
+  public static async deleteHistory(id: string, userId: string): Promise<boolean> {
     try {
-      const deleted = await (ChatHistoryModel as any).findByIdAndDelete(id).exec();
-      return !!deleted;
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const deleted = await (ChatHistoryModel as any)
+        .findOneAndDelete({ _id: id, userId: userObjectId })
+        .exec();
+      if (!deleted) {
+        throw new AppError("History item not found or access denied", 404);
+      }
+      return true;
     } catch (err) {
+      if (err instanceof AppError) throw err;
       console.error("[ArenaService.deleteHistory Error]:", err);
       throw new AppError("Failed to delete chat history item", 400);
     }
   }
 
-  // Clear all saved history
-  public static async clearAllHistory(): Promise<boolean> {
+  // Clear only THIS user's history — never touches other users' data
+  public static async clearAllHistory(userId: string): Promise<boolean> {
     try {
-      await (ChatHistoryModel as any).deleteMany({}).exec();
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      await (ChatHistoryModel as any).deleteMany({ userId: userObjectId }).exec();
       return true;
     } catch (err) {
       console.error("[ArenaService.clearAllHistory Error]:", err);

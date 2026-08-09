@@ -1,4 +1,5 @@
-import { SquarePlus, Zap, X, MessageSquare, Trash2, Clock } from 'lucide-react';
+import { SquarePlus, Zap, X, MessageSquare, Trash2, Clock, LogOut } from 'lucide-react';
+import { useAuthContext } from '../../features/auth/context/AuthContext.jsx';
 
 // Format raw ISO timestamps to relative time strings (e.g. "5m ago", "2h ago")
 function formatTimestamp(dateStr) {
@@ -17,6 +18,20 @@ function formatTimestamp(dateStr) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
+function getInitials(name, email) {
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+  if (email) {
+    return email.slice(0, 2).toUpperCase();
+  }
+  return 'U';
+}
+
 export default function Sidebar({
   isOpen,
   onClose,
@@ -27,6 +42,10 @@ export default function Sidebar({
   onDeleteHistory,
   isLoadingHistory = false,
 }) {
+  const { user, logout } = useAuthContext();
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+  const initials = getInitials(user?.displayName, user?.email);
+
   return (
     <aside
       aria-label="Sidebar navigation"
@@ -176,21 +195,44 @@ export default function Sidebar({
 
       <div className="h-px bg-line mx-4 my-2" />
 
-      {/* User profile avatar */}
-      <div className="flex items-center gap-3 mx-3 my-2.5 p-2 rounded-xl">
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
+      {/* User profile bar & Logout */}
+      <div className="flex items-center justify-between gap-2.5 mx-3 my-2.5 p-2 rounded-xl bg-card/40 border border-line/40">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={displayName}
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-indigo-500/30"
+            />
+          ) : (
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0 shadow-sm"
+              style={{ background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}
+            >
+              {initials}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-[12.5px] font-semibold text-foreground leading-tight truncate font-display">
+              {displayName}
+            </p>
+            <p className="text-[10px] text-subtle truncate">
+              {user?.email || 'Logged in'}
+            </p>
+          </div>
+        </div>
+
+        {/* Logout button */}
+        <button
+          onClick={logout}
+          className="p-1.5 rounded-lg text-subtle hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all duration-150 flex-shrink-0"
+          title="Log out"
+          aria-label="Log out of account"
         >
-          DC
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] font-semibold text-foreground leading-tight truncate font-display">
-            Divyanshu Chauhan
-          </p>
-          <span className="badge badge-violet mt-0.5 text-[9.5px]">MongoDB Synced</span>
-        </div>
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </aside>
   );
 }
+

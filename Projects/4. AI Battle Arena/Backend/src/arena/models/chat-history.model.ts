@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import type { JudgeEvaluation } from "../types/arena.types.js";
 
 // Individual turn inside a multi-turn chat
@@ -13,6 +13,7 @@ export interface IChatTurn {
 
 // Full ChatHistory document in MongoDB
 export interface IChatHistoryDoc extends Document {
+  userId: Types.ObjectId;           // ← owner of this session
   prompt: string;
   solution_1: string;
   solution_2: string;
@@ -47,6 +48,15 @@ const ChatTurnSchema = new Schema<IChatTurn>(
 // Main chat session schema
 const ChatHistorySchema = new Schema<IChatHistoryDoc>(
   {
+    // ── Owner ──────────────────────────────────────────────────────────────
+    // Every session belongs to exactly one registered user.
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "userId is required"],
+      index: true,
+    },
+
     // First prompt used as the chat title
     prompt: {
       type: String,
@@ -80,9 +90,9 @@ const ChatHistorySchema = new Schema<IChatHistoryDoc>(
   }
 );
 
-// Indexing timestamps for fast sorting in history lists
-ChatHistorySchema.index({ updatedAt: -1 });
-ChatHistorySchema.index({ createdAt: -1 });
+// Fast per-user history listing (most-recent first)
+ChatHistorySchema.index({ userId: 1, updatedAt: -1 });
+ChatHistorySchema.index({ userId: 1, createdAt: -1 });
 
 export const ChatHistoryModel =
   mongoose.models.ChatHistory ||
