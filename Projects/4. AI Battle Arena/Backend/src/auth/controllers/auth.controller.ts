@@ -6,10 +6,14 @@ import config from "../../config/config.js";
 import type { IUser } from "../types/auth.types.js";
 
 function setAuthCookie(res: Response, token: string) {
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    !config.FRONTEND_URL.includes("localhost");
+
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
@@ -49,7 +53,8 @@ export class AuthController {
       const token = AuthService.generateToken(user);
       setAuthCookie(res, token);
 
-      res.redirect(`${config.FRONTEND_URL}?auth=success`);
+      const frontendBase = config.FRONTEND_URL.replace(/\/$/, "");
+      res.redirect(`${frontendBase}?auth=success`);
     } catch (err) {
       next(err);
     }
@@ -75,7 +80,15 @@ export class AuthController {
   }
 
   static logout(_req: Request, res: Response): void {
-    res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+    const isProduction =
+      process.env.NODE_ENV === "production" ||
+      !config.FRONTEND_URL.includes("localhost");
+
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
     ApiResponse.success(res, null, "Logged out successfully", 200);
   }
 }

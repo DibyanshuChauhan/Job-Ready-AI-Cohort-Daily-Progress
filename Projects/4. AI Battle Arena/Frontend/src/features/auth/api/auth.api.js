@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://job-ready-ai-cohort-daily-progress-2.onrender.com/api/v1';
+
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  'https://job-ready-ai-cohort-daily-progress-2.onrender.com';
+
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
+  baseURL: API_BASE_URL,
   withCredentials: true,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
@@ -33,6 +41,6 @@ export const authApi = {
   },
 
   redirectToGoogle() {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = `${BACKEND_URL}/auth/google`;
   },
 };

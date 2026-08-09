@@ -20,6 +20,11 @@
   <b>DualMind AI Battle Arena</b> is a modern, multi-tenant AI benchmarking and evaluation platform. It dispatches complex user prompts concurrently across competing foundational models (<b>Mistral Medium</b> vs. <b>Cohere Command</b>) in parallel, maintains <b>stateful multi-turn conversation threads</b>, enforces <b>strict user account isolation</b> with Google OAuth 2.0 & JWT, and leverages an autonomous <b>Google Gemini Flash</b> judge to rigorously score, evaluate, and arbitrate the superior solution with structured metrics, deep reasoning, and LaTeX mathematical rendering.
 </p>
 
+<p align="center">
+  🌐 <b>Live Frontend (Vercel):</b> <a href="https://job-ready-ai-cohort-daily-progress.vercel.app/login" target="_blank">job-ready-ai-cohort-daily-progress.vercel.app</a><br/>
+  🚀 <b>Live Backend API (Render):</b> <a href="https://job-ready-ai-cohort-daily-progress-2.onrender.com" target="_blank">job-ready-ai-cohort-daily-progress-2.onrender.com</a>
+</p>
+
 [Key Capabilities](#-key-capabilities) • [System Architecture](#-system-architecture) • [End-to-End Workflow](#-end-to-end-data-flow) • [Authentication & Security](#-authentication--tenant-isolation) • [Quickstart Guide](#-quickstart--installation) • [API v1 Reference](#-api-v1-specification) • [Author](#-author)
 
 ---

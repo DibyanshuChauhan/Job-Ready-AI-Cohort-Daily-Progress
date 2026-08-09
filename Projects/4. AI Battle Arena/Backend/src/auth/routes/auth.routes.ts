@@ -5,6 +5,7 @@ import {
   validateRegister,
   validateLogin,
 } from "../validators/auth.validator.js";
+import config from "../../config/config.js";
 
 import "../strategies/google.strategy.js";
 
@@ -26,7 +27,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login?error=google`,
+    failureRedirect: `${config.FRONTEND_URL.replace(/\/$/, "")}/login?error=google`,
   }),
   AuthController.googleCallback
 );

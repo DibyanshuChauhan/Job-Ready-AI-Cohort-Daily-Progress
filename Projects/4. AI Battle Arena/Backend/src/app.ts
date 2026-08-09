@@ -11,9 +11,35 @@ import config from "./config/config.js";
 
 const app = express();
 
+// Trust reverse proxy (Render / Heroku / Vercel HTTPS termination)
+app.set("trust proxy", 1);
+
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  !config.FRONTEND_URL.includes("localhost");
+
+const allowedOrigins = [
+  config.FRONTEND_URL,
+  "https://job-ready-ai-cohort-daily-progress.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [config.FRONTEND_URL, "http://localhost:5173"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, true);
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
@@ -29,7 +55,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
@@ -37,6 +64,19 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Root health check endpoint for Render / monitoring
+app.get("/", (_req, res) => {
+  res.json({
+    status: "ok",
+    message: "DualMind AI Arena Backend is operational",
+    frontendUrl: config.FRONTEND_URL,
+  });
+});
+
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 // Auth routes
 app.use("/api/v1/auth", authRouter);
