@@ -3,10 +3,10 @@ import { ArenaService } from "../services/arena.service.js";
 import { ArenaInvokeSchema } from "../schemas/arena.schema.js";
 import { ApiResponse } from "../../common/utils/api-response.js";
 import { AppError } from "../../common/errors/app-error.js";
-import type { JwtPayload } from "../../auth/types/auth.types.js";
+import type { AuthenticatedRequest } from "../../common/types/request.types.js";
 
-function getUserId(req: Request): string {
-  const user = (req as any).jwtUser as JwtPayload | undefined;
+function getUserId(req: AuthenticatedRequest): string {
+  const user = req.jwtUser;
   if (!user?.userId) {
     throw new AppError("Not authenticated", 401);
   }
@@ -14,7 +14,7 @@ function getUserId(req: Request): string {
 }
 
 export class ArenaController {
-  public static async invoke(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public static async invoke(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const parseResult = ArenaInvokeSchema.safeParse(req.body);
       if (!parseResult.success) {
@@ -32,7 +32,7 @@ export class ArenaController {
     }
   }
 
-  public static async getHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public static async getHistory(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = getUserId(req);
       const history = await ArenaService.getHistory(userId);
@@ -42,7 +42,7 @@ export class ArenaController {
     }
   }
 
-  public static async getHistoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public static async getHistoryById(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const rawId = req.params.id;
       const id = Array.isArray(rawId) ? rawId[0] : rawId;
@@ -57,7 +57,7 @@ export class ArenaController {
     }
   }
 
-  public static async deleteHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public static async deleteHistory(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const rawId = req.params.id;
       const id = Array.isArray(rawId) ? rawId[0] : rawId;
@@ -72,7 +72,7 @@ export class ArenaController {
     }
   }
 
-  public static async clearAllHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public static async clearAllHistory(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = getUserId(req);
       await ArenaService.clearAllHistory(userId);

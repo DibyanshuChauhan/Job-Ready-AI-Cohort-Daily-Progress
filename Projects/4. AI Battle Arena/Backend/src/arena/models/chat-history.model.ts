@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document, Types, type Model } from "mongoose";
 import type { JudgeEvaluation } from "../types/arena.types.js";
 
 export interface IChatTurn {
@@ -82,6 +82,6 @@ const ChatHistorySchema = new Schema<IChatHistoryDoc>(
 ChatHistorySchema.index({ userId: 1, updatedAt: -1 });
 ChatHistorySchema.index({ userId: 1, createdAt: -1 });
 
-export const ChatHistoryModel =
-  mongoose.models.ChatHistory ||
+export const ChatHistoryModel: Model<IChatHistoryDoc> =
+  (mongoose.models["ChatHistory"] as Model<IChatHistoryDoc> | undefined) ??
   mongoose.model<IChatHistoryDoc>("ChatHistory", ChatHistorySchema);

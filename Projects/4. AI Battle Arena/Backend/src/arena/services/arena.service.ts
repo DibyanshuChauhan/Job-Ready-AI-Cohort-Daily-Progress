@@ -1,12 +1,12 @@
+import mongoose from "mongoose";
 import { ArenaGraphEngine } from "../../infrastructure/ai/arena.graph.js";
 import type { ArenaGraphResult, ChatHistoryItem, ChatTurnItem } from "../types/arena.types.js";
 import { AppError } from "../../common/errors/app-error.js";
-import { ChatHistoryModel, type IChatTurn } from "../models/chat-history.model.js";
+import { ArenaRepository } from "../repositories/arena.repository.js";
 import { LLMProvider } from "../../infrastructure/ai/llm.provider.js";
-import mongoose from "mongoose";
+import type { IChatTurn } from "../models/chat-history.model.js";
 
 export class ArenaService {
-  // Generate short title for chat session
   public static async generateChatTitle(promptText: string): Promise<string> {
     try {
       const gemini = LLMProvider.getGemini();
@@ -34,16 +34,11 @@ export class ArenaService {
       throw new AppError("Not authenticated", 401);
     }
 
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-
     try {
       let historyDoc: any = null;
       if (sessionId) {
         try {
-          historyDoc = await (ChatHistoryModel as any).findOne({
-            _id: sessionId,
-            userId: userObjectId,
-          });
+          historyDoc = await ArenaRepository.findByIdAndUser(sessionId, userId);
         } catch (err) {
           // invalid or missing session ID
         }
@@ -96,12 +91,12 @@ export class ArenaService {
           historyDoc.solution_2 = result.solution_2;
           historyDoc.judge = result.judge;
           historyDoc.markModified("entries");
-          await historyDoc.save();
+          await ArenaRepository.save(historyDoc);
         } else {
           const chatTitle = await ArenaService.generateChatTitle(trimmed);
 
-          historyDoc = await ChatHistoryModel.create({
-            userId: userObjectId,
+          historyDoc = await ArenaRepository.create({
+            userId: new mongoose.Types.ObjectId(userId),
             prompt: chatTitle,
             solution_1: result.solution_1,
             solution_2: result.solution_2,
@@ -130,13 +125,7 @@ export class ArenaService {
 
   public static async getHistory(userId: string, limit = 50): Promise<ChatHistoryItem[]> {
     try {
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      const docs = await (ChatHistoryModel as any)
-        .find({ userId: userObjectId })
-        .sort({ updatedAt: -1, createdAt: -1 })
-        .limit(limit)
-        .lean()
-        .exec();
+      const docs = await ArenaRepository.findByUser(userId, limit);
 
       return (docs || []).map((doc: any) => {
         const entries =
@@ -154,7 +143,7 @@ export class ArenaService {
               ];
 
         return {
-          ...doc,
+          ...doc.toObject(),
           _id: doc._id.toString(),
           entries,
         };
@@ -167,11 +156,7 @@ export class ArenaService {
 
   public static async getHistoryById(id: string, userId: string): Promise<ChatHistoryItem | null> {
     try {
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      const doc = await (ChatHistoryModel as any)
-        .findOne({ _id: id, userId: userObjectId })
-        .lean()
-        .exec();
+      const doc = await ArenaRepository.findByIdAndUser(id, userId);
       if (!doc) {
         throw new AppError("Chat history item not found", 404);
       }
@@ -189,7 +174,7 @@ export class ArenaService {
               },
             ];
       return {
-        ...doc,
+        ...doc.toObject(),
         _id: doc._id.toString(),
         entries,
       } as ChatHistoryItem;
@@ -201,10 +186,7 @@ export class ArenaService {
 
   public static async deleteHistory(id: string, userId: string): Promise<boolean> {
     try {
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      const deleted = await (ChatHistoryModel as any)
-        .findOneAndDelete({ _id: id, userId: userObjectId })
-        .exec();
+      const deleted = await ArenaRepository.deleteByIdAndUser(id, userId);
       if (!deleted) {
         throw new AppError("History item not found or access denied", 404);
       }
@@ -218,8 +200,7 @@ export class ArenaService {
 
   public static async clearAllHistory(userId: string): Promise<boolean> {
     try {
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      await (ChatHistoryModel as any).deleteMany({ userId: userObjectId }).exec();
+      await ArenaRepository.deleteAllByUser(userId);
       return true;
     } catch (err) {
       console.error("[ArenaService.clearAllHistory Error]:", err);

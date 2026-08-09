@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { UserModel } from "../models/user.model.js";
+import { UserRepository } from "../repositories/user.repository.js";
 import { AppError } from "../../common/errors/app-error.js";
 import config from "../../config/config.js";
 import type { IUser, JwtPayload, AuthResponsePayload } from "../types/auth.types.js";
@@ -13,14 +13,14 @@ export class AuthService {
     password: string,
     displayName: string
   ): Promise<{ token: string; payload: AuthResponsePayload }> {
-    const existing = await UserModel.findOne({ email });
+    const existing = await UserRepository.findByEmail(email);
     if (existing) {
       throw new AppError("An account with this email already exists", 409);
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const user = await UserModel.create({
+    const user = await UserRepository.create({
       email,
       passwordHash,
       displayName,
@@ -35,7 +35,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<{ token: string; payload: AuthResponsePayload }> {
-    const user = await UserModel.findOne({ email });
+    const user = await UserRepository.findByEmail(email);
 
     if (!user || !user.passwordHash) {
       throw new AppError("Invalid email or password", 401);
@@ -50,33 +50,32 @@ export class AuthService {
     return { token, payload: AuthService.buildResponsePayload(user) };
   }
 
-  // Look up user by Google ID or existing email, otherwise create new record
   static async findOrCreateGoogleUser(profile: {
     googleId: string;
     email: string;
     displayName: string;
     avatar?: string;
   }): Promise<IUser> {
-    let user = await UserModel.findOne({ googleId: profile.googleId });
+    let user = await UserRepository.findByGoogleId(profile.googleId);
 
     if (user) {
       user.displayName = profile.displayName;
       if (profile.avatar !== undefined) user.avatar = profile.avatar;
-      await user.save();
+      await UserRepository.save(user);
       return user;
     }
 
-    user = await UserModel.findOne({ email: profile.email });
+    user = await UserRepository.findByEmail(profile.email);
 
     if (user) {
       user.googleId = profile.googleId;
       user.provider = "google";
       if (profile.avatar !== undefined) user.avatar = profile.avatar;
-      await user.save();
+      await UserRepository.save(user);
       return user;
     }
 
-    user = await UserModel.create({
+    user = await UserRepository.create({
       email: profile.email,
       displayName: profile.displayName,
       ...(profile.avatar ? { avatar: profile.avatar } : {}),

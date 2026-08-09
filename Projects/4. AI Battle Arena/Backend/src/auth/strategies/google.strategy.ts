@@ -5,6 +5,7 @@ import {
   type VerifyCallback,
 } from "passport-google-oauth20";
 import { AuthService } from "../services/auth.service.js";
+import { UserRepository } from "../repositories/user.repository.js";
 import config from "../../config/config.js";
 
 passport.use(
@@ -50,9 +51,8 @@ passport.serializeUser((user: Express.User, done) => {
 
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const { UserModel } = await import("../models/user.model.js");
-    const user = await (UserModel as any).findById(id);
-    done(null, user);
+    const user = await UserRepository.findById(id);
+    done(null, user || undefined);
   } catch (err) {
     done(err as Error, undefined);
   }

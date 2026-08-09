@@ -1,9 +1,10 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { AuthService } from "../../auth/services/auth.service.js";
 import { AppError } from "../errors/app-error.js";
+import type { AuthenticatedRequest } from "../types/request.types.js";
 
 // Middleware to verify session token and set user on request
-export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
+export function requireAuth(req: AuthenticatedRequest, _res: Response, next: NextFunction): void {
   try {
     const token = (req.cookies as Record<string, string | undefined>)?.token;
 
@@ -12,7 +13,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
     }
 
     const decoded = AuthService.verifyToken(token);
-    (req as any).jwtUser = decoded;
+    req.jwtUser = decoded;
     next();
   } catch (err) {
     next(err);
