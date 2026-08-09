@@ -1,63 +1,33 @@
 import { useState, useCallback, useEffect } from 'react';
 import { arenaApi } from '../api/arena.api.js';
 
-// Keys for caching current session in local storage
+// Keys for legacy cleanup if present in browser
 const STORAGE_KEY_ENTRIES = 'dualmind_arena_entries';
 const STORAGE_KEY_ACTIVE_ID = 'dualmind_arena_active_id';
 
 export function useArena() {
-  // Restore current chat turns from local storage on reload
-  const [entries, setEntries] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_ENTRIES);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Chat turns kept in-memory for the current active session
+  const [entries, setEntries] = useState([]);
 
-  // History list displayed in sidebar
+  // History list displayed in sidebar fetched directly from MongoDB
   const [history, setHistory] = useState([]);
 
-  // Restore active chat session ID from local storage
-  const [activeHistoryId, setActiveHistoryId] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY_ACTIVE_ID) || null;
-    } catch {
-      return null;
-    }
-  });
+  // Active chat session ID
+  const [activeHistoryId, setActiveHistoryId] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // Keep chat feed saved in local storage (stripping out temporary loading flags)
+  // Clean up any legacy localStorage chat cache on mount
   useEffect(() => {
     try {
-      if (entries && entries.length > 0) {
-        const cleaned = entries.map((e) => ({ ...e, isLoading: false }));
-        localStorage.setItem(STORAGE_KEY_ENTRIES, JSON.stringify(cleaned));
-      } else {
-        localStorage.removeItem(STORAGE_KEY_ENTRIES);
-      }
-    } catch (err) {
-      console.warn('localStorage error on saving entries:', err);
+      localStorage.removeItem(STORAGE_KEY_ENTRIES);
+      localStorage.removeItem(STORAGE_KEY_ACTIVE_ID);
+    } catch {
+      // ignore
     }
-  }, [entries]);
-
-  // Keep active session ID saved in local storage
-  useEffect(() => {
-    try {
-      if (activeHistoryId) {
-        localStorage.setItem(STORAGE_KEY_ACTIVE_ID, activeHistoryId);
-      } else {
-        localStorage.removeItem(STORAGE_KEY_ACTIVE_ID);
-      }
-    } catch (err) {
-      console.warn('localStorage error on saving activeHistoryId:', err);
-    }
-  }, [activeHistoryId]);
+  }, []);
 
   // Fetch past sessions from MongoDB
   const fetchHistory = useCallback(async () => {
@@ -198,10 +168,6 @@ export function useArena() {
   const clearChat = useCallback(() => {
     setEntries([]);
     setActiveHistoryId(null);
-    try {
-      localStorage.removeItem(STORAGE_KEY_ENTRIES);
-      localStorage.removeItem(STORAGE_KEY_ACTIVE_ID);
-    } catch {}
   }, []);
 
   // Dismiss toast banner
