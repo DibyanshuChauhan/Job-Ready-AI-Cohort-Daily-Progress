@@ -1,5 +1,16 @@
+import dns from "dns";
 import mongoose from "mongoose";
 import config from "../../config/config.js";
+
+// Ensure Node.js DNS resolver can resolve MongoDB Atlas SRV records on Windows/restricted ISP networks
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+  if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder("ipv4first");
+  }
+} catch (error) {
+  console.warn("[MongoDB] Failed to set custom DNS servers, using system default:", error);
+}
 
 export class Database {
   private static isConnected = false;
