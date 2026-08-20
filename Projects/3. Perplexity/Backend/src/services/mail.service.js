@@ -1,15 +1,22 @@
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
+const authConfig = process.env.GOOGLE_APP_PASSWORD
+    ? {
+        user: process.env.GOOGLE_USER,
+        pass: process.env.GOOGLE_APP_PASSWORD
+    }
+    : {
         type: "OAuth2",
         user: process.env.GOOGLE_USER,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         clientId: process.env.GOOGLE_CLIENT_ID
-    }
-})
+    };
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: authConfig
+});
 
 transporter.verify()
 .then(() => { console.log("Email transporter is ready to send emails"); })
