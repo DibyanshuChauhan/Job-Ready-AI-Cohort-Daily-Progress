@@ -1,1 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-mono: "Space Grotesk", monospace;
+  --font-cinzel: "Cinzel", serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Custom Scrollbar styling matching the premium editorial design */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FBF9F6;
+  transition: background-color 0.5s ease;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #070708;
+}
+::-webkit-scrollbar-thumb {
+  background: #E4E2DB;
+  border: 2px solid #FBF9F6;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border: 2px solid #070708;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8C7E73;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #A1A1AA;
+}

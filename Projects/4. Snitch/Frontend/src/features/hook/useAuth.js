@@ -3,19 +3,35 @@ import { Register } from "../service/auth.api.js";
 import { useDispatch } from "react-redux";
 
 export const useAuth = () => {
-
     const dispatch = useDispatch();
     
     const handleRegister = async ({ email, contact, password, fullname, isSeller = false}) => {
-        const data = await Register({ 
-            email, 
-            contact, 
-            password, 
-            fullname, 
-            isSeller 
-        })
-        
-        dispatch(setUser(data.user))
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        try {
+            const data = await Register({ 
+                email, 
+                contact, 
+                password, 
+                fullname, 
+                isSeller 
+            });
+            
+            if (data && data.user) {
+                dispatch(setUser(data.user));
+                return { success: true, user: data.user };
+            } else {
+                const errMsg = data?.message || "Registration failed. Please check your credentials.";
+                dispatch(setError(errMsg));
+                return { success: false, error: errMsg };
+            }
+        } catch (error) {
+            const errMsg = error.response?.data?.message || error.message || "An unexpected error occurred.";
+            dispatch(setError(errMsg));
+            return { success: false, error: errMsg };
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     return { handleRegister }
