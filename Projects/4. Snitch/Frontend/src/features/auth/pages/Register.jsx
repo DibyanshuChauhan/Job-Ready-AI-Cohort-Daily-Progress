@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router';
 import { useAuth } from '../../hook/useAuth';
+import CustomCursor from '../../../shared/components/CustomCursor';
+import ThemeToggle from '../../../shared/components/ThemeToggle';
 
 const Register = () => {
   const { handleRegister } = useAuth();
@@ -19,81 +22,6 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [successData, setSuccessData] = useState(null);
-  const [theme, setTheme] = useState('dark');
-
-  // Custom Cursor State
-  const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
-  const [isHoveringClickable, setIsHoveringClickable] = useState(false);
-  const [isCursorVisible, setIsCursorVisible] = useState(false);
-
-  // Initialize theme from localStorage or system preference
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('snitch-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const activeTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    setTheme(activeTheme);
-    
-    if (activeTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  // Track Mouse Movement for Custom Cursor
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      if (!isCursorVisible) setIsCursorVisible(true);
-    };
-
-    const handleMouseLeave = () => {
-      setIsCursorVisible(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [isCursorVisible]);
-
-  // Set up hover states on interactive elements
-  useEffect(() => {
-    const addHoverEvents = () => {
-      const clickables = document.querySelectorAll(
-        'button, a, input, label, select, textarea, [role="button"], .cursor-pointer'
-      );
-      clickables.forEach((el) => {
-        el.addEventListener('mouseenter', () => setIsHoveringClickable(true));
-        el.addEventListener('mouseleave', () => setIsHoveringClickable(false));
-      });
-    };
-
-    const observer = new MutationObserver(addHoverEvents);
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    addHoverEvents();
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('snitch-theme', newTheme);
-    
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -146,31 +74,13 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-[#FBF9F6] dark:bg-[#070708] text-zinc-900 dark:text-zinc-100 transition-colors duration-700 font-sans selection:bg-zinc-900 selection:text-white dark:selection:bg-white dark:selection:text-black md:cursor-none">
-      
-      {/* Custom Mouse Cursor */}
-      {isCursorVisible && (
-        <>
-          {/* Inner cursor dot */}
-          <div 
-            className="fixed w-1.5 h-1.5 bg-white rounded-full pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 mix-blend-difference hidden md:block"
-            style={{ left: `${mousePos.x}px`, top: `${mousePos.y}px` }}
-          />
-          {/* Outer trailing circle */}
-          <div 
-            className={`fixed border border-white rounded-full pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out mix-blend-difference hidden md:block ${
-              isHoveringClickable ? 'w-10 h-10 bg-white/10 scale-110' : 'w-6 h-6'
-            }`}
-            style={{ 
-              left: `${mousePos.x}px`, 
-              top: `${mousePos.y}px`
-            }}
-          />
-        </>
-      )}
+
+      {/* Reusable Custom Mouse Cursor */}
+      <CustomCursor />
 
       {/* Editorial branding sidebar */}
       <div className="w-full lg:w-5/12 bg-[#F5F2EC] dark:bg-[#0E0E10] border-b lg:border-b-0 lg:border-r border-zinc-200/80 dark:border-zinc-800/30 flex flex-col justify-between p-8 md:p-16 lg:p-24 relative overflow-hidden transition-colors duration-700">
-        
+
         {/* Subtle geometric line pattern in background */}
         <div className="absolute inset-0 pointer-events-none opacity-5">
           <div className="absolute left-[10%] top-0 bottom-0 w-[1px] bg-zinc-900 dark:bg-white"></div>
@@ -183,7 +93,7 @@ const Register = () => {
           <span className="font-cinzel text-xs tracking-[0.4em] uppercase text-zinc-500 dark:text-zinc-400 block mb-8">
             ARCHIVE PROTOCOL
           </span>
-          <h1 className="font-cinzel text-5xl md:text-7xl font-semibold tracking-[0.15em] mb-4 text-zinc-950 dark:text-white">
+          <h1 className="font-cinzel text-5xl md:text-7xl font-semibold tracking-[0.15em] mb-4 text-zinc-955 dark:text-white">
             SNITCH
           </h1>
           <div className="h-[2px] w-12 bg-zinc-950 dark:bg-white mb-8"></div>
@@ -209,33 +119,13 @@ const Register = () => {
 
       {/* Main Form Area */}
       <div className="w-full lg:w-7/12 flex flex-col justify-between p-8 md:p-16 lg:p-24 relative">
-        
+
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-12 lg:mb-0">
           <div className="lg:hidden">
-            <span className="font-cinzel text-lg tracking-[0.2em] font-bold text-zinc-950 dark:text-white">SNITCH</span>
+            <span className="font-cinzel text-lg tracking-[0.2em] font-bold text-zinc-955 dark:text-white">SNITCH</span>
           </div>
-          <button 
-            onClick={toggleTheme}
-            className="ml-auto flex items-center space-x-2 font-mono text-[10px] tracking-[0.25em] text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white uppercase transition-colors py-2 px-3.5 border border-zinc-300 dark:border-zinc-800/40 rounded-full bg-transparent cursor-pointer"
-            aria-label="Toggle visual theme"
-          >
-            {theme === 'dark' ? (
-              <>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M5.036 5.036l1.591 1.591m10.744 10.744l1.591 1.591M3 12h2.25m13.5 0H21M5.036 18.964l1.591-1.591M16.78 7.22l1.591-1.591M12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5z" />
-                </svg>
-                <span>LUX PROTOCOL</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-                <span>NOX PROTOCOL</span>
-              </>
-            )}
-          </button>
+          <ThemeToggle />
         </div>
 
         {/* Form Container */}
@@ -248,13 +138,13 @@ const Register = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
-              <h2 className="font-cinzel text-3xl font-semibold tracking-wider mb-4 text-zinc-950 dark:text-white">
+              <h2 className="font-cinzel text-3xl font-semibold tracking-wider mb-4 text-zinc-955 dark:text-white">
                 ATELIER KEY GRANTED
               </h2>
               <p className="text-sm text-zinc-650 dark:text-zinc-400 mb-8 leading-relaxed font-sans">
                 Registration successful. Your signature profile is now registered with the Snitch digital archive.
               </p>
-              
+
               <div className="border border-zinc-200 dark:border-zinc-800/30 p-6 rounded-lg font-mono text-xs space-y-3 bg-[#F5F2EC]/40 dark:bg-[#0E0E10]/40">
                 <div className="flex justify-between border-b border-zinc-200 dark:border-zinc-800/30 pb-2">
                   <span className="text-zinc-500 dark:text-zinc-500">MEMBER NAME:</span>
@@ -276,18 +166,26 @@ const Register = () => {
                 </div>
               </div>
 
-              <button
-                onClick={() => setSuccessData(null)}
-                className="mt-8 font-mono text-xs tracking-widest border border-zinc-950 dark:border-white hover:bg-zinc-950 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 py-3.5 px-6 rounded-sm uppercase cursor-pointer"
-              >
-                Return to Entry
-              </button>
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => setSuccessData(null)}
+                  className="font-mono text-xs tracking-widest border border-zinc-950 dark:border-white hover:bg-zinc-950 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 py-3.5 px-6 rounded-sm uppercase cursor-pointer"
+                >
+                  Return to Entry
+                </button>
+                <Link
+                  to="/login"
+                  className="font-mono text-xs tracking-widest border border-zinc-300 dark:border-zinc-800 hover:border-zinc-950 dark:hover:border-white transition-all duration-300 py-3.5 px-6 rounded-sm uppercase text-center flex items-center justify-center cursor-pointer"
+                >
+                  Go to Login
+                </Link>
+              </div>
             </div>
           ) : (
             /* Registration Form */
             <form onSubmit={handleSubmit} className="space-y-8" noValidate>
               <div>
-                <h2 className="font-cinzel text-3xl font-semibold tracking-wider mb-2 text-zinc-950 dark:text-white">
+                <h2 className="font-cinzel text-3xl font-semibold tracking-wider mb-2 text-zinc-955 dark:text-white">
                   ATELIER REGISTRATION
                 </h2>
                 <p className="text-xs text-zinc-550 dark:text-zinc-400 font-mono tracking-wider uppercase mb-8">
@@ -306,7 +204,7 @@ const Register = () => {
               )}
 
               <div className="space-y-6">
-                
+
                 {/* Full Name */}
                 <div className="relative group">
                   <label htmlFor="fullname" className="text-[10px] font-mono tracking-[0.2em] text-zinc-500 dark:text-zinc-400 uppercase block mb-1">
@@ -320,7 +218,7 @@ const Register = () => {
                     required
                     value={formData.fullname}
                     onChange={handleInputChange}
-                    className="w-full bg-transparent border-b border-zinc-300 focus:border-zinc-950 dark:border-zinc-800 dark:focus:border-white py-2.5 outline-none transition-all duration-500 font-sans text-sm text-zinc-950 dark:text-white placeholder-zinc-400/80 dark:placeholder-zinc-650/80"
+                    className="w-full bg-transparent border-b border-zinc-300 focus:border-zinc-900 dark:border-zinc-800 dark:focus:border-white py-2.5 outline-none transition-all duration-500 font-sans text-sm text-zinc-900 dark:text-white placeholder-zinc-400/80 dark:placeholder-zinc-600/80"
                     placeholder="Enter your signature name"
                   />
                   <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-zinc-950 dark:bg-white group-focus-within:w-full transition-all duration-500"></div>
@@ -385,7 +283,7 @@ const Register = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors p-1"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-955 dark:text-zinc-400 dark:hover:text-white transition-colors p-1"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? (
@@ -400,7 +298,7 @@ const Register = () => {
                       )}
                     </button>
                   </div>
-                  <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-zinc-950 dark:bg-white group-focus-within:w-full transition-all duration-500"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-zinc-955 dark:bg-white group-focus-within:w-full transition-all duration-500"></div>
                 </div>
 
                 {/* Seller Flag - Premium Checkbox */}
@@ -415,13 +313,12 @@ const Register = () => {
                         onChange={handleInputChange}
                         className="sr-only" // Hide default checkbox to style our custom one
                       />
-                      <label 
-                        htmlFor="isSeller" 
-                        className={`w-5.5 h-5.5 border flex items-center justify-center rounded transition-all duration-300 cursor-pointer ${
-                          formData.isSeller 
-                            ? 'bg-zinc-950 border-zinc-950 dark:bg-white dark:border-white' 
+                      <label
+                        htmlFor="isSeller"
+                        className={`w-5.5 h-5.5 border flex items-center justify-center rounded transition-all duration-300 cursor-pointer ${formData.isSeller
+                            ? 'bg-zinc-950 border-zinc-955 dark:bg-white dark:border-white'
                             : 'border-zinc-400 dark:border-zinc-800 bg-transparent hover:border-zinc-950 dark:hover:border-white'
-                        }`}
+                          }`}
                       >
                         {formData.isSeller && (
                           <svg className="w-3.5 h-3.5 text-white dark:text-black animate-[popIn_0.2s_ease-out]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -448,11 +345,10 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full font-mono text-xs tracking-[0.3em] font-semibold py-4 border rounded-sm transition-all duration-500 select-none uppercase cursor-pointer flex items-center justify-center space-x-2 ${
-                    loading 
-                      ? 'bg-transparent border-zinc-200 text-zinc-400 dark:border-zinc-800 dark:text-zinc-600 cursor-not-allowed' 
+                  className={`w-full font-mono text-xs tracking-[0.3em] font-semibold py-4 border rounded-sm transition-all duration-500 select-none uppercase cursor-pointer flex items-center justify-center space-x-2 ${loading
+                      ? 'bg-transparent border-zinc-200 text-zinc-400 dark:border-zinc-800 dark:text-zinc-600 cursor-not-allowed'
                       : 'bg-zinc-950 text-white border-zinc-950 hover:bg-transparent hover:text-zinc-950 dark:bg-white dark:text-black dark:border-white dark:hover:bg-transparent dark:hover:text-white'
-                  }`}
+                    }`}
                 >
                   {loading ? (
                     <>
@@ -465,6 +361,17 @@ const Register = () => {
                   )}
                 </button>
               </div>
+
+              {/* Redirect Link to Login page */}
+              <div className="mt-4 text-center font-mono text-[10px] tracking-widest uppercase">
+                <span className="text-zinc-500">Already registered? </span>
+                <Link
+                  to="/login"
+                  className="text-zinc-900 dark:text-white border-b border-zinc-900 dark:border-white hover:border-transparent transition-all pb-0.5 cursor-pointer"
+                >
+                  Sign in
+                </Link>
+              </div>
             </form>
           )}
         </div>
@@ -476,27 +383,10 @@ const Register = () => {
             <span className="hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer">ARCHIVE COLLECTION</span>
             <span>/</span>
             <span className="hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer">TERMS & VALUES</span>
-          </div>
         </div>
       </div>
-      
-      {/* Custom Styles for Keyframe Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-          0% { transform: scale(0.6); opacity: 0; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px); }
-          75% { transform: translateX(4px); }
-        }
-      `}</style>
     </div>
+  </div>
   );
 };
 
