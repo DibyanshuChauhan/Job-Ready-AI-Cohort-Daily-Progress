@@ -14,7 +14,6 @@ const sendTokenResponse = async (user, res, message) => {
     res.status(200).json({
         message,
         success: true,
-        token,
         user: {
             id: user._id,
             email: user.email,
@@ -40,9 +39,9 @@ export const registerUser = async (req, res) => {
             })
         }
         const newUser = await UserModel.create({
-            email, 
-            contact, 
-            password, 
+            email,
+            contact,
+            password,
             fullname,
             role: isSeller ? "seller" : "buyer"
         })
